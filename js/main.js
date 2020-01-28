@@ -9,7 +9,7 @@ function init() {
 
   //////////Задал основные константы///////
   //база цветов//
-  let colors = ["white", "deeppink", "red", "gold", "yellow", "lime", "mediumspringgreen", "lightseagreen", "blue", "purple"]
+  let colors = [0xFFFFFF, 0xE4388C, 0xE4221B, 0xFF7F00, 0xFFED00, 0x008739, 0x02A7AA, 0x47B3E7, 0x2A4B9B, 0x702283]
 
   let input_string = prompt("Введите цифры", '')
   // let input_string = "0123456789"
@@ -21,7 +21,7 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////  
   //добавил сцену
   scene = new THREE.Scene();
-  scene.background = new THREE.Color( "whitesmoke" ) //задал сцене задний фон
+  scene.background = new THREE.Color( "white" ) //задал сцене задний фон
 
   //настроил параметры камеры
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
