@@ -50,8 +50,6 @@ function init() {
   //фибоначи на нулевой куб
   input_nums[0] = to_one_digit(input_nums[0])
 
-  console.log(input_nums)
-
   ///////////////////////////////////////////////////////////////////////////  
   //добавил сцену
   scene = new THREE.Scene();
