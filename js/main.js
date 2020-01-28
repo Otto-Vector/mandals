@@ -12,10 +12,40 @@ function init() {
   let colors = ["white", "deeppink", "red", "gold", "yellow", "lime", "mediumspringgreen", "lightseagreen", "blue", "purple"]
 
   // let input_string = prompt("Введите цифры", '')
-  let input_string = "123456789"
+  let input_string = "0123456789"
   let input_nums = [];
   for (let i=0; i<input_string.length; i++)
     input_nums[i] = parseInt(input_string[i])
+
+
+  ///////////////////////////////////////////////////////////////////////////  
+  //добавил сцену
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color( "whitesmoke" ) //задал сцене задний фон
+
+  //настроил параметры камеры
+  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
+  camera.position.set( 0, 0, 50 ) //позиция камеры
+  camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
+
+  //выбрал рендер
+  renderer = new THREE.WebGLRenderer()
+  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
+
+  //добавление скрипта к документу в тег
+  document.body.appendChild( renderer.domElement )
+  //при динамическом изменении размера окна
+  window.addEventListener('resize', onWindowResize, false)
+
+  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ
+  // также активация внутри функции render() и onwindowresize() строкой controls.update()
+  controls = new THREE.OrbitControls (camera, renderer.domElement);
+  controls.minDistance = 1
+  controls.maxDistance = 80
+
+
+  ////////////////////////////////////////////////////////
 
   // функция числа фибоначчи
   let to_one_digit = (digit) => {
@@ -30,6 +60,49 @@ function init() {
 
   }
 
+
+  ///////////////////////////////////////////////////////////////////////////////
+  //добавляем куб
+  let cubeGeom = new THREE.CubeGeometry(1,1,1);
+
+  //нулевой куб в центре оси
+  let cubeMaterial_zero = new THREE.MeshBasicMaterial({color: colors[input_nums[0]] })
+  let cube_zero = new THREE.Mesh(cubeGeom,cubeMaterial_zero)
+  cube_zero.position.set(0,0,0)
+  scene.add(cube_zero)
+
+  //сборка осей по 6 направлениям
+
+  let axis = {  "x" : [],
+                "y" : [],
+                "z" : [],
+                "mx": [],
+                "my": [],
+                "mz": []
+              }
+
+  let construct = (axis, material, x, y, z) => {
+    axis = new THREE.Mesh(cubeGeom,material);
+    axis.position.set(x,y,z)
+    scene.add(axis)
+    return axis
+  }
+
+  for (let i=1; i < input_string.length; i++) {
+    let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] })
+
+    axis.x[i] = construct(axis.x[i], cubeMaterial, 0+i,0,0)
+    axis.y[i] = construct(axis.y[i], cubeMaterial, 0,0+i,0)
+    axis.z[i] = construct(axis.z[i], cubeMaterial, 0,0,0+i)
+
+    axis.mx[i] = construct(axis.mx[i], cubeMaterial, 0-i,0,0)
+    axis.my[i] = construct(axis.my[i], cubeMaterial, 0,0-i,0)
+    axis.mz[i] = construct(axis.mz[i], cubeMaterial, 0,0,0-i)
+
+  }
+
+
+////////пластина мандалы из кубов//////////////////////////////////////////////////
   //задаём основной цифровой массив мандалы 
   var plane_of_colors = []
   //сначала назначаем ось
@@ -41,96 +114,15 @@ function init() {
   //высчитываем мандалу 
   for (let y=1; y < input_string.length; y++)
     for (var x = 1; x < input_string.length; x++) {
+
       let fibbo_number = to_one_digit( plane_of_colors[y-1][x] +
                                        plane_of_colors[y][x-1] +
                                        plane_of_colors[y-1][x-1])
       plane_of_colors[y].push(fibbo_number)
+
     }
 
-  // console.log(plane_of_colors);
-  ///////////////////////////////////////////////////////////////////////////  
-  //добавил сцену
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color( "whitesmoke" ) //задал сцене задний фон
-
-  //настроил параметры камеры
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 80 )
-  camera.position.set( 0, 0, 150 ) //позиция камеры
-  camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
-
-  //выбрал рендер
-  renderer = new THREE.WebGLRenderer()
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
-
-  //добавление скрипта к документу в тег
-  document.body.appendChild( renderer.domElement )
-
-  window.addEventListener('resize', onWindowResize, false)
-
-  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ
-  // также активация внутри функции render() и onwindowresize() строкой controls.update()
-  controls = new THREE.OrbitControls (camera, renderer.domElement);
-  controls.minDistance = 1
-  controls.maxDistance = 80
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //добавляем куб
-  var x_cube = []
-  let cubeGeom = new THREE.CubeGeometry(1,1,1);
-
-  for (let i=0; i < input_string.length; i++) {
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] });
-    x_cube[i] = new THREE.Mesh(cubeGeom,cubeMaterial);
-    x_cube[i].position.set(0+i,0,0)
-    //добавление объекта на сцену
-    scene.add(x_cube[i])
-  }
-
-  let y_cube = []
-  for (let i=1; i < input_string.length; i++) {
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: x_cube[i].material.color});
-    y_cube[i] = new THREE.Mesh(cubeGeom,cubeMaterial);
-    y_cube[i].position.set(0,0+i,0)
-    scene.add(y_cube[i])
-  }
-
-   let z_cube = []
-  for (let i=1; i < input_string.length; i++) {
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: x_cube[i].material.color});
-    z_cube[i] = new THREE.Mesh(cubeGeom,cubeMaterial);
-    z_cube[i].position.set(0,0,0+i)
-    scene.add(z_cube[i])
-  }
-
-  let mx_cube = []
-  for (let i=1; i < input_string.length; i++) {
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: x_cube[i].material.color});
-    mx_cube[i] = new THREE.Mesh(cubeGeom,cubeMaterial);
-    mx_cube[i].position.set(0-i,0,0)
-    scene.add(mx_cube[i])
-  }
-
-  let my_cube = []
-  for (let i=1; i < input_string.length; i++) {
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: x_cube[i].material.color});
-    my_cube[i] = new THREE.Mesh(cubeGeom,cubeMaterial);
-    my_cube[i].position.set(0,0-i,0)
-    scene.add(my_cube[i])
-  }
-
-  let mz_cube = []
-  for (let i=1; i < input_string.length; i++) {
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: x_cube[i].material.color});
-    mz_cube[i] = new THREE.Mesh(cubeGeom,cubeMaterial);
-    mz_cube[i].position.set(0,0,0-i)
-    scene.add(mz_cube[i])
-  }
-
-
-
-
-////////пластина мандалы из кубов//////////////////////////////////////////////////
+  //пластина кубов
   let plain_cube = []
   for (var y = 1; y < input_string.length; y++) {
     plain_cube[y] = []
