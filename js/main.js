@@ -1,12 +1,15 @@
 
 window.onload = init
 
-var scene, camera, renderer, domEvents, controls
-var mmm = new Array()
 
-  //////////////////////////////////////////////////////////
-  // универсальная функция числа фибоначчи
-  let to_one_digit = (digit) => {
+///////////////////////////////////////////////////////////////
+var scene, camera, renderer, domEvents, controls
+
+const cubeGeom = new THREE.CubeGeometry(1,1,1); //размеры кубов
+
+//////////////////////////////////////////////////////////
+// универсальная функция числа фибоначчи
+const to_one_digit = (digit) => {
 
     let string_of_digits = digit.toString()
     digit = 0
@@ -17,7 +20,14 @@ var mmm = new Array()
     return (digit > 9) ? to_one_digit(digit) : digit
 
   }
+//функция конструктора объектов
+const axis_construct = plane_construct = (axis, material, x, y, z) => {
+    axis = new THREE.Mesh(cubeGeom,material);
+    axis.position.set(x,y,z)
+    scene.add(axis)
+  }
 
+///////////////////////////////////////////////////////////////////////////////
 function init() {
 
   //////////Задал основные константы///////
@@ -32,13 +42,15 @@ function init() {
   let input_nums = [];
   input_nums[0] = 0 //цвет для нулевого куба
 
-  for (let i=1; i<input_string.length; i++) {
-    input_nums[i] = parseInt(input_string[i])
+  for (let i=1; i <= input_string.length; i++) {
+    input_nums[i] = parseInt(input_string[i-1])
     input_nums[0] += input_nums[i]; //сумма для цвета числа в центре
   }
 
   //фибоначи на нулевой куб
   input_nums[0] = to_one_digit(input_nums[0])
+
+  console.log(input_nums)
 
   ///////////////////////////////////////////////////////////////////////////  
   //добавил сцену
@@ -66,19 +78,8 @@ function init() {
   controls.minDistance = 1
   controls.maxDistance = 80
 
-
-  ////////////////////////////////////////////////////////
-
-  //функция конструктора объектов
-  let axis_construct = plane_construct = (axis, material, x, y, z) => {
-    axis = new THREE.Mesh(cubeGeom,material);
-    axis.position.set(x,y,z)
-    scene.add(axis)
-  }
-
   ///////////////////////////////////////////////////////////////////////////////
   //добавляем куб
-  let cubeGeom = new THREE.CubeGeometry(1,1,1);
 
   //нулевой куб в центре оси
   let cubeMaterial_zero = new THREE.MeshBasicMaterial({color: colors[input_nums[0]] })
@@ -96,7 +97,7 @@ function init() {
               }
 
 
-  for (let i=1; i < input_string.length; i++) {
+  for (let i=1; i <= input_string.length; i++) {
     let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] })
 
     axis_construct(axis.x[i], cubeMaterial, 0+i,0,0)
@@ -115,13 +116,13 @@ function init() {
   var plane_of_colors = []
   //сначала назначаем ось
     plane_of_colors[0] = input_nums
-  for (let i=1; i < input_string.length; i++) {
+  for (let i=1; i <= input_string.length; i++) {
     plane_of_colors[i] = [plane_of_colors[0][i]]
   }
 
   //высчитываем мандалу 
-  for (let y=1; y < input_string.length; y++)
-    for (var x = 1; x < input_string.length; x++) {
+  for (let y=1; y <= input_string.length; y++)
+    for (var x = 1; x <= input_string.length; x++) {
 
       let fibbo_number = to_one_digit( plane_of_colors[y-1][x] +
                                        plane_of_colors[y][x-1] +
@@ -134,12 +135,12 @@ function init() {
   //задание объекта
   let plain_x_cube = []
   //углубление массива
-  for (var y = 1; y < input_string.length; y++) {
+  for (var y = 1; y <= input_string.length; y++) {
     plain_x_cube[y] = []
   }
   //отрисовка
-  for (let y = 1; y < input_string.length; y++) {
-    for (let x = 1; x < input_string.length; x++) {
+  for (let y = 1; y <= input_string.length; y++) {
+    for (let x = 1; x <= input_string.length; x++) {
       let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[plane_of_colors[y][x]]});
 
       plane_construct(plain_x_cube[y][x], cubeMaterial, y, x, 0)
@@ -218,8 +219,6 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth-4, window.innerHeight-4)
-
-  console.log(camera.position)
 
   controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
 
