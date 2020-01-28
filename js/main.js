@@ -4,6 +4,19 @@ window.onload = init
 var scene, camera, renderer, domEvents, controls
 var mmm = new Array()
 
+  //////////////////////////////////////////////////////////
+  // универсальная функция числа фибоначчи
+  let to_one_digit = (digit) => {
+
+    let string_of_digits = digit.toString()
+    digit = 0
+
+    for (let i=0; i < string_of_digits.length; i++)
+      digit += parseInt(string_of_digits[i])
+
+    return (digit > 9) ? to_one_digit(digit) : digit
+
+  }
 
 function init() {
 
@@ -11,12 +24,21 @@ function init() {
   //база цветов//
   let colors = [0xFFFFFF, 0xE4388C, 0xE4221B, 0xFF7F00, 0xFFED00, 0x008739, 0x02A7AA, 0x47B3E7, 0x2A4B9B, 0x702283]
 
+  //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите цифры", '')
   // let input_string = "0123456789"
-  let input_nums = [];
-  for (let i=0; i<input_string.length; i++)
-    input_nums[i] = parseInt(input_string[i])
 
+  //перевод строки в массив чисел для корректных подсчётов
+  let input_nums = [];
+  input_nums[0] = 0 //цвет для нулевого куба
+
+  for (let i=1; i<input_string.length; i++) {
+    input_nums[i] = parseInt(input_string[i])
+    input_nums[0] += input_nums[i]; //сумма для цвета числа в центре
+  }
+
+  //фибоначи на нулевой куб
+  input_nums[0] = to_one_digit(input_nums[0])
 
   ///////////////////////////////////////////////////////////////////////////  
   //добавил сцену
@@ -46,19 +68,6 @@ function init() {
 
 
   ////////////////////////////////////////////////////////
-
-  // функция числа фибоначчи
-  let to_one_digit = (digit) => {
-
-    let string_of_digits = digit.toString()
-    digit = 0
-
-    for (let i=0; i < string_of_digits.length; i++)
-      digit += parseInt(string_of_digits[i])
-
-    return (digit > 9) ? to_one_digit(digit) : digit
-
-  }
 
   //функция конструктора объектов
   let axis_construct = plane_construct = (axis, material, x, y, z) => {
