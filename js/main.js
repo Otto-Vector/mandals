@@ -11,8 +11,8 @@ function init() {
   //база цветов//
   let colors = ["white", "deeppink", "red", "gold", "yellow", "lime", "mediumspringgreen", "lightseagreen", "blue", "purple"]
 
-  // let input_string = prompt("Введите цифры", '')
-  let input_string = "0123456789"
+  let input_string = prompt("Введите цифры", '')
+  // let input_string = "0123456789"
   let input_nums = [];
   for (let i=0; i<input_string.length; i++)
     input_nums[i] = parseInt(input_string[i])
