@@ -25,7 +25,7 @@ function init() {
 
   //настроил параметры камеры
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
-  camera.position.set( 0, 0, 50 ) //позиция камеры
+  camera.position.set( -45, 45, 45 ) //позиция камеры
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -60,6 +60,12 @@ function init() {
 
   }
 
+  //функция конструктора объектов
+  let axis_construct = plane_construct = (axis, material, x, y, z) => {
+    axis = new THREE.Mesh(cubeGeom,material);
+    axis.position.set(x,y,z)
+    scene.add(axis)
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //добавляем куб
@@ -72,7 +78,6 @@ function init() {
   scene.add(cube_zero)
 
   //сборка осей по 6 направлениям
-
   let axis = {  "x" : [],
                 "y" : [],
                 "z" : [],
@@ -81,29 +86,23 @@ function init() {
                 "mz": []
               }
 
-  let construct = (axis, material, x, y, z) => {
-    axis = new THREE.Mesh(cubeGeom,material);
-    axis.position.set(x,y,z)
-    scene.add(axis)
-    return axis
-  }
 
   for (let i=1; i < input_string.length; i++) {
     let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] })
 
-    axis.x[i] = construct(axis.x[i], cubeMaterial, 0+i,0,0)
-    axis.y[i] = construct(axis.y[i], cubeMaterial, 0,0+i,0)
-    axis.z[i] = construct(axis.z[i], cubeMaterial, 0,0,0+i)
+    axis_construct(axis.x[i], cubeMaterial, 0+i,0,0)
+    axis_construct(axis.y[i], cubeMaterial, 0,0+i,0)
+    axis_construct(axis.z[i], cubeMaterial, 0,0,0+i)
 
-    axis.mx[i] = construct(axis.mx[i], cubeMaterial, 0-i,0,0)
-    axis.my[i] = construct(axis.my[i], cubeMaterial, 0,0-i,0)
-    axis.mz[i] = construct(axis.mz[i], cubeMaterial, 0,0,0-i)
+    axis_construct(axis.mx[i], cubeMaterial, 0-i,0,0)
+    axis_construct(axis.my[i], cubeMaterial, 0,0-i,0)
+    axis_construct(axis.mz[i], cubeMaterial, 0,0,0-i)
 
   }
 
 
 ////////пластина мандалы из кубов//////////////////////////////////////////////////
-  //задаём основной цифровой массив мандалы 
+  //задаём основной цифро-световой массив мандалы
   var plane_of_colors = []
   //сначала назначаем ось
     plane_of_colors[0] = input_nums
@@ -122,25 +121,28 @@ function init() {
 
     }
 
-  //пластина кубов
-  let plain_cube = []
+  ////////пластина кубов/////////////
+  //задание объекта
+  let plain_x_cube = []
+  //углубление массива
   for (var y = 1; y < input_string.length; y++) {
-    plain_cube[y] = []
+    plain_x_cube[y] = []
   }
+  //отрисовка
   for (let y = 1; y < input_string.length; y++) {
     for (let x = 1; x < input_string.length; x++) {
       let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[plane_of_colors[y][x]]});
 
-      plain_cube[y][x] = new THREE.Mesh(cubeGeom,cubeMaterial);
-      plain_cube[y][x].position.set(y,x,0)
+      plane_construct(plain_x_cube[y][x], cubeMaterial, y, x, 0)
+      plane_construct(plain_x_cube[y][x], cubeMaterial, y, 0, x)
+      plane_construct(plain_x_cube[y][x], cubeMaterial, 0, -y, x)
 
-      scene.add(plain_cube[y][x])
+      plane_construct(plain_x_cube[y][x], cubeMaterial, -y, -x, 0)
+      plane_construct(plain_x_cube[y][x], cubeMaterial, -y, 0, -x)
+      plane_construct(plain_x_cube[y][x], cubeMaterial, 0, y, -x)
+
     }
   }
-
-
-
-
 
 
   ////анимация объектов////////////////////
@@ -155,19 +157,11 @@ function init() {
 
   function render() {
 
-    // //задание значений для поворота объекта
-    // function rotation( name_of_object, x, y, speed ) {
-    
-    //   name_of_object.rotation.x += x/1000*speed
-    //   name_of_object.rotation.y += y/1000*speed
-
-    // }
-
-    //   rotation( cube, 1, 2, 10 )
 
     controls.update() //манипуляция со сценой
 
     renderer.render( scene, camera )
+
 
     }
 
@@ -215,6 +209,8 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth-4, window.innerHeight-4)
+
+  console.log(camera.position)
 
   controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
 
