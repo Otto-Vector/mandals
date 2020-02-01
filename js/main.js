@@ -2,13 +2,13 @@
 window.onload = init
 
 
-///////////////////////////////////////////////////////////////
+/////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
 
 const cubeGeom = new THREE.CubeGeometry(1,1,1); //размеры кубов
 
 //////////////////////////////////////////////////////////
-// универсальная функция числа фибоначчи
+// универсальная функция числа фибоначчи/////////////////
 const to_one_digit = (digit) => {
 
     let string_of_digits = digit.toString()
@@ -20,11 +20,12 @@ const to_one_digit = (digit) => {
     return (digit > 9) ? to_one_digit(digit) : digit
 
   }
-//функция конструктора объектов
-const axis_construct = plane_construct = (axis, material, x, y, z) => {
-    axis = new THREE.Mesh(cubeGeom,material);
-    axis.position.set(x,y,z)
-    scene.add(axis)
+//////////функция конструктора объектов//////
+///передаётся объект, материал для него и координаты
+const axis_construct = plane_construct = (cubus, material, x, y, z) => {
+    cubus = new THREE.Mesh(cubeGeom,material);
+    cubus.position.set(x,y,z)
+    scene.add(cubus)
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,7 +40,7 @@ function init() {
   // let input_string = "0123456789"
 
   //перевод строки в массив чисел для корректных подсчётов
-  let input_nums = [];
+  let input_nums = []
   input_nums[0] = 0 //цвет для нулевого куба
 
   for (let i=1; i <= input_string.length; i++) {
@@ -52,7 +53,7 @@ function init() {
 
   ///////////////////////////////////////////////////////////////////////////  
   //добавил сцену
-  scene = new THREE.Scene();
+  scene = new THREE.Scene()
   scene.background = new THREE.Color( "white" ) //задал сцене задний фон
 
   //настроил параметры камеры
@@ -72,7 +73,7 @@ function init() {
 
   ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
-  controls = new THREE.OrbitControls (camera, renderer.domElement);
+  controls = new THREE.OrbitControls (camera, renderer.domElement)
   controls.minDistance = 1
   controls.maxDistance = 80
 
@@ -94,7 +95,6 @@ function init() {
                 "mz": []
               }
 
-
   for (let i=1; i <= input_string.length; i++) {
     let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] })
 
@@ -112,13 +112,14 @@ function init() {
 ////////пластина мандалы из кубов//////////////////////////////////////////////////
   //задаём основной цифро-световой массив мандалы
   var plane_of_colors = []
-  //сначала назначаем ось
+  //сначала назначаем ось по горизонтали
     plane_of_colors[0] = input_nums
+  //и зеркально по вертикали
   for (let i=1; i <= input_string.length; i++) {
     plane_of_colors[i] = [plane_of_colors[0][i]]
   }
 
-  //высчитываем мандалу 
+  //высчитываем мандалу на основе заданных осей (массивы от 1)
   for (let y=1; y <= input_string.length; y++)
     for (var x = 1; x <= input_string.length; x++) {
 
@@ -136,7 +137,7 @@ function init() {
   for (var y = 1; y <= input_string.length; y++) {
     plain_x_cube[y] = []
   }
-  //отрисовка
+  //отрисовка панелей
   for (let y = 1; y <= input_string.length; y++) {
     for (let x = 1; x <= input_string.length; x++) {
       let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[plane_of_colors[y][x]]});
