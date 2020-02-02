@@ -41,8 +41,8 @@ function init() {
   let colors = [0xFFFFFF, 0xE4388C, 0xE4221B, 0xFF7F00, 0xFFED00, 0x008739, 0x02A7AA, 0x47B3E7, 0x2A4B9B, 0x702283]
 
   //ввод цифр для расчёта мандалы
-  let input_string = prompt("Введите цифры", '')
-  // let input_string = "0123456789"
+  // let input_string = prompt("Введите цифры", '')
+  let input_string = "0123456789"
 
   //перевод строки в массив чисел для корректных подсчётов
   let input_nums = []
@@ -63,7 +63,8 @@ function init() {
 
   //настроил параметры камеры
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
-  camera.position.set( -45, 45, 45 ) //позиция камеры
+  // camera.position.set( -45, 45, 45 ) //позиция камеры
+  camera.position.set( -45, -45, -45 ) //позиция камеры
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -103,9 +104,9 @@ function init() {
     axis[1].push( axis_construct(cubeGeom, cubeMaterial, 0,0+i,0, color_n) )
     axis[2].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0+i, color_n) )
 
-    axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0, color_n) )
-    axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0, color_n) )
-    axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i, color_n) )
+    // axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0, color_n) )
+    // axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0, color_n) )
+    // axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i, color_n) )
 
   }
 
@@ -150,11 +151,13 @@ function init() {
 
       plain_x_cube[0][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, x, 0, color_n) )
       plain_x_cube[1][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, 0, x, color_n) )
-      plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x, color_n) )
+      plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, x, color_n) )
 
-      plain_x_cube[3][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0, color_n) )
-      plain_x_cube[4][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x, color_n) )
-      plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x, color_n) )
+      // plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x, color_n) )
+
+      // plain_x_cube[3][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0, color_n) )
+      // plain_x_cube[4][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x, color_n) )
+      // plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x, color_n) )
 
     }
   }
