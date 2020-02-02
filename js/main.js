@@ -5,6 +5,8 @@ window.onload = init
 /////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
 
+var value_default = 3 //задаёт две разные мандалы (пока на 3 и на 6 пластин)
+
 //////////////////////////////////////////////////////////
 // универсальная функция числа фибоначчи/////////////////
 const to_one_digit = (digit) => {
@@ -19,10 +21,9 @@ const to_one_digit = (digit) => {
 
   }
 //////////функция конструктора объектов//////
-///передаётся объект, материал для него и координаты
+///передаётся объект, материал для него, координаты и номер цвета
 const axis_construct = plane_construct = (geo, material, x, y, z, colornum) => {
-    let cubus
-    cubus = new THREE.Mesh(geo,material)
+    let cubus = new THREE.Mesh(geo,material)
     cubus.position.set(x,y,z)
     cubus.colornum = colornum //идентификатор для отбора объектов по значению
     scene.add(cubus)
@@ -63,8 +64,8 @@ function init() {
 
   //настроил параметры камеры
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
-  // camera.position.set( -45, 45, 45 ) //позиция камеры
-  camera.position.set( -45, -45, -45 ) //позиция камеры
+  if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
+  if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -84,7 +85,7 @@ function init() {
   controls.maxDistance = 80
 
   ///////////////////////////////////////////////////////////////////////////////
-  //добавляем куб
+  //добавляем ось
 
   //нулевой куб в центре оси
   let cubeMaterial_zero = new THREE.MeshBasicMaterial({color: colors[input_nums[0]] })
@@ -98,16 +99,15 @@ function init() {
 
   for (let i = 1; i <= input_string.length; i++) {
     let color_n = input_nums[i]
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] })
+    let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[color_n] })
 
     axis[0].push( axis_construct(cubeGeom, cubeMaterial, 0+i,0,0, color_n) )
     axis[1].push( axis_construct(cubeGeom, cubeMaterial, 0,0+i,0, color_n) )
     axis[2].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0+i, color_n) )
 
-    // axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0, color_n) )
-    // axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0, color_n) )
-    // axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i, color_n) )
-
+    if ( value_default == 6 ) axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0, color_n) )
+    if ( value_default == 6 ) axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0, color_n) )
+    if ( value_default == 6 ) axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i, color_n) )
   }
 
 
@@ -135,32 +135,90 @@ function init() {
   ////////пластина кубов/////////////
   //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   let plain_x_cube = []
+  for (var y = 0; y < 6; y++) {
   // углубление массива на 2 уровень
-  for (var y = 0; y < 6; y++) plain_x_cube[y] = []
-  // углубление массива 3 уровень
-  for (var y = 0; y < 6; y++) 
+    plain_x_cube[y] = []
     for (var x = 0; x < input_string.length; x++) 
+  // углубление массива 3 уровень
       plain_x_cube[y][x] = []
+  }
 
   //отрисовка панелей
   for (let y = 1; y <= input_string.length; y++) {
     for (let x = 1; x <= input_string.length; x++) {
 
       let color_n = plane_of_colors[y][x]
-      let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[plane_of_colors[y][x]]});
+      let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[color_n]});
 
       plain_x_cube[0][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, x, 0, color_n) )
       plain_x_cube[1][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, 0, x, color_n) )
 
-      plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, x, color_n) )
+      if (value_default == 3) plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, x, color_n) )
 
-      // plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x, color_n) )
-      // plain_x_cube[3][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0, color_n) )
-      // plain_x_cube[4][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x, color_n) )
-      // plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x, color_n) )
+      if (value_default == 6) plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x, color_n) )
+      if (value_default == 6) plain_x_cube[3][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0, color_n) )
+      if (value_default == 6) plain_x_cube[4][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x, color_n) )
+      if (value_default == 6) plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x, color_n) )
 
     }
   }
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+  let plane_of_colors_for = []
+
+  //функция для перебора значений colornum
+    let planes= (value)=> {
+      let plane_z=[]
+      for (let i=0; i < value.length; i++)
+        plane_z.push(value[i].colornum)
+      return plane_z
+    }
+  //сначала назначаем ось по горизонтали
+    plane_of_colors_for[0] = [axis[0][0].colornum, ...planes(plain_x_cube[0][0])]
+
+  //и зеркально по вертикали
+  for (let i=1; i < plane_of_colors_for[0].length; i++) {
+    plane_of_colors_for[i] = [plane_of_colors_for[0][i]]
+  }
+
+  // высчитываем слой мандалы на основе заданных осей (массивы от 1)
+  for (let y=1; y <= input_string.length; y++)
+    for (var x = 1; x <= input_string.length; x++) {
+
+      let fibbo_number = to_one_digit( plane_of_colors_for[y-1][x] +
+                                       plane_of_colors_for[y][x-1] +
+                                       plane_of_colors_for[y-1][x-1])
+      plane_of_colors_for[y].push(fibbo_number)
+
+    }
+
+
+  for (let y = 1; y <= input_string.length; y++) {
+    for (let x = 1; x <= input_string.length; x++) {
+
+      let color_n = plane_of_colors_for[y-1][x-1]
+      let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[color_n]});
+      plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, 1, x, color_n) )
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
   ////анимация объектов////////////////////
   animate()
