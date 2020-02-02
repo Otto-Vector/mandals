@@ -20,10 +20,11 @@ const to_one_digit = (digit) => {
   }
 //////////функция конструктора объектов//////
 ///передаётся объект, материал для него и координаты
-const axis_construct = plane_construct = (geo, material, x, y, z) => {
+const axis_construct = plane_construct = (geo, material, x, y, z, colornum) => {
     let cubus
     cubus = new THREE.Mesh(geo,material)
     cubus.position.set(x,y,z)
+    cubus.colornum = colornum //идентификатор для отбора объектов по значению
     scene.add(cubus)
     return cubus
   }
@@ -94,16 +95,17 @@ function init() {
   let axis = []
   for (let i = 0; i < 6; i++) axis[i] = []
 
-  for (let i=1; i <= input_string.length; i++) {
+  for (let i = 1; i <= input_string.length; i++) {
+    let color_n = input_nums[i]
     let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] })
 
-    axis[0].push( axis_construct(cubeGeom, cubeMaterial, 0+i,0,0) )
-    axis[1].push( axis_construct(cubeGeom, cubeMaterial, 0,0+i,0) )
-    axis[2].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0+i) )
+    axis[0].push( axis_construct(cubeGeom, cubeMaterial, 0+i,0,0, color_n) )
+    axis[1].push( axis_construct(cubeGeom, cubeMaterial, 0,0+i,0, color_n) )
+    axis[2].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0+i, color_n) )
 
-    axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0) )
-    axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0) )
-    axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i) )
+    axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0, color_n) )
+    axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0, color_n) )
+    axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i, color_n) )
 
   }
 
@@ -132,37 +134,30 @@ function init() {
   ////////пластина кубов/////////////
   //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   let plain_x_cube = []
-  let plain_y_cube = []
-  let plain_z_cube = []
-  let plain_mx_cube = []
-  let plain_my_cube = []
-  let plain_mz_cube = [[]]
+  // углубление массива на 2 уровень
+  for (var y = 0; y < 6; y++) plain_x_cube[y] = []
+  // углубление массива 3 уровень
+  for (var y = 0; y < 6; y++) 
+    for (var x = 0; x < input_string.length; x++) 
+      plain_x_cube[y][x] = []
 
-  // углубление массива
-  for (var y = 1; y <= input_string.length; y++) {
-    plain_x_cube[y] = []
-    plain_y_cube[y] = []
-    plain_z_cube[y] = []
-    plain_mx_cube[y] = []
-    plain_my_cube[y] = []
-    plain_mz_cube[y] = []
-  }
   //отрисовка панелей
   for (let y = 1; y <= input_string.length; y++) {
     for (let x = 1; x <= input_string.length; x++) {
+
+      let color_n = plane_of_colors[y][x]
       let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[plane_of_colors[y][x]]});
 
-      plain_x_cube[y].push( plane_construct(cubeGeom, cubeMaterial, y, x, 0) )
-      plain_y_cube[y].push( plane_construct(cubeGeom, cubeMaterial, y, 0, x) )
-      plain_z_cube[y].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x) )
+      plain_x_cube[0][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, x, 0, color_n) )
+      plain_x_cube[1][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, 0, x, color_n) )
+      plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x, color_n) )
 
-      plain_mx_cube[y].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0) )
-      plain_my_cube[y].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x) )
-      plain_mz_cube[y].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x) )
+      plain_x_cube[3][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0, color_n) )
+      plain_x_cube[4][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x, color_n) )
+      plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x, color_n) )
 
     }
   }
-  console.log(plain_mz_cube)
 
   ////анимация объектов////////////////////
   animate()
@@ -186,38 +181,32 @@ function init() {
 
 
   ///////// применил отслеживание по клику с помощью библиотеки threex.domevents.js ////////
-  // var domEvents = new THREEx.DomEvents(camera, renderer.domElement)
-
-  // //назначил перебором отслеживание событий на каждую сферу
-  // for (let n = 0; n < cubes_maximum; n++) //перебор по количеству собранных кубов
-  //   for (let sphere_num = 0; sphere_num < spheres[n].length; sphere_num++)
-  //     domEvents.addEventListener( spheres[n][sphere_num], 'mousedown', (event)=> {spheres_color_to_edges(event)})
+  var domEvents = new THREEx.DomEvents(camera, renderer.domElement)
 
 
-  // //функция перекраски рёбер в найденой в domEvents
-  // var spheres_color_to_edges = (event) => {
+  //назначил перебором отслеживание событий на каждую ось
+  for (let i = 0; i < axis.length; i++)
+    for (let j = 0; j < axis[i].length; j++)
+      domEvents.addEventListener( axis[i][j], 'mousedown', (event)=> {color_select_unvisibler(event)})
 
-  //   for (let n = 0; n < cubes_maximum; n++) { //перебор по количеству собранных кубов
+  for (let i = 0; i < plain_x_cube.length; i++)
+      for(let j = 0; j < plain_x_cube[i].length; j++)
+        for(let k = 0; k < plain_x_cube[i][j].length; k++)
+          domEvents.addEventListener( plain_x_cube[i][j][k], 'mousedown', (event)=> {color_select_unvisibler(event)})
 
-  //     //проверяет на какую из сфер было нажато и передаёт значение индекса в found_at[]
-  //     let found_at = [];
-  //     for (let i = 0; i < spheres[n].length; i++ )
-  //       found_at[n] = ( event.target.uuid == spheres[n][i].uuid ) ? i : found_at[n];
+  // //функция исчезания кубов в найденых в domEvents
+  var color_select_unvisibler = (event) => {
+    let color = event.target.colornum
 
-  //       //перекраска рёбер, исходящих из нажатой сферы в её цвет
-  //       if ( found_at[n] !== undefined ){ //убираем ненужные проверки при неназначенных found_at[]
-  //         for (let i = 0; i < communication_array.length; i++) //сверяется по массиву communication_array
+    for (let i = 0; i < axis.length; i++)
+      for (let j = 0; j < axis[i].length; j++)
+        if (axis[i][j].colornum == color) axis[i][j].visible = false
 
-  //           //если одна из сторон вектора принадлежит номерной области сферы, то...
-  //           if ( communication_array[i][0] == found_at[n] || communication_array[i][1] == found_at[n] )
-  //             //...перекрашиваем в цвет найденной сферы
-  //             edge[n][i].material.color.set(spheres[n][found_at[n]].material.color)
-
-  //         n = cubes_maximum //завершаем родительский цикл, так как "дело сделано"
-  //       }
-  //     }
-
-  //   }
+    for (let i = 0; i < plain_x_cube.length; i++)
+      for(let j = 0; j < plain_x_cube[i].length; j++)
+        for(let k = 0; k < plain_x_cube[i][j].length; k++)
+          if (plain_x_cube[i][j][k].colornum == color) plain_x_cube[i][j][k].visible = false
+  }
 
 
 } //init() end bracket
