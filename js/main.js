@@ -41,8 +41,8 @@ function init() {
   let colors = [0xFFFFFF, 0xE4388C, 0xE4221B, 0xFF7F00, 0xFFED00, 0x008739, 0x02A7AA, 0x47B3E7, 0x2A4B9B, 0x702283]
 
   //ввод цифр для расчёта мандалы
-  // let input_string = prompt("Введите цифры", '')
-  let input_string = "0123456789"
+  let input_string = prompt("Введите цифры", '')
+  // let input_string = "0123456789"
 
   //перевод строки в массив чисел для корректных подсчётов
   let input_nums = []
@@ -151,10 +151,10 @@ function init() {
 
       plain_x_cube[0][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, x, 0, color_n) )
       plain_x_cube[1][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, 0, x, color_n) )
+
       plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, x, color_n) )
 
       // plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x, color_n) )
-
       // plain_x_cube[3][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0, color_n) )
       // plain_x_cube[4][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x, color_n) )
       // plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x, color_n) )
