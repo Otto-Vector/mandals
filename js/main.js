@@ -5,8 +5,6 @@ window.onload = init
 /////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
 
-const cubeGeom = new THREE.CubeGeometry(1,1,1); //размеры кубов
-
 //////////////////////////////////////////////////////////
 // универсальная функция числа фибоначчи/////////////////
 const to_one_digit = (digit) => {
@@ -22,16 +20,22 @@ const to_one_digit = (digit) => {
   }
 //////////функция конструктора объектов//////
 ///передаётся объект, материал для него и координаты
-const axis_construct = plane_construct = (cubus, material, x, y, z) => {
-    cubus = new THREE.Mesh(cubeGeom,material);
+const axis_construct = plane_construct = (geo, material, x, y, z) => {
+    let cubus
+    cubus = new THREE.Mesh(geo,material)
     cubus.position.set(x,y,z)
     scene.add(cubus)
+    return cubus
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 function init() {
 
   //////////Задал основные константы///////
+
+  //размеры кубов
+  const cubeGeom = new THREE.CubeGeometry(1,1,1)
+
   //база цветов//
   let colors = [0xFFFFFF, 0xE4388C, 0xE4221B, 0xFF7F00, 0xFFED00, 0x008739, 0x02A7AA, 0x47B3E7, 0x2A4B9B, 0x702283]
 
@@ -87,24 +91,19 @@ function init() {
   scene.add(cube_zero)
 
   //сборка осей по 6 направлениям
-  let axis = {  "x" : [],
-                "y" : [],
-                "z" : [],
-                "mx": [],
-                "my": [],
-                "mz": []
-              }
+  let axis = []
+  for (let i = 0; i < 6; i++) axis[i] = []
 
   for (let i=1; i <= input_string.length; i++) {
     let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[input_nums[i]] })
 
-    axis_construct(axis.x[i], cubeMaterial, 0+i,0,0)
-    axis_construct(axis.y[i], cubeMaterial, 0,0+i,0)
-    axis_construct(axis.z[i], cubeMaterial, 0,0,0+i)
+    axis[0].push( axis_construct(cubeGeom, cubeMaterial, 0+i,0,0) )
+    axis[1].push( axis_construct(cubeGeom, cubeMaterial, 0,0+i,0) )
+    axis[2].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0+i) )
 
-    axis_construct(axis.mx[i], cubeMaterial, 0-i,0,0)
-    axis_construct(axis.my[i], cubeMaterial, 0,0-i,0)
-    axis_construct(axis.mz[i], cubeMaterial, 0,0,0-i)
+    axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0) )
+    axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0) )
+    axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i) )
 
   }
 
@@ -131,28 +130,39 @@ function init() {
     }
 
   ////////пластина кубов/////////////
-  //задание объекта
+  //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   let plain_x_cube = []
-  //углубление массива
+  let plain_y_cube = []
+  let plain_z_cube = []
+  let plain_mx_cube = []
+  let plain_my_cube = []
+  let plain_mz_cube = [[]]
+
+  // углубление массива
   for (var y = 1; y <= input_string.length; y++) {
     plain_x_cube[y] = []
+    plain_y_cube[y] = []
+    plain_z_cube[y] = []
+    plain_mx_cube[y] = []
+    plain_my_cube[y] = []
+    plain_mz_cube[y] = []
   }
   //отрисовка панелей
   for (let y = 1; y <= input_string.length; y++) {
     for (let x = 1; x <= input_string.length; x++) {
       let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[plane_of_colors[y][x]]});
 
-      plane_construct(plain_x_cube[y][x], cubeMaterial, y, x, 0)
-      plane_construct(plain_x_cube[y][x], cubeMaterial, y, 0, x)
-      plane_construct(plain_x_cube[y][x], cubeMaterial, 0, -y, x)
+      plain_x_cube[y].push( plane_construct(cubeGeom, cubeMaterial, y, x, 0) )
+      plain_y_cube[y].push( plane_construct(cubeGeom, cubeMaterial, y, 0, x) )
+      plain_z_cube[y].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x) )
 
-      plane_construct(plain_x_cube[y][x], cubeMaterial, -y, -x, 0)
-      plane_construct(plain_x_cube[y][x], cubeMaterial, -y, 0, -x)
-      plane_construct(plain_x_cube[y][x], cubeMaterial, 0, y, -x)
+      plain_mx_cube[y].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0) )
+      plain_my_cube[y].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x) )
+      plain_mz_cube[y].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x) )
 
     }
   }
-
+  console.log(plain_mz_cube)
 
   ////анимация объектов////////////////////
   animate()
