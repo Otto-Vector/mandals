@@ -7,36 +7,15 @@ var scene, camera, renderer, domEvents, controls
 
 var value_default = 3 //задаёт две разные мандалы (пока на 3 и на 6 пластин)
 
-//////////////////////////////////////////////////////////
-// универсальная функция числа фибоначчи/////////////////
-const to_one_digit = (digit) => {
+const cubeGeom = (size=1) => new THREE.CubeGeometry(size,size,size)
 
-    let string_of_digits = digit.toString()
-    digit = 0
-
-    for (let i=0; i < string_of_digits.length; i++)
-      digit += parseInt(string_of_digits[i])
-
-    return (digit > 9) ? to_one_digit(digit) : digit
-
-  }
-//////////функция конструктора объектов//////
-///передаётся объект, материал для него, координаты и номер цвета
-const axis_construct = plane_construct = (geo, material, x, y, z, colornum) => {
-    let cubus = new THREE.Mesh(geo,material)
-    cubus.position.set(x,y,z)
-    cubus.colornum = colornum //идентификатор для отбора объектов по значению
-    scene.add(cubus)
-    return cubus
-  }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 function init() {
 
   //////////Задал основные константы///////
 
   //размеры кубов
-  const cubeGeom = new THREE.CubeGeometry(1,1,1)
 
   //база цветов//
   let colors = [0xFFFFFF, 0xE4388C, 0xE4221B, 0xFF7F00, 0xFFED00, 0x008739, 0x02A7AA, 0x47B3E7, 0x2A4B9B, 0x702283]
@@ -87,61 +66,44 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
   //добавляем ось
 
-  //нулевой куб в центре оси
-  let cubeMaterial_zero = new THREE.MeshBasicMaterial({color: colors[input_nums[0]] })
-  let cube_zero = new THREE.Mesh(cubeGeom,cubeMaterial_zero)
-  cube_zero.position.set(0,0,0)
-  scene.add(cube_zero)
-
-  //сборка осей по 6 направлениям
+  //объявляем двумерный массив
   let axis = []
   for (let i = 0; i < 6; i++) axis[i] = []
 
+  //нулевой куб в центре оси
+  let cubeMaterial_zero = new THREE.MeshBasicMaterial({color: colors[input_nums[0]] })
+  axis[0][0] = axis_construct(cubeMaterial_zero, 0,0,0, input_nums[0])
+
+  //сборка осей по 6 направлениям
   for (let i = 1; i <= input_string.length; i++) {
     let color_n = input_nums[i]
     let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[color_n] })
 
-    axis[0].push( axis_construct(cubeGeom, cubeMaterial, 0+i,0,0, color_n) )
-    axis[1].push( axis_construct(cubeGeom, cubeMaterial, 0,0+i,0, color_n) )
-    axis[2].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0+i, color_n) )
+    axis[0].push( axis_construct( cubeMaterial, 0+i,0,0, color_n) )
+    axis[1].push( axis_construct( cubeMaterial, 0,0+i,0, color_n) )
+    axis[2].push( axis_construct( cubeMaterial, 0,0,0+i, color_n) )
 
-    if ( value_default == 6 ) axis[3].push( axis_construct(cubeGeom, cubeMaterial, 0-i,0,0, color_n) )
-    if ( value_default == 6 ) axis[4].push( axis_construct(cubeGeom, cubeMaterial, 0,0-i,0, color_n) )
-    if ( value_default == 6 ) axis[5].push( axis_construct(cubeGeom, cubeMaterial, 0,0,0-i, color_n) )
+    if ( value_default == 6 ) axis[3].push( axis_construct( cubeMaterial, 0-i,0,0, color_n) )
+    if ( value_default == 6 ) axis[4].push( axis_construct( cubeMaterial, 0,0-i,0, color_n) )
+    if ( value_default == 6 ) axis[5].push( axis_construct( cubeMaterial, 0,0,0-i, color_n) )
   }
 
 
-////////пластина мандалы из кубов//////////////////////////////////////////////////
-  //задаём основной цифро-световой массив мандалы
-  var plane_of_colors = []
-  //сначала назначаем ось по горизонтали
-    plane_of_colors[0] = input_nums
-  //и зеркально по вертикали
-  for (let i=1; i <= input_string.length; i++) {
-    plane_of_colors[i] = [plane_of_colors[0][i]]
-  }
 
-  //высчитываем мандалу на основе заданных осей (массивы от 1)
-  for (let y=1; y <= input_string.length; y++)
-    for (var x = 1; x <= input_string.length; x++) {
-
-      let fibbo_number = to_one_digit( plane_of_colors[y-1][x] +
-                                       plane_of_colors[y][x-1] +
-                                       plane_of_colors[y-1][x-1])
-      plane_of_colors[y].push(fibbo_number)
-
-    }
+  let plane_of_colors = basic_algotithm(input_nums)
 
   ////////пластина кубов/////////////
   //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   let plain_x_cube = []
-  for (var y = 0; y < 6; y++) {
+  for (var y = 0; y < (input_string.length+6); y++) {
   // углубление массива на 2 уровень
     plain_x_cube[y] = []
     for (var x = 0; x < input_string.length; x++) 
   // углубление массива 3 уровень
       plain_x_cube[y][x] = []
   }
+
+  console.log(plain_x_cube.length)
 
   //отрисовка панелей
   for (let y = 1; y <= input_string.length; y++) {
@@ -150,15 +112,15 @@ function init() {
       let color_n = plane_of_colors[y][x]
       let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[color_n]});
 
-      plain_x_cube[0][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, x, 0, color_n) )
-      plain_x_cube[1][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, 0, x, color_n) )
+      plain_x_cube[0][y-1].push( plane_construct( cubeMaterial, y, x, 0, color_n) )
+      plain_x_cube[1][y-1].push( plane_construct( cubeMaterial, y, 0, x, color_n) )
 
-      if (value_default == 3) plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, x, color_n) )
+      if (value_default == 3) plain_x_cube[2][y-1].push( plane_construct( cubeMaterial, 0, y, x, color_n) )
 
-      if (value_default == 6) plain_x_cube[2][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, -y, x, color_n) )
-      if (value_default == 6) plain_x_cube[3][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, -x, 0, color_n) )
-      if (value_default == 6) plain_x_cube[4][y-1].push( plane_construct(cubeGeom, cubeMaterial, -y, 0, -x, color_n) )
-      if (value_default == 6) plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, 0, y, -x, color_n) )
+      if (value_default == 6) plain_x_cube[2][y-1].push( plane_construct( cubeMaterial, 0, -y, x, color_n) )
+      if (value_default == 6) plain_x_cube[3][y-1].push( plane_construct( cubeMaterial, -y, -x, 0, color_n) )
+      if (value_default == 6) plain_x_cube[4][y-1].push( plane_construct( cubeMaterial, -y, 0, -x, color_n) )
+      if (value_default == 6) plain_x_cube[5][y-1].push( plane_construct( cubeMaterial, 0, y, -x, color_n) )
 
     }
   }
@@ -167,7 +129,6 @@ function init() {
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-  let plane_of_colors_for = []
 
   //функция для перебора значений colornum
     let planes= (value)=> {
@@ -176,44 +137,19 @@ function init() {
         plane_z.push(value[i].colornum)
       return plane_z
     }
-  //сначала назначаем ось по горизонтали
-    plane_of_colors_for[0] = [axis[0][0].colornum, ...planes(plain_x_cube[0][0])]
 
-  //и зеркально по вертикали
-  for (let i=1; i < plane_of_colors_for[0].length; i++) {
-    plane_of_colors_for[i] = [plane_of_colors_for[0][i]]
-  }
+    for (let i = 0; i < input_string.length; i++) {
+      var plane_of_colors_for = basic_algotithm( [axis[0][i+1].colornum, ...planes(plain_x_cube[0][i])] )
+      for (let y = 1; y <= input_string.length; y++) {
+        for (let x = 1; x <= input_string.length; x++) {
 
-  // высчитываем слой мандалы на основе заданных осей (массивы от 1)
-  for (let y=1; y <= input_string.length; y++)
-    for (var x = 1; x <= input_string.length; x++) {
+          let color_n = plane_of_colors_for[y][x]
+          let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[color_n]});
+          plain_x_cube[6+i][y-1].push( plane_construct(cubeMaterial, y, i+1, x, color_n) )
 
-      let fibbo_number = to_one_digit( plane_of_colors_for[y-1][x] +
-                                       plane_of_colors_for[y][x-1] +
-                                       plane_of_colors_for[y-1][x-1])
-      plane_of_colors_for[y].push(fibbo_number)
-
+        }
+      }
     }
-
-
-  for (let y = 1; y <= input_string.length; y++) {
-    for (let x = 1; x <= input_string.length; x++) {
-
-      let color_n = plane_of_colors_for[y-1][x-1]
-      let cubeMaterial = new THREE.MeshBasicMaterial({color: colors[color_n]});
-      plain_x_cube[5][y-1].push( plane_construct(cubeGeom, cubeMaterial, y, 1, x, color_n) )
-    }
-  }
-
-
-
-
-
-
-
-
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -272,6 +208,7 @@ function init() {
 
 } //init() end bracket
 
+//////////////////////////////////////////////////////////////////////////////////
 /////функция изменения центровки камеры при изменении размера экрана///////////////
 function onWindowResize() {
 
@@ -282,3 +219,54 @@ function onWindowResize() {
   controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
 
 }
+
+/////////////////////////////////////////////////////////
+// универсальная функция числа фибоначчи/////////////////
+const to_one_digit = (digit) => {
+
+    let string_of_digits = digit.toString()
+    digit = 0
+
+    for (let i=0; i < string_of_digits.length; i++)
+      digit += parseInt(string_of_digits[i])
+
+    return (digit > 9) ? to_one_digit(digit) : digit
+
+  }
+//////////функция конструктора объектов/////////////////////////////////////////////////////////////
+///передаётся объект, материал для него, координаты и номер цвета
+const axis_construct = plane_construct = function(material, x, y, z, colornum) {
+    let cubus = new THREE.Mesh(cubeGeom(), material)
+    cubus.position.set(x,y,z)
+    cubus.colornum = colornum //идентификатор для отбора объектов по значению
+
+    scene.add(cubus)
+
+    return cubus
+  }
+
+
+  ////////пластина мандалы из кубов//////////////////////////////////////////////////
+  let basic_algotithm = (input_nums) => {
+    //задаём основной цифро-световой массив мандалы
+    let plane_of_colors = []
+    //сначала назначаем ось по горизонтали
+      plane_of_colors[0] = input_nums
+    //и зеркально по вертикали
+    for (let i=1; i <= input_nums.length; i++) {
+      plane_of_colors[i] = [plane_of_colors[0][i]]
+    }
+
+    //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что -1)
+    for (let y=1; y <= input_nums.length; y++)
+      for (var x = 1; x <= input_nums.length; x++) {
+
+        let fibbo_number = to_one_digit( plane_of_colors[y-1][x] +
+                                         plane_of_colors[y][x-1] +
+                                         plane_of_colors[y-1][x-1])
+
+        plane_of_colors[y].push(fibbo_number)
+      }
+
+    return plane_of_colors
+  }
