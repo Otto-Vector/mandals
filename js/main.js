@@ -8,16 +8,52 @@ var scene, camera, renderer, domEvents, controls
 var value_default = 6 //задаёт две разные мандалы (пока на 3 и на 6 пластин)
 
 //база цветов//
-const colors = [0xFFFFFF, 0xE4388C, 0xE4221B, 0xFF7F00, 0xFFED00, 0x008739, 0x02A7AA, 0x47B3E7, 0x2A4B9B, 0x702283]
+const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
 //материал кубов
 const cubeMaterial = (color_set) => new THREE.MeshBasicMaterial({color: colors[color_set] }) //базовый сборщик материи кубов
 //размеры кубов
 const cubeGeom = (size=1) => new THREE.CubeGeometry(size,size,size) //базовый сборщик геометрии кубов
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 function init() {
 
+  //окрашиваем кнопки визуализации цветов
+  let palitra = document.querySelectorAll(".palitra div")
+    for (var i = 0; i < palitra.length; i++)
+      palitra[i].style.background = colors[i]
+
+
+  ///////////////////////////////////////////////////////////////////////////
+  //добавил сцену
+  scene = new THREE.Scene()
+  scene.background = new THREE.Color( "white" ) //задал сцене задний фон
+
+  //настроил параметры камеры
+  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
+  if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
+  if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
+  camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
+
+  //выбрал рендер
+  renderer = new THREE.WebGLRenderer()
+  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setSize( window.innerWidth-40, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
+  //-40 для панели кнопок цвета
+
+  //добавление скрипта к документу в тег
+  document.body.appendChild( renderer.domElement )
+  //при динамическом изменении размера окна
+  window.addEventListener('resize', onWindowResize, false)
+
+  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ
+  // также активация внутри функции render() и onwindowresize() строкой controls.update()
+  controls = new THREE.OrbitControls (camera, renderer.domElement)
+  controls.minDistance = 1
+  controls.maxDistance = 80
+
+  //////////////////////////BEGIN/////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите цифры", '')
   // let input_string = "0123456789"
@@ -34,34 +70,7 @@ function init() {
   //фибоначи на нулевой куб
   input_nums[0] = to_one_fibbonachi_digit(input_nums[0])
 
-  ///////////////////////////////////////////////////////////////////////////  
-  //добавил сцену
-  scene = new THREE.Scene()
-  scene.background = new THREE.Color( "white" ) //задал сцене задний фон
-
-  //настроил параметры камеры
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
-  if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
-  if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
-  camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
-
-  //выбрал рендер
-  renderer = new THREE.WebGLRenderer()
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
-
-  //добавление скрипта к документу в тег
-  document.body.appendChild( renderer.domElement )
-  //при динамическом изменении размера окна
-  window.addEventListener('resize', onWindowResize, false)
-
-  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ
-  // также активация внутри функции render() и onwindowresize() строкой controls.update()
-  controls = new THREE.OrbitControls (camera, renderer.domElement)
-  controls.minDistance = 1
-  controls.maxDistance = 80
-
-  ///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
 
   //объявляем двумерный массив
@@ -129,7 +138,7 @@ function init() {
   function cube_3d() {
   //функция для перебора и возврата значений colornum
     let colornum_return = (value) => {
-      let plane_z=[]
+      let plane_z = []
       for (let i=0; i < value.length; i++) plane_z.push(value[i].colornum)
 
       return plane_z
@@ -167,7 +176,6 @@ function init() {
 
   function render() {
 
-
     controls.update() //манипуляция со сценой
 
     renderer.render( scene, camera )
@@ -183,28 +191,30 @@ function init() {
   //назначил перебором отслеживание событий на каждую ось
   for (let i = 0; i < axis.length; i++)
     for (let j = 0; j < axis[i].length; j++)
-      domEvents.addEventListener( axis[i][j], 'mousedown', (event)=> {color_select_unvisibler(event)})
+      domEvents.addEventListener( axis[i][j], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
 
   //назначил перебором отслеживание событий на каждую плоскость
   for (let i = 0; i < plain_x_cube.length; i++)
       for(let j = 0; j < plain_x_cube[i].length; j++)
         for(let k = 0; k < plain_x_cube[i][j].length; k++)
-          domEvents.addEventListener( plain_x_cube[i][j][k], 'mousedown', (event)=> {color_select_unvisibler(event)})
+          domEvents.addEventListener( plain_x_cube[i][j][k], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
 
   // //функция исчезания кубов в найденых в domEvents
-  var color_select_unvisibler = (event) => {
-    let color = event.target.colornum
+  var color_select_unvisibler = (color) => {
     //перебор по осям
     for (let i = 0; i < axis.length; i++)
       for (let j = 0; j < axis[i].length; j++)
-        if (axis[i][j].colornum == color) axis[i][j].visible = false
+        if (axis[i][j].colornum == color) axis[i][j].visible = !axis[i][j].visible
     //перебор по плоскостям
     for (let i = 0; i < plain_x_cube.length; i++)
       for(let j = 0; j < plain_x_cube[i].length; j++)
         for(let k = 0; k < plain_x_cube[i][j].length; k++)
-          if (plain_x_cube[i][j][k].colornum == color) plain_x_cube[i][j][k].visible = false
+          if (plain_x_cube[i][j][k].colornum == color) plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible
   }
-
+  //отслеживание нажатия кнопок боковой панели
+  for (var i = 0; i < palitra.length; i++) {
+    palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML)
+  }
 
 } //init() end bracket
 
@@ -214,7 +224,7 @@ function onWindowResize() {
 
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth-4, window.innerHeight-4)
+  renderer.setSize(window.innerWidth-40, window.innerHeight-4)
 
   controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
 
@@ -246,7 +256,7 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
   }
 
 
-  ////////пластина мандалы из кубов//////////////////////////////////////////////////
+  ////////пластина мандалы из кубов по первому алгоритму////////////////////////////
   let plane_square_3x_algorithm = (input_nums) => {
     //задаём основной цифро-световой массив мандалы
     let plane_of_colors = []
