@@ -8,8 +8,7 @@
     "type": "git",
     "url": "git://github.com/Otto-Vector/mandals.git"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@cedx/gulp-php-minify": "^10.1.0",
     "browser-sync": "^2.26.7",
@@ -33,8 +32,7 @@
     "imagemin-jpeg-recompress": "^6.0.0",
     "imagemin-pngquant": "^8.0.0"
   },
-  "bugs": {
-  },
+  "bugs": {},
   "homepage": "https://github.com/Otto-Vector/mandals#readme",
   "main": "gulpfile.js",
   "module": "main.js",

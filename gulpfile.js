@@ -133,7 +133,7 @@ gulp.task('cache:clear', function () {
 gulp.task('build',
     gulp.series('clean:build',
         gulp.parallel(
-            'jade:build',
+            // 'jade:build',
             'html:build',
             'css:build',
             'js:build',
@@ -144,7 +144,7 @@ gulp.task('build',
 
 // запуск задач при изменении файлов
 gulp.task('watch', function () {
-    gulp.watch(path.watch.jade, gulp.series('jade:build'));
+    // gulp.watch(path.watch.jade, gulp.series('jade:build'));
     gulp.watch(path.watch.html, gulp.series('html:build'));
     gulp.watch(path.watch.css, gulp.series('css:build'));
     gulp.watch(path.watch.js, gulp.series('js:build'));
