@@ -33,7 +33,7 @@ function init() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
   if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
   if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
-  if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 3
+  if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -56,7 +56,7 @@ function init() {
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
-  let input_string = prompt("Введите цифры", '')
+  let input_string = prompt("Введите слова и цифры", '')
   // let input_string = "0123456789"
   input_string = input_string.replace(/\s/g, '').toLowerCase() //убираем пробелы из строки, убираем верхний регистр
 
