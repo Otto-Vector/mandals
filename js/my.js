@@ -56,31 +56,32 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите цифры", '')
-  input_string = input_string.replace(/\s/g, '').toLowerCase() //убираем пробелы из строки
+  input_string = input_string.replace(/\s/g, '').toLowerCase() //убираем пробелы из строки, убираем верхний регистр
 
   ///////блок адаптации букв в цифровой код////////////////////////
+  //символы расположены строго по таблице (удачно получилось, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-  let simbols_num_adapter = (simbol, str) => {
-      let n_sim = 0 //остаётся нулём, если неучтённый символ
-    for (let i=0; i <= str.length; i++) {
-      if (!isNaN(simbol)) n_sim = parseInt(simbol) //проверка символа на число и перевод его в число
-      if (str[i] == simbol) n_sim = i%9+1 //порядковый номер в строке/столбце согласно таблицы Урсулы
-    }
-      return n_sim
+  //прототипируем в объект String, чтобы применять к разным переменным строк
+  String.prototype.simbols_num_adapter = function (simbol) {
+    return (!isNaN(simbol)) ? //если проверяемый символ является числом
+              parseInt(simbol) : //то ввыводим его как число
+               this.indexOf(simbol)%9+1 // если нет, то применяем число в соответствии с таблицей Урсулы
   }
+  //////////////////////////////////////////////////////////
 
   //перевод строки в массив чисел для корректных подсчётов
   let input_nums = []
   input_nums[0] = 0 //цвет для нулевого куба
 
   for (let i=1; i <= input_string.length; i++) {
-    input_nums[i] = simbols_num_adapter(input_string[i-1], simbols_static) //применение функции адаптации
+    input_nums[i] = simbols_static.simbols_num_adapter(input_string[i-1]) //применение функции адаптации из прототипа
     
     input_nums[0] += input_nums[i]; //сумма для цвета числа в центре
   }
   //фибоначи на нулевой куб
   input_nums[0] = to_one_fibbonachi_digit(input_nums[0])
 
+  console.log (input_nums)
 ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
 
