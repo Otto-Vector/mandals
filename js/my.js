@@ -5,7 +5,7 @@ window.onload = init
 /////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
 
-var value_default = 6 //задаёт две разные мандалы (пока на 3 и на 6 пластин)
+var value_default = 4 //задаёт две разные мандалы (пока на 3 и на 6 пластин) 4 - на квадрат
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
@@ -33,6 +33,7 @@ function init() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
   if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
   if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
+  if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 3
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -56,36 +57,41 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите цифры", '')
+  // let input_string = "0123456789"
   input_string = input_string.replace(/\s/g, '').toLowerCase() //убираем пробелы из строки, убираем верхний регистр
 
   ///////блок адаптации букв в цифровой код////////////////////////
-  //символы расположены строго по таблице (удачно получилось, что нужен всего один пробел)
+  //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
   //прототипируем в объект String, чтобы применять к разным переменным строк
+  //возвращает число
   String.prototype.simbols_num_adapter = function (simbol) {
     return (!isNaN(simbol)) ? //если проверяемый символ является числом
-              parseInt(simbol) : //то ввыводим его как число
+              parseInt(simbol) : //то выводим его как число
                this.indexOf(simbol)%9+1 // если нет, то применяем число в соответствии с таблицей Урсулы
-  }
+    }
   //////////////////////////////////////////////////////////
+  //прототипирование функции перевода строки в числа (возвращает массив чисел)
+  String.prototype.to_num = function () {
+    let fn_nums = [0, []]
+
+    for (let i=1; i <= this.length; i++) {
+      fn_nums[i] = simbols_static.simbols_num_adapter(this[i-1]) //применение функции адаптации из прототипа
+      fn_nums[0] += fn_nums[i] //сумма для цвета числа в центре
+    }
+    //фибоначи на нулевой элемент
+    fn_nums[0] = to_one_fibbonachi_digit(fn_nums[0])
+
+    return fn_nums
+  }
 
   //перевод строки в массив чисел для корректных подсчётов
-  let input_nums = []
-  input_nums[0] = 0 //цвет для нулевого куба
+  let input_nums = input_string.to_num()
 
-  for (let i=1; i <= input_string.length; i++) {
-    input_nums[i] = simbols_static.simbols_num_adapter(input_string[i-1]) //применение функции адаптации из прототипа
-    
-    input_nums[0] += input_nums[i]; //сумма для цвета числа в центре
-  }
-  //фибоначи на нулевой куб
-  input_nums[0] = to_one_fibbonachi_digit(input_nums[0])
-
-  console.log (input_nums)
 ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
 
-  //объявляем двумерный массив
+  //объявляем двумерный массив для оси
   let axis = []
   for (let i = 0; i < value_default; i++) axis[i] = []
 
@@ -96,15 +102,14 @@ function init() {
   for (let i = 1; i <= input_string.length; i++) {
     let color_n = input_nums[i]
 
-    axis[0].push( axis_construct( 0+i,0,0, color_n) )
-    axis[1].push( axis_construct( 0,0+i,0, color_n) )
-    axis[2].push( axis_construct( 0,0,0+i, color_n) )
+    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[0].push( axis_construct( 0+i,0,0, color_n) )
+    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[1].push( axis_construct( 0,0+i,0, color_n) )
+    if ( value_default == 6 || value_default == 4 ) axis[2].push( axis_construct( 0-i,0,0, color_n) )
+    if ( value_default == 6 || value_default == 4 ) axis[3].push( axis_construct( 0,0-i,0, color_n) )
 
-    if ( value_default == 6 ) {
-      axis[3].push( axis_construct( 0-i,0,0, color_n) )
-      axis[4].push( axis_construct( 0,0-i,0, color_n) )
-      axis[5].push( axis_construct( 0,0,0-i, color_n) )
-    }
+    if ( value_default == 3 ) axis[4].push( axis_construct( 0,0,0+i, color_n) )
+    if ( value_default == 6 ) axis[5].push( axis_construct( 0,0,0-i, color_n) )
+
   }
 
   ////////пластина кубов/////////////
@@ -128,17 +133,21 @@ function init() {
 
       let color_n = plane_of_colors[y][x]
 
-      plain_x_cube[0][y-1].push( plane_construct( y, x, 0, color_n) )
-      plain_x_cube[1][y-1].push( plane_construct( y, 0, x, color_n) )
+      if (value_default == 3 || value_default == 6 || value_default == 4)
+        plain_x_cube[0][y-1].push( plane_construct( y, x, 0, color_n) )
+
+      if (value_default == 3 || value_default == 6 )
+        plain_x_cube[1][y-1].push( plane_construct( y, 0, x, color_n) )
 
       if (value_default == 3) plain_x_cube[2][y-1].push( plane_construct( 0, y, x, color_n) )
 
-      if (value_default == 6) {
-        plain_x_cube[2][y-1].push( plane_construct( 0, -y, x, color_n) )
-        plain_x_cube[3][y-1].push( plane_construct( -y, -x, 0, color_n) )
-        plain_x_cube[4][y-1].push( plane_construct( -y, 0, -x, color_n) )
-        plain_x_cube[5][y-1].push( plane_construct( 0, y, -x, color_n) )
-      }
+      if (value_default == 6) plain_x_cube[2][y-1].push( plane_construct( 0, -y, x, color_n) )
+      if (value_default == 6 || value_default == 4) plain_x_cube[3][y-1].push( plane_construct( -y, -x, 0, color_n) )
+      if (value_default == 6) plain_x_cube[4][y-1].push( plane_construct( -y, 0, -x, color_n) )
+      if (value_default == 6) plain_x_cube[5][y-1].push( plane_construct( 0, y, -x, color_n) )
+
+      if (value_default == 4) plain_x_cube[6][y-1].push( plane_construct( -x, y, 0, color_n) )
+      if (value_default == 4) plain_x_cube[7][y-1].push( plane_construct( x, -y, 0, color_n) )
 
     }
   }
@@ -158,6 +167,7 @@ function init() {
 
     for (let i = 0; i < input_string.length; i++) {
       let plane_of_colors_for = plane_square_3x_algorithm( [axis[0][i+1].colornum, ...colornum_return(plain_x_cube[0][i])] )
+
       for (let y = 1; y <= input_string.length; y++) {
         for (let x = 1; x <= input_string.length; x++) {
 
@@ -189,7 +199,7 @@ function init() {
   function render() {
 
     controls.update() //манипуляция со сценой
-
+    // console.log(camera.position)
     renderer.render( scene, camera )
 
 
@@ -239,7 +249,7 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth-40, window.innerHeight-4)
 
   controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
-
+  // console.log(camera.position)
 }
 
 /////////////////////////////////////////////////////////
