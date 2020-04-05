@@ -93,7 +93,7 @@ function init() {
 
   //объявляем двумерный массив для оси
   let axis = []
-  for (let i = 0; i < value_default; i++) axis[i] = []
+  for (let i = 0; i < 20; i++) axis[i] = []
 
   //нулевой куб в центре оси
   axis[0][0] = axis_construct(0,0,0, input_nums[0])
@@ -108,8 +108,19 @@ function init() {
     if ( value_default == 6 || value_default == 4 ) axis[3].push( axis_construct( 0,0-i,0, color_n) )
 
     if ( value_default == 3 ) axis[4].push( axis_construct( 0,0,0+i, color_n) )
-    if ( value_default == 6 ) axis[5].push( axis_construct( 0,0,0-i, color_n) )
+    if ( value_default == 6 ) axis[5].push( axis_construct( 0,0,-i, color_n) )
 
+    if ( value_default == 4 ) axis[6].push( axis_construct( i,input_string.length+1,0, 9) )
+    if ( value_default == 4 ) axis[7].push( axis_construct( i,-input_string.length-1,0, 9) )
+    if ( value_default == 4 ) axis[8].push( axis_construct( -i,input_string.length+1,0, 9) )
+    if ( value_default == 4 ) axis[9].push( axis_construct( -i,-input_string.length-1,0, 9) )
+    if ( value_default == 4 ) axis[10].push( axis_construct( -input_string.length-1,i,0, 9) )
+    if ( value_default == 4 ) axis[11].push( axis_construct( input_string.length+1,i,0, 9) )
+    if ( value_default == 4 ) axis[12].push( axis_construct( input_string.length+1,-i,0, 9) )
+    if ( value_default == 4 ) axis[13].push( axis_construct( -input_string.length-1,-i,0, 9) )
+    // if ( value_default == 4 ) axis[11].push( axis_construct( 0-i,input_string.length,0, 9) )
+    // if ( value_default == 4 ) axis[12].push( axis_construct( 0,0+i+input_string.length,0, 9) )
+    // if ( value_default == 4 ) axis[13].push( axis_construct( input_string.length,0+i,0, 9) )
   }
 
   ////////пластина кубов/////////////
