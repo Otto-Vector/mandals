@@ -5,7 +5,7 @@ window.onload = init
 /////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
 
-var value_default = 4 //задаёт две разные мандалы (пока на 3 и на 6 пластин) 4 - на квадрат
+var value_default = 4 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
@@ -57,7 +57,7 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите слова и цифры", '')
-  // let input_string = "0123456789"
+   // let input_string = "0123456789"
   input_string = input_string.replace(/\s/g, '').toLowerCase() //убираем пробелы из строки, убираем верхний регистр
 
   ///////блок адаптации букв в цифровой код////////////////////////
@@ -98,7 +98,12 @@ function init() {
   //нулевой куб в центре оси
   axis[0][0] = axis_construct(0,0,0, input_nums[0])
 
-  //сборка осей по value_default направлениям
+  
+  //перменные для обводки мандалы
+  let border_coordin = input_string.length+1
+  let border_color = input_nums[0]
+  
+  //сборка осей по value_default направлениям //
   for (let i = 1; i <= input_string.length; i++) {
     let color_n = input_nums[i]
 
@@ -110,19 +115,26 @@ function init() {
     if ( value_default == 3 ) axis[4].push( axis_construct( 0,0,0+i, color_n) )
     if ( value_default == 6 ) axis[5].push( axis_construct( 0,0,-i, color_n) )
 
-    if ( value_default == 4 ) axis[6].push( axis_construct( i,input_string.length+1,0, 9) )
-    if ( value_default == 4 ) axis[7].push( axis_construct( i,-input_string.length-1,0, 9) )
-    if ( value_default == 4 ) axis[8].push( axis_construct( -i,input_string.length+1,0, 9) )
-    if ( value_default == 4 ) axis[9].push( axis_construct( -i,-input_string.length-1,0, 9) )
-    if ( value_default == 4 ) axis[10].push( axis_construct( -input_string.length-1,i,0, 9) )
-    if ( value_default == 4 ) axis[11].push( axis_construct( input_string.length+1,i,0, 9) )
-    if ( value_default == 4 ) axis[12].push( axis_construct( input_string.length+1,-i,0, 9) )
-    if ( value_default == 4 ) axis[13].push( axis_construct( -input_string.length-1,-i,0, 9) )
-    // if ( value_default == 4 ) axis[11].push( axis_construct( 0-i,input_string.length,0, 9) )
-    // if ( value_default == 4 ) axis[12].push( axis_construct( 0,0+i+input_string.length,0, 9) )
-    // if ( value_default == 4 ) axis[13].push( axis_construct( input_string.length,0+i,0, 9) )
+    //пока рабочий вариант обводки мандалы
+    if ( value_default == 4 ) axis[6].push( axis_construct( i,border_coordin,0, border_color) )
+    if ( value_default == 4 ) axis[7].push( axis_construct( i,-border_coordin,0, border_color) )
+    if ( value_default == 4 ) axis[8].push( axis_construct( -i,border_coordin,0, border_color) )
+    if ( value_default == 4 ) axis[9].push( axis_construct( -i,-border_coordin,0, border_color) )
+    if ( value_default == 4 ) axis[10].push( axis_construct( -border_coordin,i,0, border_color) )
+    if ( value_default == 4 ) axis[11].push( axis_construct( border_coordin,i,0, border_color) )
+    if ( value_default == 4 ) axis[12].push( axis_construct( border_coordin,-i,0, border_color) )
+    if ( value_default == 4 ) axis[13].push( axis_construct( -border_coordin,-i,0, border_color) )
   }
-
+    //допиливание обводки (рабочий вариант)
+    if ( value_default == 4 ) axis[6].push( axis_construct( border_coordin, border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[7].push( axis_construct( border_coordin, -border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[8].push( axis_construct( -border_coordin, border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[9].push( axis_construct( -border_coordin, -border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[10].push( axis_construct( 0, border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[11].push( axis_construct( 0, -border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[12].push( axis_construct( -border_coordin,0, 0, border_color) )
+    if ( value_default == 4 ) axis[13].push( axis_construct( border_coordin,0, 0, border_color) )
+   
   ////////пластина кубов/////////////
 
   //высчитываем двумерный массив цветов для куба
