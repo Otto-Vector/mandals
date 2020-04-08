@@ -5,7 +5,7 @@ window.onload = init
 /////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
 
-var value_default = 4 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
+var value_default = 6 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
@@ -57,7 +57,7 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите слова и цифры", '')
-   // let input_string = "0123456789"
+  // let input_string = "0123456789"
   input_string = input_string.replace(/\s/g, '').toLowerCase() //убираем пробелы из строки, убираем верхний регистр
 
   ///////блок адаптации букв в цифровой код////////////////////////
@@ -112,7 +112,7 @@ function init() {
     if ( value_default == 6 || value_default == 4 ) axis[2].push( axis_construct( -i,0,0, color_n) )
     if ( value_default == 6 || value_default == 4 ) axis[3].push( axis_construct( 0,-i,0, color_n) )
 
-    if ( value_default == 3 ) axis[4].push( axis_construct( 0,0,i, color_n) )
+    if ( value_default == 3 || value_default == 6 ) axis[4].push( axis_construct( 0,0,i, color_n) )
     if ( value_default == 6 ) axis[5].push( axis_construct( 0,0,-i, color_n) )
 
     //пока рабочий вариант обводки мандалы
@@ -259,13 +259,21 @@ function init() {
   var color_select_unvisibler = (color) => {
     //перебор по осям
     for (let i = 0; i < axis.length; i++)
-      for (let j = 0; j < axis[i].length; j++)
+      for (let j = 0; j < axis[i].length; j++) {
+        if (color == "#") axis[i][j].visible = false
+        if (color == "@") axis[i][j].visible = !axis[i][j].visible
+        if (color == "A") axis[i][j].visible = true
         if (axis[i][j].colornum == color) axis[i][j].visible = !axis[i][j].visible
+      }
     //перебор по плоскостям
     for (let i = 0; i < plain_x_cube.length; i++)
       for(let j = 0; j < plain_x_cube[i].length; j++)
-        for(let k = 0; k < plain_x_cube[i][j].length; k++)
+        for(let k = 0; k < plain_x_cube[i][j].length; k++) {
+          if (color == "#") plain_x_cube[i][j][k].visible = false
+          if (color == "@") plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible
+          if (color == "A") plain_x_cube[i][j][k].visible = true
           if (plain_x_cube[i][j][k].colornum == color) plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible
+        }
   }
   //отслеживание нажатия кнопок боковой панели
   for (var i = 0; i < palitra.length; i++) {
