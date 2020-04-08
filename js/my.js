@@ -107,23 +107,23 @@ function init() {
   for (let i = 1; i <= input_string.length; i++) {
     let color_n = input_nums[i]
 
-    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[0].push( axis_construct( 0+i,0,0, color_n) )
-    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[1].push( axis_construct( 0,0+i,0, color_n) )
-    if ( value_default == 6 || value_default == 4 ) axis[2].push( axis_construct( 0-i,0,0, color_n) )
-    if ( value_default == 6 || value_default == 4 ) axis[3].push( axis_construct( 0,0-i,0, color_n) )
+    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[0].push( axis_construct( i,0,0, color_n) )
+    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[1].push( axis_construct( 0,i,0, color_n) )
+    if ( value_default == 6 || value_default == 4 ) axis[2].push( axis_construct( -i,0,0, color_n) )
+    if ( value_default == 6 || value_default == 4 ) axis[3].push( axis_construct( 0,-i,0, color_n) )
 
-    if ( value_default == 3 ) axis[4].push( axis_construct( 0,0,0+i, color_n) )
+    if ( value_default == 3 ) axis[4].push( axis_construct( 0,0,i, color_n) )
     if ( value_default == 6 ) axis[5].push( axis_construct( 0,0,-i, color_n) )
 
     //пока рабочий вариант обводки мандалы
-    if ( value_default == 4 ) axis[6].push( axis_construct( i,border_coordin,0, border_color) )
-    if ( value_default == 4 ) axis[7].push( axis_construct( i,-border_coordin,0, border_color) )
-    if ( value_default == 4 ) axis[8].push( axis_construct( -i,border_coordin,0, border_color) )
-    if ( value_default == 4 ) axis[9].push( axis_construct( -i,-border_coordin,0, border_color) )
-    if ( value_default == 4 ) axis[10].push( axis_construct( -border_coordin,i,0, border_color) )
-    if ( value_default == 4 ) axis[11].push( axis_construct( border_coordin,i,0, border_color) )
-    if ( value_default == 4 ) axis[12].push( axis_construct( border_coordin,-i,0, border_color) )
-    if ( value_default == 4 ) axis[13].push( axis_construct( -border_coordin,-i,0, border_color) )
+    if ( value_default == 4 ) axis[6].push( axis_construct( i, border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[7].push( axis_construct( i,-border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[8].push( axis_construct( -i, border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[9].push( axis_construct( -i, -border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[10].push( axis_construct( -border_coordin, i, 0, border_color) )
+    if ( value_default == 4 ) axis[11].push( axis_construct( border_coordin, i, 0, border_color) )
+    if ( value_default == 4 ) axis[12].push( axis_construct( border_coordin,-i, 0, border_color) )
+    if ( value_default == 4 ) axis[13].push( axis_construct( -border_coordin,-i, 0, border_color) )
   }
     //допиливание обводки (рабочий вариант)
     if ( value_default == 4 ) axis[6].push( axis_construct( border_coordin, border_coordin, 0, border_color) )
@@ -142,7 +142,7 @@ function init() {
 
   //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   let plain_x_cube = []
-  for (var y = 0; y < (input_string.length+value_default); y++) {
+  for (var y = 0; y < (input_string.length*2); y++) {
   // углубление массива на 2 уровень
     plain_x_cube[y] = []
     for (var x = 0; x < input_string.length; x++) 
@@ -162,15 +162,26 @@ function init() {
       if (value_default == 3 || value_default == 6 )
         plain_x_cube[1][y-1].push( plane_construct( y, 0, x, color_n) )
 
-      if (value_default == 3) plain_x_cube[2][y-1].push( plane_construct( 0, y, x, color_n) )
+      if (value_default == 3)
+        plain_x_cube[2][y-1].push( plane_construct( 0, y, x, color_n) )
 
-      if (value_default == 6) plain_x_cube[2][y-1].push( plane_construct( 0, -y, x, color_n) )
-      if (value_default == 6 || value_default == 4) plain_x_cube[3][y-1].push( plane_construct( -y, -x, 0, color_n) )
-      if (value_default == 6) plain_x_cube[4][y-1].push( plane_construct( -y, 0, -x, color_n) )
-      if (value_default == 6) plain_x_cube[5][y-1].push( plane_construct( 0, y, -x, color_n) )
+      if (value_default == 6)
+        plain_x_cube[2][y-1].push( plane_construct( 0, -y, x, color_n) )
 
-      if (value_default == 4) plain_x_cube[6][y-1].push( plane_construct( -x, y, 0, color_n) )
-      if (value_default == 4) plain_x_cube[7][y-1].push( plane_construct( x, -y, 0, color_n) )
+      if (value_default == 6 || value_default == 4)
+        plain_x_cube[3][y-1].push( plane_construct( -y, -x, 0, color_n) )
+
+      if (value_default == 6)
+        plain_x_cube[4][y-1].push( plane_construct( -y, 0, -x, color_n) )
+
+      if (value_default == 6)
+        plain_x_cube[5][y-1].push( plane_construct( 0, y, -x, color_n) )
+
+      if (value_default == 4)
+        plain_x_cube[6][y-1].push( plane_construct( -x, y, 0, color_n) )
+
+      if (value_default == 4)
+        plain_x_cube[7][y-1].push( plane_construct( x, -y, 0, color_n) )
 
     }
   }
