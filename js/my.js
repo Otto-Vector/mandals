@@ -260,18 +260,18 @@ function init() {
     //перебор по осям
     for (let i = 0; i < axis.length; i++)
       for (let j = 0; j < axis[i].length; j++) {
-        if (color == "#") axis[i][j].visible = false
-        if (color == "@") axis[i][j].visible = !axis[i][j].visible
-        if (color == "A") axis[i][j].visible = true
-        if (axis[i][j].colornum == color) axis[i][j].visible = !axis[i][j].visible
+        if (color == "#") axis[i][j].visible = false //все объекты сделать невидимыми
+        if (color == "@") axis[i][j].visible = !axis[i][j].visible //поменять видимые с невидимыми
+        if (color == "A") axis[i][j].visible = true //все объекты сделать видимыми
+        if (axis[i][j].colornum == color) axis[i][j].visible = !axis[i][j].visible //сделать видимым/невидимым один цвет
       }
     //перебор по плоскостям
     for (let i = 0; i < plain_x_cube.length; i++)
       for(let j = 0; j < plain_x_cube[i].length; j++)
         for(let k = 0; k < plain_x_cube[i][j].length; k++) {
-          if (color == "#") plain_x_cube[i][j][k].visible = false
-          if (color == "@") plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible
-          if (color == "A") plain_x_cube[i][j][k].visible = true
+          if (color == "#") plain_x_cube[i][j][k].visible = false //все объекты сделать невидимыми
+          if (color == "@") plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible //поменять видимые с невидимыми
+          if (color == "A") plain_x_cube[i][j][k].visible = true //все объекты сделать видимыми
           if (plain_x_cube[i][j][k].colornum == color) plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible
         }
   }
@@ -320,7 +320,7 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
   }
 
 
-  ////////пластина мандалы из кубов по первому алгоритму////////////////////////////
+  ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)////////////////////////////
   let plane_square_3x_algorithm = (input_nums) => {
     //задаём основной цифро-световой массив мандалы
     let plane_of_colors = []
@@ -333,7 +333,7 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
 
     //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что -1)
     for (let y=1; y <= input_nums.length; y++)
-      for (var x = 1; x <= input_nums.length; x++) {
+      for (var x=1; x <= input_nums.length; x++) {
 
         let fibbo_number = to_one_fibbonachi_digit( plane_of_colors[y-1][x] +
                                          plane_of_colors[y][x-1] +
