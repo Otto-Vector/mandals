@@ -3,9 +3,10 @@ window.onload = init
 
 
 /////задание глобальных переменных////////////////////////////////////////
-var scene, camera, renderer, domEvents, controls
+var scene, camera, renderer, domEvents
+// ,controls
 
-var value_default = 6 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
+var value_default = 4 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
@@ -49,9 +50,9 @@ function init() {
 
   ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
-  controls = new THREE.OrbitControls (camera, renderer.domElement)
-  controls.minDistance = 1
-  controls.maxDistance = 80
+  // controls = new THREE.OrbitControls (camera, renderer.domElement)
+  // controls.minDistance = 1
+  // controls.maxDistance = 80
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -232,7 +233,7 @@ function init() {
 
   function render() {
 
-    controls.update() //манипуляция со сценой
+    // controls.update() //манипуляция со сценой
     // console.log(camera.position)
     renderer.render( scene, camera )
 
@@ -290,7 +291,7 @@ function onWindowResize() {
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth-40, window.innerHeight-4)
 
-  controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
+  // controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
   // console.log(camera.position)
 }
 
