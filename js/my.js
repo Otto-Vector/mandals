@@ -3,8 +3,7 @@ window.onload = init
 
 
 /////задание глобальных переменных////////////////////////////////////////
-var scene, camera, renderer, domEvents
-// ,controls
+var scene, camera, renderer, domEvents,controls
 
 var value_default = 4 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
 
@@ -34,7 +33,7 @@ function init() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
   if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
   if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
-  if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
+  // if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -58,8 +57,24 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите слова и цифры", '')
-  // let input_string = "0123456789"
-  input_string = input_string.replace(/\s/g, '').toLowerCase() //убираем пробелы из строки, убираем верхний регистр
+  let test_string = "0123456789" //тестовая строка на которую заменяется при неверном вводе
+
+  let modification_to_normal = function (str, test) {
+    str = !str ? //проверка str на значения приводящие к false 
+      test : //если ввод пустой то присваивается значение по умолчанию
+        str.slice(0,30) //обрезание более 30ти символов
+          .replace(/\s/g, '') //убираем пробелы из строки
+            .toLowerCase() //убираем верхний регистр
+
+    return !str ? modification_to_normal(str, test) : str //повторная проверка после убирания пробелов либо замыкание либо вывод результата
+  }
+
+  input_string = modification_to_normal(input_string, test_string)
+
+
+  console.log(input_string)
+
+  if (value_default == 4) camera.position.set( 0, 0, 35 + input_string.length*2 ) //позиция камеры для 4
 
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
@@ -69,7 +84,8 @@ function init() {
   String.prototype.simbols_num_adapter = function (simbol) {
     return (!isNaN(simbol)) ? //если проверяемый символ является числом
               parseInt(simbol) : //то выводим его как число
-               this.indexOf(simbol)%9+1 // если нет, то применяем число в соответствии с таблицей Урсулы
+                this.indexOf(simbol)%9+1 // если нет, то применяем число в соответствии с таблицей Урсулы
+               //если символ отсутствует (indexOf возвращает -1), то по логике последней строки присваивается 0
     }
   //////////////////////////////////////////////////////////
   //прототипирование функции перевода строки в числа (возвращает массив чисел)
@@ -89,6 +105,7 @@ function init() {
   //перевод строки в массив чисел для корректных подсчётов
   let input_nums = input_string.to_num()
 
+  console.log(input_nums)
 ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
 
@@ -105,26 +122,28 @@ function init() {
   let border_color = input_nums[0]
   
   //сборка осей по value_default направлениям //
+  let color_n, arr_index
   for (let i = 1; i <= input_string.length; i++) {
-    let color_n = input_nums[i]
+    color_n = input_nums[i]
+    arr_index = 0
 
-    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[0].push( axis_construct( i,0,0, color_n) )
-    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[1].push( axis_construct( 0,i,0, color_n) )
-    if ( value_default == 6 || value_default == 4 ) axis[2].push( axis_construct( -i,0,0, color_n) )
-    if ( value_default == 6 || value_default == 4 ) axis[3].push( axis_construct( 0,-i,0, color_n) )
+    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[arr_index++].push( axis_construct( i,0,0, color_n) )
+    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[arr_index++].push( axis_construct( 0,i,0, color_n) )
+    if ( value_default == 6 || value_default == 4 ) axis[arr_index++].push( axis_construct( -i,0,0, color_n) )
+    if ( value_default == 6 || value_default == 4 ) axis[arr_index++].push( axis_construct( 0,-i,0, color_n) )
 
-    if ( value_default == 3 || value_default == 6 ) axis[4].push( axis_construct( 0,0,i, color_n) )
-    if ( value_default == 6 ) axis[5].push( axis_construct( 0,0,-i, color_n) )
+    if ( value_default == 3 || value_default == 6 ) axis[arr_index++].push( axis_construct( 0,0,i, color_n) )
+    if ( value_default == 6 ) axis[arr_index++].push( axis_construct( 0,0,-i, color_n) )
 
     //пока рабочий вариант обводки мандалы
-    if ( value_default == 4 ) axis[6].push( axis_construct( i, border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[7].push( axis_construct( i,-border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[8].push( axis_construct( -i, border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[9].push( axis_construct( -i, -border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[10].push( axis_construct( -border_coordin, i, 0, border_color) )
-    if ( value_default == 4 ) axis[11].push( axis_construct( border_coordin, i, 0, border_color) )
-    if ( value_default == 4 ) axis[12].push( axis_construct( border_coordin,-i, 0, border_color) )
-    if ( value_default == 4 ) axis[13].push( axis_construct( -border_coordin,-i, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( i, border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( i,-border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -i, border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -i, -border_coordin, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -border_coordin, i, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( border_coordin, i, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( border_coordin,-i, 0, border_color) )
+    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -border_coordin,-i, 0, border_color) )
   }
     //допиливание обводки (рабочий вариант)
     if ( value_default == 4 ) axis[6].push( axis_construct( border_coordin, border_coordin, 0, border_color) )
@@ -143,7 +162,7 @@ function init() {
 
   //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   let plain_x_cube = []
-  for (var y = 0; y < (input_string.length*2); y++) {
+  for (var y = 0; y < (input_string.length+10); y++) {
   // углубление массива на 2 уровень
     plain_x_cube[y] = []
     for (var x = 0; x < input_string.length; x++) 
@@ -152,40 +171,40 @@ function init() {
   }
 
   //отрисовка панелей
-  for (let y = 1; y <= input_string.length; y++) {
+  for (let y = 1; y <= input_string.length; y++)
     for (let x = 1; x <= input_string.length; x++) {
-
-      let color_n = plane_of_colors[y][x]
+      arr_index = 0
+      color_n = plane_of_colors[y][x]
 
       if (value_default == 3 || value_default == 6 || value_default == 4)
-        plain_x_cube[0][y-1].push( plane_construct( y, x, 0, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( y, x, 0, color_n) )
 
       if (value_default == 3 || value_default == 6 )
-        plain_x_cube[1][y-1].push( plane_construct( y, 0, x, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( y, 0, x, color_n) )
 
       if (value_default == 3)
-        plain_x_cube[2][y-1].push( plane_construct( 0, y, x, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( 0, y, x, color_n) )
 
       if (value_default == 6)
-        plain_x_cube[2][y-1].push( plane_construct( 0, -y, x, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( 0, -y, x, color_n) )
 
       if (value_default == 6 || value_default == 4)
-        plain_x_cube[3][y-1].push( plane_construct( -y, -x, 0, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( -y, -x, 0, color_n) )
 
       if (value_default == 6)
-        plain_x_cube[4][y-1].push( plane_construct( -y, 0, -x, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( -y, 0, -x, color_n) )
 
       if (value_default == 6)
-        plain_x_cube[5][y-1].push( plane_construct( 0, y, -x, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( 0, y, -x, color_n) )
 
       if (value_default == 4)
-        plain_x_cube[6][y-1].push( plane_construct( -x, y, 0, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( -x, y, 0, color_n) )
 
       if (value_default == 4)
-        plain_x_cube[7][y-1].push( plane_construct( x, -y, 0, color_n) )
+        plain_x_cube[arr_index++][y-1].push( plane_construct( x, -y, 0, color_n) )
 
     }
-  }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
                       ////блок для углубления куба/////
