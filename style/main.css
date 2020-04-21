@@ -1,12 +1,14 @@
 body {
     margin: 0;
     padding: 0;
+    position: relative;
 }
 canvas {
     margin: 0;
     padding: 0;
 }
 .palitra {
+    background-color: rgba(0,0,0,0);
     position: absolute;
     right: 5px;
     top: 10px;
@@ -25,4 +27,5 @@ canvas {
     cursor: pointer;
     user-select: none;
     padding-top: 2px;
+    background-color: white;
 }

@@ -3,7 +3,8 @@ window.onload = init
 
 
 /////задание глобальных переменных////////////////////////////////////////
-var scene, camera, renderer, domEvents,controls
+var scene, camera, renderer, domEvents
+//controls
 
 var value_default = 4 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
 
@@ -39,7 +40,7 @@ function init() {
   //выбрал рендер
   renderer = new THREE.WebGLRenderer()
   renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.setSize( window.innerWidth-40, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
+  renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
   //-40 для панели кнопок цвета
 
   //добавление скрипта к документу в тег
@@ -47,7 +48,7 @@ function init() {
   //при динамическом изменении размера окна
   window.addEventListener('resize', onWindowResize, false)
 
-  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ
+  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ///////////////////////////
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
   // controls = new THREE.OrbitControls (camera, renderer.domElement)
   // controls.minDistance = 1
@@ -120,6 +121,11 @@ function init() {
   //перменные для обводки мандалы
   let border_coordin = input_string.length+1
   let border_color = input_nums[0]
+
+  //функция для проверки различных значений value_default (прототипирована в Number)
+  Number.prototype.true_of = function (...props) {
+    return props.indexOf(parseInt(this)) == -1 ? false : true
+  }
   
   //сборка осей по value_default направлениям //
   let color_n, arr_index
@@ -127,13 +133,13 @@ function init() {
     color_n = input_nums[i]
     arr_index = 0
 
-    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[arr_index++].push( axis_construct( i,0,0, color_n) )
-    if ( value_default == 3 || value_default == 4 || value_default == 6) axis[arr_index++].push( axis_construct( 0,i,0, color_n) )
-    if ( value_default == 6 || value_default == 4 ) axis[arr_index++].push( axis_construct( -i,0,0, color_n) )
-    if ( value_default == 6 || value_default == 4 ) axis[arr_index++].push( axis_construct( 0,-i,0, color_n) )
+    if ( value_default.true_of(3,4,6)) axis[arr_index++].push( axis_construct( i,0,0, color_n) )
+    if ( value_default.true_of(3,4,6)) axis[arr_index++].push( axis_construct( 0,i,0, color_n) )
+    if ( value_default.true_of(4,6) ) axis[arr_index++].push( axis_construct( -i,0,0, color_n) )
+    if ( value_default.true_of(4,6) ) axis[arr_index++].push( axis_construct( 0,-i,0, color_n) )
 
-    if ( value_default == 3 || value_default == 6 ) axis[arr_index++].push( axis_construct( 0,0,i, color_n) )
-    if ( value_default == 6 ) axis[arr_index++].push( axis_construct( 0,0,-i, color_n) )
+    if ( value_default.true_of(3,6) ) axis[arr_index++].push( axis_construct( 0,0,i, color_n) )
+    if ( value_default.true_of(6) ) axis[arr_index++].push( axis_construct( 0,0,-i, color_n) )
 
     //пока рабочий вариант обводки мандалы
     if ( value_default == 4 ) axis[arr_index++].push( axis_construct( i, border_coordin, 0, border_color) )
@@ -176,10 +182,10 @@ function init() {
       arr_index = 0
       color_n = plane_of_colors[y][x]
 
-      if (value_default == 3 || value_default == 6 || value_default == 4)
+      if (value_default.true_of(3,4,6))
         plain_x_cube[arr_index++][y-1].push( plane_construct( y, x, 0, color_n) )
 
-      if (value_default == 3 || value_default == 6 )
+      if (value_default.true_of(3,6))
         plain_x_cube[arr_index++][y-1].push( plane_construct( y, 0, x, color_n) )
 
       if (value_default == 3)
@@ -188,7 +194,7 @@ function init() {
       if (value_default == 6)
         plain_x_cube[arr_index++][y-1].push( plane_construct( 0, -y, x, color_n) )
 
-      if (value_default == 6 || value_default == 4)
+      if (value_default.true_of(6,4))
         plain_x_cube[arr_index++][y-1].push( plane_construct( -y, -x, 0, color_n) )
 
       if (value_default == 6)
@@ -308,7 +314,8 @@ function onWindowResize() {
 
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth-40, window.innerHeight-4)
+  renderer.setSize(window.innerWidth-4, window.innerHeight-4)
+
 
   // controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
   // console.log(camera.position)
