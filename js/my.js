@@ -74,8 +74,8 @@ function init() {
 
   console.log(input_string)
 
-  if (value_default == 4) camera.position.set( 0, 0, 35 + input_string.length*3 ) //позиция камеры для 4
-
+  if (value_default == 4) camera.position.set( 0, 0, 50 + input_string.length ) //позиция камеры для 4
+  console.log(camera.position)
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
