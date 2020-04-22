@@ -30,7 +30,7 @@ function init() {
   scene.background = new THREE.Color( "white" ) //задал сцене задний фон
 
   //настроил параметры камеры
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
+  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 300 )
   if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
   if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
   if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
@@ -50,8 +50,8 @@ function init() {
   ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ///////////////////////////
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
   controls = new THREE.OrbitControls (camera, renderer.domElement)
-  controls.minDistance = 1
-  controls.maxDistance = 99
+  controls.minDistance = 5
+  controls.maxDistance = 299
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -70,12 +70,8 @@ function init() {
   }
 
   input_string = modification_to_normal(input_string, test_string)
+  // console.log(input_string)
 
-
-  console.log(input_string)
-
-  // if (value_default == 4) camera.position.set( 0, 0, 50 + input_string.length ) //позиция камеры для 4
-  console.log(camera.position)
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
@@ -105,7 +101,6 @@ function init() {
   //перевод строки в массив чисел для корректных подсчётов
   let input_nums = input_string.to_num()
 
-  console.log(input_nums)
 ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
 
@@ -324,7 +319,7 @@ function onWindowResize() {
 
 
   controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
-  // console.log(camera.position)
+
 }
 
 /////////////////////////////////////////////////////////
