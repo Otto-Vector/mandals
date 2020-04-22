@@ -571,12 +571,12 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 		state = STATE.NONE;
 	}
 
-	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
-	this.localElement.addEventListener( 'mousedown', onMouseDown, false );
+	// this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+	// this.localElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
 
-	this.domElement.addEventListener( 'keydown', onKeyDown, false );
+	// this.domElement.addEventListener( 'keydown', onKeyDown, false );
 
 	this.localElement.addEventListener( 'touchstart', touchstart, false );
 	this.domElement.addEventListener( 'touchend', touchend, false );

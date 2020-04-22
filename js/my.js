@@ -3,8 +3,7 @@ window.onload = init
 
 
 /////задание глобальных переменных////////////////////////////////////////
-var scene, camera, renderer, domEvents
-//controls
+var scene, camera, renderer, domEvents, controls
 
 var value_default = 4 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
 
@@ -34,7 +33,7 @@ function init() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100 )
   if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
   if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
-  // if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
+  if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -50,9 +49,9 @@ function init() {
 
   ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ///////////////////////////
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
-  // controls = new THREE.OrbitControls (camera, renderer.domElement)
-  // controls.minDistance = 1
-  // controls.maxDistance = 80
+  controls = new THREE.OrbitControls (camera, renderer.domElement)
+  controls.minDistance = 1
+  controls.maxDistance = 99
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -75,7 +74,7 @@ function init() {
 
   console.log(input_string)
 
-  if (value_default == 4) camera.position.set( 0, 0, 50 + input_string.length ) //позиция камеры для 4
+  // if (value_default == 4) camera.position.set( 0, 0, 50 + input_string.length ) //позиция камеры для 4
   console.log(camera.position)
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
@@ -120,7 +119,7 @@ function init() {
   
   //перменные для обводки мандалы
   let border_coordin = input_string.length+1
-  let border_color = input_nums[0]
+  let border_color = input_nums[0] //присваивается цвет нулевой клетки
 
   //функция для проверки различных значений value_default (прототипирована в Number)
   Number.prototype.true_of = function (...props) {
@@ -135,31 +134,38 @@ function init() {
 
     if ( value_default.true_of(3,4,6)) axis[arr_index++].push( axis_construct( i,0,0, color_n) )
     if ( value_default.true_of(3,4,6)) axis[arr_index++].push( axis_construct( 0,i,0, color_n) )
+
     if ( value_default.true_of(4,6) ) axis[arr_index++].push( axis_construct( -i,0,0, color_n) )
     if ( value_default.true_of(4,6) ) axis[arr_index++].push( axis_construct( 0,-i,0, color_n) )
 
     if ( value_default.true_of(3,6) ) axis[arr_index++].push( axis_construct( 0,0,i, color_n) )
+
     if ( value_default.true_of(6) ) axis[arr_index++].push( axis_construct( 0,0,-i, color_n) )
 
     //пока рабочий вариант обводки мандалы
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( i, border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( i,-border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -i, border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -i, -border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -border_coordin, i, 0, border_color) )
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( border_coordin, i, 0, border_color) )
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( border_coordin,-i, 0, border_color) )
-    if ( value_default == 4 ) axis[arr_index++].push( axis_construct( -border_coordin,-i, 0, border_color) )
-  }
+    if ( value_default == 4 ) axis[arr_index++].push(
+      axis_construct( i, border_coordin, 0, border_color),
+      axis_construct( i,-border_coordin, 0, border_color),
+      axis_construct( -i, border_coordin, 0, border_color),
+      axis_construct( -i, -border_coordin, 0, border_color),
+      axis_construct( -border_coordin, i, 0, border_color),
+      axis_construct( border_coordin, i, 0, border_color),
+      axis_construct( border_coordin,-i, 0, border_color),
+      axis_construct( -border_coordin,-i, 0, border_color) 
+      )
     //допиливание обводки (рабочий вариант)
-    if ( value_default == 4 ) axis[6].push( axis_construct( border_coordin, border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[7].push( axis_construct( border_coordin, -border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[8].push( axis_construct( -border_coordin, border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[9].push( axis_construct( -border_coordin, -border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[10].push( axis_construct( 0, border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[11].push( axis_construct( 0, -border_coordin, 0, border_color) )
-    if ( value_default == 4 ) axis[12].push( axis_construct( -border_coordin,0, 0, border_color) )
-    if ( value_default == 4 ) axis[13].push( axis_construct( border_coordin,0, 0, border_color) )
+    if ( value_default == 4 && i == 1) axis[arr_index++].push( //срабатывает один раз, дорисовывает точки
+      axis_construct( border_coordin, border_coordin, 0, border_color),
+      axis_construct( border_coordin, -border_coordin, 0, border_color),
+      axis_construct( -border_coordin, border_coordin, 0, border_color),
+      axis_construct( -border_coordin, -border_coordin, 0, border_color),
+      axis_construct( 0, border_coordin, 0, border_color),
+      axis_construct( 0, -border_coordin, 0, border_color),
+      axis_construct( -border_coordin,0, 0, border_color),
+      axis_construct( border_coordin,0, 0, border_color)
+      )
+
+  }
    
   ////////пластина кубов/////////////
 
@@ -258,7 +264,7 @@ function init() {
 
   function render() {
 
-    // controls.update() //манипуляция со сценой
+    controls.update() //манипуляция со сценой
     // console.log(camera.position)
     renderer.render( scene, camera )
 
@@ -317,7 +323,7 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth-4, window.innerHeight-4)
 
 
-  // controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
+  controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
   // console.log(camera.position)
 }
 
