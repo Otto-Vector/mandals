@@ -155,7 +155,7 @@ function init() {
         axis_construct( -border_coordin,-i, 0, border_color) 
       )
     }
-   
+
   ////////пластина кубов/////////////
 
   //высчитываем двумерный массив цветов для куба
@@ -322,7 +322,6 @@ function onWindowResize() {
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth-4, window.innerHeight-4)
 
-
   controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
 
 }
@@ -331,11 +330,12 @@ function onWindowResize() {
 // универсальная функция числа фибоначчи/////////////////
 const to_one_fibbonachi_digit = (digit) => {
 
-    let string_of_digits = digit.toString()
-    digit = 0
+    digit = Math.abs(digit) //на всякий случай избавляемся от отрицательных значений
+    let string_of_digits = digit.toString() //передаваемое число переводится в буферную строчную переменную
+    digit = 0 //сама переданная переменная временно обруляется
 
     for (let i=0; i < string_of_digits.length; i++)
-      digit += parseInt(string_of_digits[i])
+      digit += parseInt(string_of_digits[i]) //поцифровой перебор и суммирование числа из строки
 
     return (digit > 9) ? to_one_fibbonachi_digit(digit) : digit
 
