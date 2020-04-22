@@ -50,7 +50,7 @@ function init() {
   ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ///////////////////////////
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
   controls = new THREE.OrbitControls (camera, renderer.domElement)
-  controls.minDistance = 5
+  controls.minDistance = 2
   controls.maxDistance = 299
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
@@ -112,9 +112,7 @@ function init() {
   axis[0][0] = axis_construct(0,0,0, input_nums[0])
 
   
-  //перменные для обводки мандалы
-  let border_coordin = input_string.length+1
-  let border_color = input_nums[0] //присваивается цвет нулевой клетки
+  
 
   //функция для проверки различных значений value_default (прототипирована в Number)
   Number.prototype.true_of = function (...props) {
@@ -136,31 +134,27 @@ function init() {
     if ( value_default.true_of(3,6) ) axis[arr_index++].push( axis_construct( 0,0,i, color_n) )
 
     if ( value_default.true_of(6) ) axis[arr_index++].push( axis_construct( 0,0,-i, color_n) )
-
-    //пока рабочий вариант обводки мандалы
-    if ( value_default == 4 ) axis[arr_index++].push(
-      axis_construct( i, border_coordin, 0, border_color),
-      axis_construct( i,-border_coordin, 0, border_color),
-      axis_construct( -i, border_coordin, 0, border_color),
-      axis_construct( -i, -border_coordin, 0, border_color),
-      axis_construct( -border_coordin, i, 0, border_color),
-      axis_construct( border_coordin, i, 0, border_color),
-      axis_construct( border_coordin,-i, 0, border_color),
-      axis_construct( -border_coordin,-i, 0, border_color) 
-      )
-    //допиливание обводки (рабочий вариант)
-    if ( value_default == 4 && i == 1) axis[arr_index++].push( //срабатывает один раз, дорисовывает точки
-      axis_construct( border_coordin, border_coordin, 0, border_color),
-      axis_construct( border_coordin, -border_coordin, 0, border_color),
-      axis_construct( -border_coordin, border_coordin, 0, border_color),
-      axis_construct( -border_coordin, -border_coordin, 0, border_color),
-      axis_construct( 0, border_coordin, 0, border_color),
-      axis_construct( 0, -border_coordin, 0, border_color),
-      axis_construct( -border_coordin,0, 0, border_color),
-      axis_construct( border_coordin,0, 0, border_color)
-      )
-
   }
+
+  ///////рабочий вариант обводки мандалы////////////////////////
+  //перменные для обводки мандалы
+  let border_coordin = input_string.length+1
+  let border_color = input_nums[0] //присваивается цвет нулевой клетки
+  let border = []
+
+  if ( value_default == 4 )
+    for (let i = 0; i <= border_coordin; i++) {
+      border.push(
+        axis_construct( i, border_coordin, 0, border_color),
+        axis_construct( i,-border_coordin, 0, border_color),
+        axis_construct( -i, border_coordin, 0, border_color),
+        axis_construct( -i, -border_coordin, 0, border_color),
+        axis_construct( -border_coordin, i, 0, border_color),
+        axis_construct( border_coordin, i, 0, border_color),
+        axis_construct( border_coordin,-i, 0, border_color),
+        axis_construct( -border_coordin,-i, 0, border_color) 
+      )
+    }
    
   ////////пластина кубов/////////////
 
@@ -266,10 +260,41 @@ function init() {
 
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+///МАНИПУЛЯЦИИ С ПРИМЕНЕНИЕМ И ОСЛЕЖИВАНИЕМ СОБЫТИЙ НАЖАТИЯ НА ОБЪЕКТЫ И КНОПКИ НА БОКОВОЙ ПАНЕЛИ///
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // //функция исчезания кубов в найденых в domEvents
+  var color_select_unvisibler = (color) => {
+
+    //функция перебора массива с отслеживанием нажатых кнопок
+    function foreach_visibler(arr) { //в ф-цию передаем массив
+      arr.forEach(function(item) { //перебираем массив
+        //если элемент массива является вложенным массивом - вызываем нашу ф-цию (будет рекурсия)
+        if (Array.isArray(item)) foreach_visibler(item)
+        else {
+          if (color == "#") item.visible = false //все искомые элементы становятся невидимыми
+          if (color == "@" || color == item.colornum ) item.visible = !item.visible //смена видимости на невидимость
+          if (color == "A") item.visible = true //все искомые элементы становятся видимыми
+        }
+      });
+    }
+
+    //перебор по осям
+    foreach_visibler(axis)
+    //перебор по плоскостям
+    foreach_visibler(plain_x_cube)
+
+    //только для бордера//
+    if (color == "B") border.forEach( function(entry) { 
+      entry.colornum = (entry.colornum == 9 ) ? 0 : ++entry.colornum //перебор цвета в цикле 9 и смена значения
+      entry.material.color.set(colors[entry.colornum]) //присвоение значения цвета
+      })
+    }
+
 
   ///////// применил отслеживание по клику с помощью библиотеки threex.domevents.js ////////
   var domEvents = new THREEx.DomEvents(camera, renderer.domElement)
-
 
   //назначил перебором отслеживание событий на каждую ось
   for (let i = 0; i < axis.length; i++)
@@ -282,29 +307,9 @@ function init() {
         for(let k = 0; k < plain_x_cube[i][j].length; k++)
           domEvents.addEventListener( plain_x_cube[i][j][k], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
 
-  // //функция исчезания кубов в найденых в domEvents
-  var color_select_unvisibler = (color) => {
-    //перебор по осям
-    for (let i = 0; i < axis.length; i++)
-      for (let j = 0; j < axis[i].length; j++) {
-        if (color == "#") axis[i][j].visible = false //все объекты сделать невидимыми
-        if (color == "@") axis[i][j].visible = !axis[i][j].visible //поменять видимые с невидимыми
-        if (color == "A") axis[i][j].visible = true //все объекты сделать видимыми
-        if (axis[i][j].colornum == color) axis[i][j].visible = !axis[i][j].visible //сделать видимым/невидимым один цвет
-      }
-    //перебор по плоскостям
-    for (let i = 0; i < plain_x_cube.length; i++)
-      for(let j = 0; j < plain_x_cube[i].length; j++)
-        for(let k = 0; k < plain_x_cube[i][j].length; k++) {
-          if (color == "#") plain_x_cube[i][j][k].visible = false //все объекты сделать невидимыми
-          if (color == "@") plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible //поменять видимые с невидимыми
-          if (color == "A") plain_x_cube[i][j][k].visible = true //все объекты сделать видимыми
-          if (plain_x_cube[i][j][k].colornum == color) plain_x_cube[i][j][k].visible = !plain_x_cube[i][j][k].visible
-        }
-  }
   //отслеживание нажатия кнопок боковой панели
   for (var i = 0; i < palitra.length; i++) {
-    palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML)
+    palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
 
 } //init() end bracket
