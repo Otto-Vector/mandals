@@ -56,7 +56,7 @@ function init() {
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
-  let input_string = prompt("Введите слова и цифры", '')
+  let input_string = prompt("Введите значение для создания мандалы", '')
   let test_string = "0123456789" //тестовая строка на которую заменяется при неверном вводе
 
   let modification_to_normal = function (str, test) {
@@ -71,6 +71,8 @@ function init() {
 
   input_string = modification_to_normal(input_string, test_string)
   // console.log(input_string)
+  title = document.querySelectorAll("header.title");
+  title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
 
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
@@ -111,8 +113,7 @@ function init() {
   //нулевой куб в центре оси
   axis[0][0] = axis_construct(0,0,0, input_nums[0])
 
-  
-  
+
 
   //функция для проверки различных значений value_default (прототипирована в Number)
   Number.prototype.true_of = function (...props) {

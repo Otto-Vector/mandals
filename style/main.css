@@ -7,6 +7,17 @@ canvas {
     margin: 0;
     padding: 0;
 }
+header.title {
+    position: absolute;
+    top: 0;
+    font-weight: bold;
+    font-size: 50px;
+    text-align: center;
+    line-height: 200%;
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.1),rgba(0,0,0,0));
+    text-shadow: 1px 1px white;
+    width: 100%;
+}
 .palitra {
     background-color: rgba(0,0,0,0);
     position: absolute;
