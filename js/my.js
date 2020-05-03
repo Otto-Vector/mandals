@@ -56,9 +56,9 @@ function init() {
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
-  let input_string = prompt("Введите значение для создания мандалы", '')
+  // let input_string = prompt("Введите значение для создания мандалы", '')
   let test_string = "0123456789" //тестовая строка на которую заменяется при неверном вводе
-
+  let input_string = test_string
   let modification_to_normal = function (str, test) {
     str = !str ? //проверка str на значения приводящие к false 
       test : //если ввод пустой то присваивается значение по умолчанию
@@ -70,7 +70,7 @@ function init() {
   }
 
   input_string = modification_to_normal(input_string, test_string)
-  // console.log(input_string)
+
   title = document.querySelectorAll("header.title");
   title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
 
@@ -141,20 +141,22 @@ function init() {
   //перменные для обводки мандалы
   let border_coordin = input_string.length+1
   let border_color = input_nums[0] //присваивается цвет нулевой клетки
-  let border = []
-
+  let border = [] //массив для элементов обводки мандалы
+  let border_timeout = 0 //переменная для анимации отрисовки обводки
+  
   if ( value_default == 4 )
-    for (let i = 0; i <= border_coordin; i++) {
-      border.push(
-        axis_construct( i, border_coordin, 0, border_color),
-        axis_construct( i,-border_coordin, 0, border_color),
-        axis_construct( -i, border_coordin, 0, border_color),
-        axis_construct( -i, -border_coordin, 0, border_color),
-        axis_construct( -border_coordin, i, 0, border_color),
-        axis_construct( border_coordin, i, 0, border_color),
-        axis_construct( border_coordin,-i, 0, border_color),
-        axis_construct( -border_coordin,-i, 0, border_color) 
-      )
+    for (let i = -border_coordin; i < border_coordin; i++) {
+
+      setTimeout(function(){ //анимация бордера
+        border.push(
+          axis_construct( -border_coordin, i, 0, border_color), //левая
+          axis_construct( i, border_coordin, 0, border_color), //верхняя
+          axis_construct( border_coordin, -i, 0, border_color), //правая
+          axis_construct( -i,-border_coordin, 0, border_color) //нижняя
+        )
+      },
+        border_timeout = border_timeout+50) //прирост времени появления следуюдего элемента
+
     }
 
   ////////пластина кубов/////////////
