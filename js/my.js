@@ -109,12 +109,9 @@ function init() {
 
   //объявляем двумерный массив для оси
   let axis = []
-  // for (let i = 0; i < 20; i++) axis[i] = []
 
   //нулевой куб в центре оси
   axis[0] = axis_construct(0,0,0, input_nums[0])
-
-
 
   //функция для проверки различных значений value_default (прототипирована в Number)
   Number.prototype.true_of = function (...props) {
@@ -166,46 +163,39 @@ function init() {
 
   //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   let plain_x_cube = []
-  for (var y = 0; y < (input_string.length+10); y++) {
-  // углубление массива на 2 уровень
-    plain_x_cube[y] = []
-    for (var x = 0; x < input_string.length; x++) 
-  // углубление массива 3 уровень
-      plain_x_cube[y][x] = []
-  }
-
+  let plain_timeout = 0 //переменная для анимации отрисовки обводки
   //отрисовка панелей
   for (let y = 1; y <= input_string.length; y++)
     for (let x = 1; x <= input_string.length; x++) {
-      arr_index = 0
+
       color_n = plane_of_colors[y][x]
 
       if (value_default.true_of(3,4,6))
-        plain_x_cube[arr_index++][y-1].push( plane_construct( y, x, 0, color_n) )
+        plain_x_cube.push( plane_construct( y, x, 0, color_n) )
 
       if (value_default.true_of(3,6))
-        plain_x_cube[arr_index++][y-1].push( plane_construct( y, 0, x, color_n) )
+        plain_x_cube.push( plane_construct( y, 0, x, color_n) )
 
       if (value_default == 3)
-        plain_x_cube[arr_index++][y-1].push( plane_construct( 0, y, x, color_n) )
+        plain_x_cube.push( plane_construct( 0, y, x, color_n) )
 
       if (value_default == 6)
-        plain_x_cube[arr_index++][y-1].push( plane_construct( 0, -y, x, color_n) )
+        plain_x_cube.push( plane_construct( 0, -y, x, color_n) )
 
       if (value_default.true_of(6,4))
-        plain_x_cube[arr_index++][y-1].push( plane_construct( -y, -x, 0, color_n) )
+        plain_x_cube.push( plane_construct( -y, -x, 0, color_n) )
 
       if (value_default == 6)
-        plain_x_cube[arr_index++][y-1].push( plane_construct( -y, 0, -x, color_n) )
+        plain_x_cube.push( plane_construct( -y, 0, -x, color_n) )
 
       if (value_default == 6)
-        plain_x_cube[arr_index++][y-1].push( plane_construct( 0, y, -x, color_n) )
+        plain_x_cube.push( plane_construct( 0, y, -x, color_n) )
 
       if (value_default == 4)
-        plain_x_cube[arr_index++][y-1].push( plane_construct( -x, y, 0, color_n) )
+        plain_x_cube.push( plane_construct( -x, y, 0, color_n) )
 
       if (value_default == 4)
-        plain_x_cube[arr_index++][y-1].push( plane_construct( x, -y, 0, color_n) )
+        plain_x_cube.push( plane_construct( x, -y, 0, color_n) )
 
     }
 
@@ -230,7 +220,7 @@ function init() {
         for (let x = 1; x <= input_string.length; x++) {
 
           let color_n = plane_of_colors_for[y][x]
-          plain_x_cube[value_default+i][y-1].push( plane_construct( y, i+1, x, color_n) )
+          plain_x_cube.push( plane_construct( y, i+1, x, color_n) )
 
         }
       }
@@ -301,14 +291,11 @@ function init() {
 
   //назначил перебором отслеживание событий на каждую ось
   for (let i = 0; i < axis.length; i++)
-    // for (let j = 0; j < axis[i].length; j++)
-      domEvents.addEventListener( axis[i], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
+    domEvents.addEventListener( axis[i], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
 
   //назначил перебором отслеживание событий на каждую плоскость
   for (let i = 0; i < plain_x_cube.length; i++)
-      for(let j = 0; j < plain_x_cube[i].length; j++)
-        for(let k = 0; k < plain_x_cube[i][j].length; k++)
-          domEvents.addEventListener( plain_x_cube[i][j][k], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
+    domEvents.addEventListener( plain_x_cube[i], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
 
   //отслеживание нажатия кнопок боковой панели
   for (var i = 0; i < palitra.length; i++) {
@@ -369,7 +356,7 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
 
     //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что -1)
     for (let y=1; y <= input_nums.length; y++)
-      for (var x=1; x <= input_nums.length; x++) {
+      for (let x=1; x <= input_nums.length; x++) {
 
         let fibbo_number = to_one_fibbonachi_digit( plane_of_colors[y-1][x] +
                                          plane_of_colors[y][x-1] +
