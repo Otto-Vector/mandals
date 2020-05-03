@@ -290,14 +290,26 @@ function init() {
   var domEvents = new THREEx.DomEvents(camera, renderer.domElement)
 
   //назначил перебором отслеживание событий на каждую ось
-  for (let i = 0; i < axis.length; i++)
-    domEvents.addEventListener( axis[i], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
+  // function listener(arr) {
+  //   arr.forEach( function(entry) { 
+  //   domEvents.addEventListener( entry, 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
+  // })}
 
+  // listener(axis)
+
+  function mousedown_listener(arr) {
+    arr.forEach( function(entry) { 
+      domEvents.addEventListener( entry, 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
+    })
+  }
+  //назначил отслеживание событий на каждую ось
+  mousedown_listener(axis)
   //назначил перебором отслеживание событий на каждую плоскость
-  for (let i = 0; i < plain_x_cube.length; i++)
-    domEvents.addEventListener( plain_x_cube[i], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
+  mousedown_listener(plain_x_cube)
 
   //отслеживание нажатия кнопок боковой панели
+  // mousedown_listener(palitra)
+
   for (var i = 0; i < palitra.length; i++) {
     palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
