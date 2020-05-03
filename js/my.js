@@ -109,10 +109,10 @@ function init() {
 
   //объявляем двумерный массив для оси
   let axis = []
-  for (let i = 0; i < 20; i++) axis[i] = []
+  // for (let i = 0; i < 20; i++) axis[i] = []
 
   //нулевой куб в центре оси
-  axis[0][0] = axis_construct(0,0,0, input_nums[0])
+  axis[0] = axis_construct(0,0,0, input_nums[0])
 
 
 
@@ -122,20 +122,19 @@ function init() {
   }
   
   //сборка осей по value_default направлениям //
-  let color_n, arr_index
+  let color_n
   for (let i = 1; i <= input_string.length; i++) {
     color_n = input_nums[i]
-    arr_index = 0
 
-    if ( value_default.true_of(3,4,6)) axis[arr_index++].push( axis_construct( i,0,0, color_n) )
-    if ( value_default.true_of(3,4,6)) axis[arr_index++].push( axis_construct( 0,i,0, color_n) )
+    if ( value_default.true_of(3,4,6)) axis.push( axis_construct( i,0,0, color_n) )
+    if ( value_default.true_of(3,4,6)) axis.push( axis_construct( 0,i,0, color_n) )
 
-    if ( value_default.true_of(4,6) ) axis[arr_index++].push( axis_construct( -i,0,0, color_n) )
-    if ( value_default.true_of(4,6) ) axis[arr_index++].push( axis_construct( 0,-i,0, color_n) )
+    if ( value_default.true_of(4,6) ) axis.push( axis_construct( -i,0,0, color_n) )
+    if ( value_default.true_of(4,6) ) axis.push( axis_construct( 0,-i,0, color_n) )
 
-    if ( value_default.true_of(3,6) ) axis[arr_index++].push( axis_construct( 0,0,i, color_n) )
+    if ( value_default.true_of(3,6) ) axis.push( axis_construct( 0,0,i, color_n) )
 
-    if ( value_default.true_of(6) ) axis[arr_index++].push( axis_construct( 0,0,-i, color_n) )
+    if ( value_default.true_of(6) ) axis.push( axis_construct( 0,0,-i, color_n) )
   }
 
   ///////рабочий вариант обводки мандалы////////////////////////
@@ -225,7 +224,7 @@ function init() {
     }
 
     for (let i = 0; i < input_string.length; i++) {
-      let plane_of_colors_for = plane_square_3x_algorithm( [axis[0][i+1].colornum, ...colornum_return(plain_x_cube[0][i])] )
+      let plane_of_colors_for = plane_square_3x_algorithm( [axis[i+1].colornum, ...colornum_return(plain_x_cube[0][i])] )
 
       for (let y = 1; y <= input_string.length; y++) {
         for (let x = 1; x <= input_string.length; x++) {
@@ -302,8 +301,8 @@ function init() {
 
   //назначил перебором отслеживание событий на каждую ось
   for (let i = 0; i < axis.length; i++)
-    for (let j = 0; j < axis[i].length; j++)
-      domEvents.addEventListener( axis[i][j], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
+    // for (let j = 0; j < axis[i].length; j++)
+      domEvents.addEventListener( axis[i], 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
 
   //назначил перебором отслеживание событий на каждую плоскость
   for (let i = 0; i < plain_x_cube.length; i++)
