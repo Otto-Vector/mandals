@@ -70,7 +70,7 @@ function init() {
   }
 
   input_string = modification_to_normal(input_string, test_string)
-  input_string_length = input_string_length
+  let input_string_length = input_string.length
 
   title = document.querySelectorAll("header.title");
   title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
@@ -130,7 +130,6 @@ function init() {
     if ( value_default.true_of(4,6) ) axis.push( axis_construct( 0,-i,0, color_n) )
 
     if ( value_default.true_of(6) ) axis.push( axis_construct( 0,0,i, color_n) )
-
     if ( value_default.true_of(6) ) axis.push( axis_construct( 0,0,-i, color_n) )
   }
 
@@ -195,9 +194,6 @@ function init() {
         plain_x_cube.push( plane_construct( x, -y, 0, color_n) )
 
     }
-
-console.log(plain_x_cube)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
