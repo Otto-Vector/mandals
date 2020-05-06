@@ -5,7 +5,7 @@ window.onload = init
 /////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
 
-var value_default = 4 //задаёт две разные мандалы (пока на 3 (1) и на 6 (2) пластин) 4 (3) - на квадрат
+var value_default = 4 //задаёт две разные мандалы (на 6 пластин (6) пластин, 4 - на квадрат)
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
@@ -32,7 +32,6 @@ function init() {
   //настроил параметры камеры
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 300 )
   if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
-  if (value_default == 3) camera.position.set( -45, -45, -45 ) //позиция камеры для 3
   if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
@@ -71,6 +70,7 @@ function init() {
   }
 
   input_string = modification_to_normal(input_string, test_string)
+  input_string_length = input_string_length
 
   title = document.querySelectorAll("header.title");
   title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
@@ -120,23 +120,23 @@ function init() {
   
   //сборка осей по value_default направлениям //
   let color_n
-  for (let i = 1; i <= input_string.length; i++) {
+  for (let i = 1; i <= input_string_length; i++) {
     color_n = input_nums[i]
 
-    if ( value_default.true_of(3,4,6)) axis.push( axis_construct( i,0,0, color_n) )
-    if ( value_default.true_of(3,4,6)) axis.push( axis_construct( 0,i,0, color_n) )
+    if ( value_default.true_of(4,6)) axis.push( axis_construct( i,0,0, color_n) )
+    if ( value_default.true_of(4,6)) axis.push( axis_construct( 0,i,0, color_n) )
 
     if ( value_default.true_of(4,6) ) axis.push( axis_construct( -i,0,0, color_n) )
     if ( value_default.true_of(4,6) ) axis.push( axis_construct( 0,-i,0, color_n) )
 
-    if ( value_default.true_of(3,6) ) axis.push( axis_construct( 0,0,i, color_n) )
+    if ( value_default.true_of(6) ) axis.push( axis_construct( 0,0,i, color_n) )
 
     if ( value_default.true_of(6) ) axis.push( axis_construct( 0,0,-i, color_n) )
   }
 
   ///////рабочий вариант обводки мандалы////////////////////////
   //перменные для обводки мандалы
-  let border_coordin = input_string.length+1
+  let border_coordin = input_string_length+1
   let border_color = input_nums[0] //присваивается цвет нулевой клетки
   let border = [] //массив для элементов обводки мандалы
   let border_timeout = 0 //переменная для анимации отрисовки обводки
@@ -165,19 +165,16 @@ function init() {
   let plain_x_cube = []
   let plain_timeout = 0 //переменная для анимации отрисовки обводки
   //отрисовка панелей
-  for (let y = 1; y <= input_string.length; y++)
-    for (let x = 1; x <= input_string.length; x++) {
+  for (let y = 1; y <= input_string_length; y++)
+    for (let x = 1; x <= input_string_length; x++) {
 
       color_n = plane_of_colors[y][x]
 
-      if (value_default.true_of(3,4,6))
+      if (value_default.true_of(4,6))
         plain_x_cube.push( plane_construct( y, x, 0, color_n) )
 
-      if (value_default.true_of(3,6))
+      if (value_default.true_of(6))
         plain_x_cube.push( plane_construct( y, 0, x, color_n) )
-
-      if (value_default == 3)
-        plain_x_cube.push( plane_construct( 0, y, x, color_n) )
 
       if (value_default == 6)
         plain_x_cube.push( plane_construct( 0, -y, x, color_n) )
@@ -199,35 +196,7 @@ function init() {
 
     }
 
-
-////////////////////////////////////////////////////////////////////////////////////////
-                      ////блок для углубления куба/////
-////////////////////////////////////////////////////////////////////////////////////////
-
-  function cube_3d() {
-  //функция для перебора и возврата значений colornum
-    let colornum_return = (value) => {
-      let plane_z = []
-      for (let i=0; i < value.length; i++) plane_z.push(value[i].colornum)
-
-      return plane_z
-    }
-
-    for (let i = 0; i < input_string.length; i++) {
-      let plane_of_colors_for = plane_square_3x_algorithm( [axis[i+1].colornum, ...colornum_return(plain_x_cube[0][i])] )
-
-      for (let y = 1; y <= input_string.length; y++) {
-        for (let x = 1; x <= input_string.length; x++) {
-
-          let color_n = plane_of_colors_for[y][x]
-          plain_x_cube.push( plane_construct( y, i+1, x, color_n) )
-
-        }
-      }
-    }
-  }
-
-  if ( value_default == 3 ) cube_3d()
+console.log(plain_x_cube)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +249,7 @@ function init() {
 
     //только для бордера//
     if (color == "B") border.forEach( function(entry) { 
-      entry.colornum = (entry.colornum == 9 ) ? 0 : ++entry.colornum //перебор цвета в цикле 9 и смена значения
+      entry.colornum = (entry.colornum == 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
       entry.material.color.set(colors[entry.colornum]) //присвоение значения цвета
       })
     }
@@ -289,27 +258,20 @@ function init() {
   ///////// применил отслеживание по клику с помощью библиотеки threex.domevents.js ////////
   var domEvents = new THREEx.DomEvents(camera, renderer.domElement)
 
-  //назначил перебором отслеживание событий на каждую ось
-  // function listener(arr) {
-  //   arr.forEach( function(entry) { 
-  //   domEvents.addEventListener( entry, 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
-  // })}
-
-  // listener(axis)
-
+  //функция отслеживания событий для элементов THREE.js////
   function mousedown_listener(arr) {
     arr.forEach( function(entry) { 
       domEvents.addEventListener( entry, 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
     })
   }
+
   //назначил отслеживание событий на каждую ось
   mousedown_listener(axis)
-  //назначил перебором отслеживание событий на каждую плоскость
+  //назначил отслеживание событий на каждую плоскость
   mousedown_listener(plain_x_cube)
 
-  //отслеживание нажатия кнопок боковой панели
-  // mousedown_listener(palitra)
 
+  //отслеживание нажатия кнопок боковой панели
   for (var i = 0; i < palitra.length; i++) {
     palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
