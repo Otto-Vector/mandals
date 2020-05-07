@@ -228,14 +228,11 @@ function init() {
     //функция перебора массива с отслеживанием нажатых кнопок
     function foreach_visibler(arr) { //в ф-цию передаем массив
       arr.forEach(function(item) { //перебираем массив
-        //если элемент массива является вложенным массивом - вызываем нашу ф-цию (будет рекурсия)
-        if (Array.isArray(item)) foreach_visibler(item)
-        else {
           if (color == "#") item.visible = false //все искомые элементы становятся невидимыми
-          if (color == "@" || color == item.colornum ) item.visible = !item.visible //смена видимости на невидимость
+          if (color == "@" ||
+              color == item.colornum ) item.visible = !item.visible //смена видимости на невидимость
           if (color == "A") item.visible = true //все искомые элементы становятся видимыми
-        }
-      });
+        })
     }
 
     //перебор по осям
@@ -288,16 +285,16 @@ function onWindowResize() {
 
 /////////////////////////////////////////////////////////
 // универсальная функция числа фибоначчи/////////////////
-const to_one_fibbonachi_digit = (digit) => {
+const to_one_fibbonachi_digit = function (digit) {
 
-    digit = Math.abs(digit) //на всякий случай избавляемся от отрицательных значений
-    let string_of_digits = digit.toString() //передаваемое число переводится в буферную строчную переменную
-    digit = 0 //сама переданная переменная временно обруляется
+    let summ = 0 //обнуление суммы
 
-    for (let i=0; i < string_of_digits.length; i++)
-      digit += parseInt(string_of_digits[i]) //поцифровой перебор и суммирование числа из строки
+    Math.abs(digit). //на всякий случай перевод из отрицательного в абсолютное значение
+      toString().    //перевод числа в строку для разъединения многозначных чисел
+      split('').     //перевод строки в массив для применения forEach
+      forEach(function(n) { summ+=parseInt(n) }) //перебор массива с подсчётом суммы чисел, переведенных из строки в число
 
-    return (digit > 9) ? to_one_fibbonachi_digit(digit) : digit
+    return (summ > 9) ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
 
   }
 //////////функция конструктора объектов/////////////////////////////////////////////////////////////
@@ -314,23 +311,23 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
 
 
   ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)////////////////////////////
-  let plane_square_3x_algorithm = (input_nums) => {
+  let plane_square_3x_algorithm = (input_nums_fn) => {
     //задаём основной цифро-световой массив мандалы
     let plane_of_colors = []
     //сначала назначаем ось по горизонтали
-      plane_of_colors[0] = input_nums
+      plane_of_colors[0] = input_nums_fn
     //и зеркально по вертикали
-    for (let i=1; i <= input_nums.length; i++) {
+    for (let i=1; i <= input_nums_fn.length; i++) {
       plane_of_colors[i] = [plane_of_colors[0][i]]
     }
 
     //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что -1)
-    for (let y=1; y <= input_nums.length; y++)
-      for (let x=1; x <= input_nums.length; x++) {
+    for (let y=1; y < input_nums_fn.length; y++)
+      for (let x=1; x < input_nums_fn.length; x++) {
 
         let fibbo_number = to_one_fibbonachi_digit( plane_of_colors[y-1][x] +
-                                         plane_of_colors[y][x-1] +
-                                         plane_of_colors[y-1][x-1])
+                                                    plane_of_colors[y][x-1] +
+                                                    plane_of_colors[y-1][x-1] )
 
         plane_of_colors[y].push(fibbo_number)
       }
