@@ -56,7 +56,7 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите значение для создания мандалы", '')
-  let test_string = "0123456789" //тестовая строка на которую заменяется при неверном вводе
+  let test_string = "01234567789" //тестовая строка на которую заменяется при неверном вводе
   // let input_string = test_string
 
   let modification_to_normal = function (str, test) {
@@ -140,7 +140,7 @@ function init() {
   let border = [] //массив для элементов обводки мандалы
   let border_timeout = 0 //переменная для анимации отрисовки обводки
   
-  if ( value_default == 4 )
+  if ( value_default.true_of(4) )
     for (let i = -border_coordin; i < border_coordin; i++) {
 
       setTimeout(function(){ //анимация бордера
@@ -167,7 +167,7 @@ function init() {
   for (let y = 1; y <= input_string_length; y++)
     for (let x = 1; x <= input_string_length; x++) {
 
-      color_n = plane_of_colors[y][x]
+      color_n = plane_of_colors[y][x] //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
 
       if (value_default.true_of(4,6))
         plain_x_cube.push( plane_construct( y, x, 0, color_n) )
@@ -175,22 +175,22 @@ function init() {
       if (value_default.true_of(6))
         plain_x_cube.push( plane_construct( y, 0, x, color_n) )
 
-      if (value_default == 6)
+      if (value_default.true_of(6))
         plain_x_cube.push( plane_construct( 0, -y, x, color_n) )
 
       if (value_default.true_of(6,4))
         plain_x_cube.push( plane_construct( -y, -x, 0, color_n) )
 
-      if (value_default == 6)
+      if (value_default.true_of(6))
         plain_x_cube.push( plane_construct( -y, 0, -x, color_n) )
 
-      if (value_default == 6)
+      if (value_default.true_of(6))
         plain_x_cube.push( plane_construct( 0, y, -x, color_n) )
 
-      if (value_default == 4)
+      if (value_default.true_of(4))
         plain_x_cube.push( plane_construct( -x, y, 0, color_n) )
 
-      if (value_default == 4)
+      if (value_default.true_of(4))
         plain_x_cube.push( plane_construct( x, -y, 0, color_n) )
 
     }
@@ -269,6 +269,11 @@ function init() {
     palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
 
+
+//////////////////////////////////////////
+
+chess_algorithm(input_nums)
+
 } //init() end bracket
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -287,12 +292,12 @@ function onWindowResize() {
 // универсальная функция числа фибоначчи/////////////////
 const to_one_fibbonachi_digit = function (digit) {
 
-    let summ = 0 //обнуление суммы
-
-    Math.abs(digit). //на всякий случай перевод из отрицательного в абсолютное значение
-      toString().    //перевод числа в строку для разъединения многозначных чисел
-      split('').     //перевод строки в массив для применения forEach
-      forEach(function(n) { summ+=parseInt(n) }) //перебор массива с подсчётом суммы чисел, переведенных из строки в число
+    let summ = 
+      Math.abs(digit). //на всякий случай перевод из отрицательного в абсолютное значение
+      toString().     //перевод числа в строку для разъединения многозначных чисел
+      split('').     //перевод строки в массив
+      map(Number).  //перевод массива символов в массив чисел
+      reduce((sum,n) => sum+n) //перебор массива с подсчётом суммы чисел
 
     return (summ > 9) ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
 
@@ -311,7 +316,7 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
 
 
   ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)////////////////////////////
-  let plane_square_3x_algorithm = (input_nums_fn) => {
+  let plane_square_3x_algorithm = input_nums_fn => {
     //задаём основной цифро-световой массив мандалы
     let plane_of_colors = []
     //сначала назначаем ось по горизонтали
@@ -333,4 +338,24 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
       }
 
     return plane_of_colors
+  }
+
+  ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
+  let chess_algorithm = input_nums_fn => {
+    //первый вариант
+    let axis_fn = [ //создаём базис отсчёта сумма посередине и обратка
+      input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
+      ...input_nums_fn.reverse(), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
+      ...input_nums_fn.reverse().slice(1), //обрезаем повторную сумму
+      input_nums_fn[0] //и снова сумма в конце
+      ] 
+    //второй вариант
+    // let axis_fn = [...input_nums_fn,input_nums_fn[0],...input_nums_fn.reverse()] //создаём базис отсчёта сумма посередине и обратка
+
+    let matrix = axis_fn.map(n => n = axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
+
+    axis_fn.forEach( (n,i) => matrix[i][i] = n) // вписываем косую "ось" (базис) в матрицу подсчёта
+
+    console.log(matrix)
+
   }
