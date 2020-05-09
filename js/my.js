@@ -345,12 +345,16 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
     //первый вариант
     let axis_fn = [ //создаём базис отсчёта сумма посередине и обратка
       input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
-      ...input_nums_fn.reverse(), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
-      ...input_nums_fn.reverse().slice(1), //обрезаем повторную сумму
+      ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
+      ...input_nums_fn.slice(1), //обрезаем повторную сумму
       input_nums_fn[0] //и снова сумма в конце
-      ] 
+      ]
+
     //второй вариант
-    // let axis_fn = [...input_nums_fn,input_nums_fn[0],...input_nums_fn.reverse()] //создаём базис отсчёта сумма посередине и обратка
+    // let axis_fn = [
+    //   ...input_nums_fn,input_nums_fn[0],
+    //   ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
+    //   ] //создаём базис отсчёта сумма посередине и обратка
 
     let matrix = axis_fn.map(n => n = axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
 
