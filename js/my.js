@@ -31,8 +31,8 @@ function init() {
 
   //настроил параметры камеры
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 300 )
-  if (value_default == 6) camera.position.set( -45, 45, 45 ) //позиция камеры для 6
-  if (value_default == 4) camera.position.set( 0, 0, 45 ) //позиция камеры для 4
+  if (value_default == 6) camera.position.set( -45, 45, 95 ) //позиция камеры для 6
+  if (value_default == 4) camera.position.set( 0, 0, 95 ) //позиция камеры для 4
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -54,10 +54,11 @@ function init() {
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
+
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите значение для создания мандалы", '')
-  let test_string = "09052020" //тестовая строка на которую заменяется при неверном вводе
-  // let input_string = test_string
+  let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
+
 
   let modification_to_normal = function (str, test) {
     str = !str ? //проверка str на значения приводящие к false 
@@ -70,7 +71,6 @@ function init() {
   }
 
   input_string = modification_to_normal(input_string, test_string)
-  let input_string_length = input_string.length
 
   title = document.querySelectorAll("header.title");
   title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
@@ -102,98 +102,115 @@ function init() {
   }
 
   //перевод строки в массив чисел для корректных подсчётов
-  let input_nums = input_string.to_num()
+  // let input_nums = input_string.to_num()
 
+  //высчитываем двумерный массив цветов для куба
+  // let plane_of_colors = plane_square_3x_algorithm(input_string.to_num())
+  let plane_of_colors = chess_algorithm(input_string.to_num())
 ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
 
-  //объявляем двумерный массив для оси
-  let axis = []
-
-  //нулевой куб в центре оси
-  axis[0] = axis_construct(0,0,0, input_nums[0])
-
-  //функция для проверки различных значений value_default (прототипирована в Number)
+  //функция для проверки различных значений value_default (прототипирована в Number)////////
   Number.prototype.true_of = function (...props) {
     return props.indexOf(parseInt(this)) == -1 ? false : true
   }
   
-  //сборка осей по value_default направлениям //
-  let color_n
-  for (let i = 1; i <= input_string_length; i++) {
-    color_n = input_nums[i]
+  //////////сборка осей по value_default направлениям //////////
+  function axis_visual (input_nums_fn) {
+    let axis_fn = []
+    //нулевой куб в центре оси
+    axis_fn[0] = axis_construct(0,0,0, input_nums_fn[0])
 
-    if ( value_default.true_of(4,6)) axis.push( axis_construct( i,0,0, color_n) )
-    if ( value_default.true_of(4,6)) axis.push( axis_construct( 0,i,0, color_n) )
+    let color_n
+    for (let i = 1; i < input_nums_fn.length; i++) {
+      color_n = input_nums_fn[i]
 
-    if ( value_default.true_of(4,6) ) axis.push( axis_construct( -i,0,0, color_n) )
-    if ( value_default.true_of(4,6) ) axis.push( axis_construct( 0,-i,0, color_n) )
+      if ( value_default.true_of(4,6)) axis_fn.push( axis_construct( i,0,0, color_n) )
+      if ( value_default.true_of(4,6)) axis_fn.push( axis_construct( 0,i,0, color_n) )
 
-    if ( value_default.true_of(6) ) axis.push( axis_construct( 0,0,i, color_n) )
-    if ( value_default.true_of(6) ) axis.push( axis_construct( 0,0,-i, color_n) )
+      if ( value_default.true_of(4,6) ) axis_fn.push( axis_construct( -i,0,0, color_n) )
+      if ( value_default.true_of(4,6) ) axis_fn.push( axis_construct( 0,-i,0, color_n) )
+
+      if ( value_default.true_of(6) ) axis_fn.push( axis_construct( 0,0,i, color_n) )
+      if ( value_default.true_of(6) ) axis_fn.push( axis_construct( 0,0,-i, color_n) )
+    }
+
+  return axis_fn
   }
 
   ///////рабочий вариант обводки мандалы////////////////////////
-  //перменные для обводки мандалы
-  let border_coordin = input_string_length+1
-  let border_color = input_nums[0] //присваивается цвет нулевой клетки
-  let border = [] //массив для элементов обводки мандалы
-  let border_timeout = 0 //переменная для анимации отрисовки обводки
-  
-  if ( value_default.true_of(4) )
-    for (let i = -border_coordin; i < border_coordin; i++) {
 
-      setTimeout(function(){ //анимация бордера
-        border.push(
-          axis_construct( -border_coordin, i, 0, border_color), //левая
-          axis_construct( i, border_coordin, 0, border_color), //верхняя
-          axis_construct( border_coordin, -i, 0, border_color), //правая
-          axis_construct( -i,-border_coordin, 0, border_color) //нижняя
-        )
-      },
-        border_timeout = border_timeout+50) //прирост времени появления следуюдего элемента
+  function border_visual (input_nums_fn) {
+    //перменные для обводки мандалы
+    let border_coordin = input_nums_fn.length
+    let border_color = input_nums_fn[0] //присваивается цвет нулевой клетки
+    let border_fn = [] //массив для элементов обводки мандалы
+    let border_timeout = 0 //переменная для анимации отрисовки обводки
+    
+    if ( value_default.true_of(4) )
+      for (let i = -border_coordin; i < border_coordin; i++) {
 
-    }
+        setTimeout(function(){ //анимация бордера
+          border_fn.push(
+            axis_construct( -border_coordin, i, 0, border_color), //левая
+            axis_construct( i, border_coordin, 0, border_color), //верхняя
+            axis_construct( border_coordin, -i, 0, border_color), //правая
+            axis_construct( -i,-border_coordin, 0, border_color) //нижняя
+          )
+        },
+          border_timeout = border_timeout+50) //прирост времени появления следуюдего элемента
+
+      }
+
+    return border_fn
+  }
+
 
   ////////пластина кубов/////////////
 
-  //высчитываем двумерный массив цветов для куба
-  let plane_of_colors = plane_square_3x_algorithm(input_nums)
+  function plain_x_cube_visual (plane_of_colors_fn) {
+
+    let plain_x_cube_fn = []
+    //отрисовка панелей
+    for (let y = 1; y < plane_of_colors_fn[0].length; y++)
+      for (let x = 1; x < plane_of_colors_fn[0].length; x++) {
+
+        color_n = plane_of_colors_fn[y][x] //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
+
+        if (value_default.true_of(4,6))
+          plain_x_cube_fn.push( plane_construct( y, x, 0, color_n) )
+
+        if (value_default.true_of(6))
+          plain_x_cube_fn.push( plane_construct( y, 0, x, color_n) )
+
+        if (value_default.true_of(6))
+          plain_x_cube_fn.push( plane_construct( 0, -y, x, color_n) )
+
+        if (value_default.true_of(6,4))
+          plain_x_cube_fn.push( plane_construct( -y, -x, 0, color_n) )
+
+        if (value_default.true_of(6))
+          plain_x_cube_fn.push( plane_construct( -y, 0, -x, color_n) )
+
+        if (value_default.true_of(6))
+          plain_x_cube_fn.push( plane_construct( 0, y, -x, color_n) )
+
+        if (value_default.true_of(4))
+          plain_x_cube_fn.push( plane_construct( -x, y, 0, color_n) )
+
+        if (value_default.true_of(4))
+          plain_x_cube_fn.push( plane_construct( x, -y, 0, color_n) )
+      }
+
+    return plain_x_cube_fn
+    }
+
+
 
   //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
-  let plain_x_cube = []
-  let plain_timeout = 0 //переменная для анимации отрисовки обводки
-  //отрисовка панелей
-  for (let y = 1; y <= input_string_length; y++)
-    for (let x = 1; x <= input_string_length; x++) {
-
-      color_n = plane_of_colors[y][x] //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
-
-      if (value_default.true_of(4,6))
-        plain_x_cube.push( plane_construct( y, x, 0, color_n) )
-
-      if (value_default.true_of(6))
-        plain_x_cube.push( plane_construct( y, 0, x, color_n) )
-
-      if (value_default.true_of(6))
-        plain_x_cube.push( plane_construct( 0, -y, x, color_n) )
-
-      if (value_default.true_of(6,4))
-        plain_x_cube.push( plane_construct( -y, -x, 0, color_n) )
-
-      if (value_default.true_of(6))
-        plain_x_cube.push( plane_construct( -y, 0, -x, color_n) )
-
-      if (value_default.true_of(6))
-        plain_x_cube.push( plane_construct( 0, y, -x, color_n) )
-
-      if (value_default.true_of(4))
-        plain_x_cube.push( plane_construct( -x, y, 0, color_n) )
-
-      if (value_default.true_of(4))
-        plain_x_cube.push( plane_construct( x, -y, 0, color_n) )
-
-    }
+  let axis = axis_visual(plane_of_colors[0]) //объявляем двумерный массив для оси
+  let plain_x_cube = plain_x_cube_visual (plane_of_colors) //пластины между осями
+  let border = border_visual (plane_of_colors[0]) //массив для элементов обводки мандалы
 
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -272,7 +289,6 @@ function init() {
 
 //////////////////////////////////////////
 
-chess_algorithm(input_nums)
 
 } //init() end bracket
 
@@ -341,8 +357,10 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
   }
 
   ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
-  let chess_algorithm = input_nums_fn => {
+  let chess_algorithm = (input_nums_fn,val) => {
+
     //первый вариант
+
     let axis_fn = [ //создаём базис отсчёта сумма посередине и обратка
       input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
       ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
@@ -351,10 +369,11 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
       ]
 
     //второй вариант
-    // let axis_fn = [
-    //   ...input_nums_fn,input_nums_fn[0],
-    //   ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
-    //   ] //создаём базис отсчёта сумма посередине и обратка
+    if (val) 
+    axis_fn = [
+      ...input_nums_fn,input_nums_fn[0],
+      ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
+      ] //создаём базис отсчёта сумма посередине и обратка
 
     let matrix = axis_fn.map(n => n = axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
 
@@ -370,6 +389,7 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
                                         + matrix[j-1][j-i]
                                         + ((i%2==0) ? matrix[j-1][j-i+1] : 0) //нечетные диагонали - по три цифры
                                         )
+
       //расчёт диагонали в сторону увеличения
        for (let i=0; i < axis_fn.length; i++)
         for (let j=0; j < axis_fn.length-1-i; j++)
@@ -380,6 +400,9 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
                                         + matrix[j+1][j+i+1]
                                         + ((i%2==0) ? matrix[j+1][j+i] : 0) //нечетные диагонали - по три цифры
                                         )
-    console.log(matrix)
+
+    // console.log(matrix)
+
+    return matrix.reverse()
 
   }
