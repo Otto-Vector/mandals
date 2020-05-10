@@ -2,10 +2,9 @@
 window.onload = init
 
 
+
 /////задание глобальных переменных////////////////////////////////////////
 var scene, camera, renderer, domEvents, controls
-
-var value_default = 4 //задаёт две разные мандалы (на 6 пластин (6) пластин, 4 - на квадрат)
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
@@ -16,8 +15,7 @@ const cubeGeom = (size=1) => new THREE.CubeGeometry(size,size,size) //базов
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-function init() {
-
+function init(value_init) {
   //окрашиваем кнопки визуализации цветов
   let palitra = document.querySelectorAll(".palitra div")
     for (var i = 0; i < palitra.length; i++)
@@ -31,8 +29,6 @@ function init() {
 
   //настроил параметры камеры
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 300 )
-  if (value_default == 6) camera.position.set( -45, 45, 95 ) //позиция камеры для 6
-  if (value_default == 4) camera.position.set( 0, 0, 95 ) //позиция камеры для 4
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -42,6 +38,9 @@ function init() {
   //-40 для панели кнопок цвета
 
   //добавление скрипта к документу в тег
+  let canv = document.getElementsByTagName("canvas")
+  if ( typeof(value_init) != 'object' ) document.body.removeChild(canv[0])
+
   document.body.appendChild( renderer.domElement )
   //при динамическом изменении размера окна
   window.addEventListener('resize', onWindowResize, false)
@@ -54,11 +53,27 @@ function init() {
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
+  //  задаёт разные мандалы
+  // 4 - на квадрат (по три)                    +
+  // 5 - на 6 пластин (цветок шахматный 1вар)   +
+  // 6 - на 6 пластин (цветок по три)           +
+  // 7 - на 6 пластин (цветок шахматный 2вар)   +
+  // 8 - на квадрат шахматный расчёт (1вар)     +
+  // 9 - на квадрат шахматый расчёт (2вар)      +
+  var value_default = ( typeof(value_init) == 'object' ) ? 4 : +value_init //проверка на первый запуск init()
+
+  //////функция для проверки различных значений value_default (прототипирована в Number)////////
+  Number.prototype.true_of = function (...props) {
+    return props.indexOf(parseInt(this)) == -1 ? false : true }
+
+  if (value_default.true_of(5,6,7)) camera.position.set( -45, 45, 45 ) //позиция камеры для трёхмерного цветка
+  if (value_default.true_of(4,8,9)) camera.position.set( 0, 0, 95 ) //позиция камеры для квадратов
 
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите значение для создания мандалы", '')
   let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
 
+  document.querySelector('#select_mandala_type').onchange = function() {init(+this.value)}
 
   let modification_to_normal = function (str, test) {
     str = !str ? //проверка str на значения приводящие к false 
@@ -78,13 +93,15 @@ function init() {
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-  //прототипируем в объект String, чтобы применять к разным переменным строк
+
+  //прототипируем в объект String,
+  //чтобы применять к разным переменным строк
   //возвращает число
   String.prototype.simbols_num_adapter = function (simbol) {
     return (!isNaN(simbol)) ? //если проверяемый символ является числом
-              parseInt(simbol) : //то выводим его как число
+              +simbol : //то выводим его как число (здесь "плюс" это аналог toInt())
                 this.indexOf(simbol)%9+1 // если нет, то применяем число в соответствии с таблицей Урсулы
-               //если символ отсутствует (indexOf возвращает -1), то по логике последней строки присваивается 0
+               //если символ отсутствует (indexOf возвращает -1), то по логике (+1) присваивается 0
     }
   //////////////////////////////////////////////////////////
   //прототипирование функции перевода строки в числа (возвращает массив чисел)
@@ -100,39 +117,40 @@ function init() {
 
     return fn_nums
   }
-
-  //перевод строки в массив чисел для корректных подсчётов
-  // let input_nums = input_string.to_num()
-
+  ////////////////////////////////////////////////////////////////////////////////////
+  ///////////       ВЫБОР АЛГОРИТМА РАСЧЁТА              ////////////////////////////
   //высчитываем двумерный массив цветов для куба
-  // let plane_of_colors = plane_square_3x_algorithm(input_string.to_num())
-  let plane_of_colors = chess_algorithm(input_string.to_num())
-////////////////////////////////////////////////////////////////////////////////
+  let plane_of_colors = []
+  if (value_default.true_of(4,6))
+    plane_of_colors = plane_square_3x_algorithm( input_string.to_num() )
+
+  if (value_default.true_of(5,7,8,9))
+    plane_of_colors = chess_algorithm( input_string.to_num()
+                                           ,value_default.true_of(7,9) //передается boolean для второго расчёта оси
+                                          )
+  ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
 
-  //функция для проверки различных значений value_default (прототипирована в Number)////////
-  Number.prototype.true_of = function (...props) {
-    return props.indexOf(parseInt(this)) == -1 ? false : true
-  }
   
   //////////сборка осей по value_default направлениям //////////
   function axis_visual (input_nums_fn) {
     let axis_fn = []
     //нулевой куб в центре оси
-    axis_fn[0] = axis_construct(0,0,0, input_nums_fn[0])
+
+    axis_fn[0] = axis_construct( 0,0,0, input_nums_fn[0] )
 
     let color_n
     for (let i = 1; i < input_nums_fn.length; i++) {
       color_n = input_nums_fn[i]
 
-      if ( value_default.true_of(4,6)) axis_fn.push( axis_construct( i,0,0, color_n) )
-      if ( value_default.true_of(4,6)) axis_fn.push( axis_construct( 0,i,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( i,0,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( 0,i,0, color_n) )
 
-      if ( value_default.true_of(4,6) ) axis_fn.push( axis_construct( -i,0,0, color_n) )
-      if ( value_default.true_of(4,6) ) axis_fn.push( axis_construct( 0,-i,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( -i,0,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( 0,-i,0, color_n) )
 
-      if ( value_default.true_of(6) ) axis_fn.push( axis_construct( 0,0,i, color_n) )
-      if ( value_default.true_of(6) ) axis_fn.push( axis_construct( 0,0,-i, color_n) )
+      if ( value_default.true_of(5,6,7) ) axis_fn.push( axis_construct( 0,0,i, color_n) )
+      if ( value_default.true_of(5,6,7) ) axis_fn.push( axis_construct( 0,0,-i, color_n) )
     }
 
   return axis_fn
@@ -147,7 +165,7 @@ function init() {
     let border_fn = [] //массив для элементов обводки мандалы
     let border_timeout = 0 //переменная для анимации отрисовки обводки
     
-    if ( value_default.true_of(4) )
+    if ( value_default.true_of(4,8,9) )
       for (let i = -border_coordin; i < border_coordin; i++) {
 
         setTimeout(function(){ //анимация бордера
@@ -175,30 +193,31 @@ function init() {
     for (let y = 1; y < plane_of_colors_fn[0].length; y++)
       for (let x = 1; x < plane_of_colors_fn[0].length; x++) {
 
-        color_n = plane_of_colors_fn[y][x] //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
+        //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
+        color_n = plane_of_colors_fn[y][x] 
 
-        if (value_default.true_of(4,6))
+        if (value_default.true_of(4,5,6,7,8,9))
           plain_x_cube_fn.push( plane_construct( y, x, 0, color_n) )
 
-        if (value_default.true_of(6))
+        if (value_default.true_of(5,6,7))
           plain_x_cube_fn.push( plane_construct( y, 0, x, color_n) )
 
-        if (value_default.true_of(6))
+        if (value_default.true_of(5,6,7))
           plain_x_cube_fn.push( plane_construct( 0, -y, x, color_n) )
 
-        if (value_default.true_of(6,4))
+        if (value_default.true_of(4,5,6,7,8,9))
           plain_x_cube_fn.push( plane_construct( -y, -x, 0, color_n) )
 
-        if (value_default.true_of(6))
+        if (value_default.true_of(5,6,7))
           plain_x_cube_fn.push( plane_construct( -y, 0, -x, color_n) )
 
-        if (value_default.true_of(6))
+        if (value_default.true_of(5,6,7))
           plain_x_cube_fn.push( plane_construct( 0, y, -x, color_n) )
 
-        if (value_default.true_of(4))
+        if (value_default.true_of(4,8,9))
           plain_x_cube_fn.push( plane_construct( -x, y, 0, color_n) )
 
-        if (value_default.true_of(4))
+        if (value_default.true_of(4,8,9))
           plain_x_cube_fn.push( plane_construct( x, -y, 0, color_n) )
       }
 
@@ -207,14 +226,15 @@ function init() {
 
 
 
-  //задание объектов// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
-  let axis = axis_visual(plane_of_colors[0]) //объявляем двумерный массив для оси
+  //задание объектов\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  //// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
+  let axis = axis_visual (plane_of_colors[0]) //объявляем двумерный массив для оси
   let plain_x_cube = plain_x_cube_visual (plane_of_colors) //пластины между осями
   let border = border_visual (plane_of_colors[0]) //массив для элементов обводки мандалы
 
-////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////
 
   ////анимация объектов////////////////////
   animate()
@@ -235,9 +255,9 @@ function init() {
 
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-///МАНИПУЛЯЦИИ С ПРИМЕНЕНИЕМ И ОСЛЕЖИВАНИЕМ СОБЫТИЙ НАЖАТИЯ НА ОБЪЕКТЫ И КНОПКИ НА БОКОВОЙ ПАНЕЛИ///
-////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///МАНИПУЛЯЦИИ С ПРИМЕНЕНИЕМ И ОСЛЕЖИВАНИЕМ СОБЫТИЙ НАЖАТИЯ НА ОБЪЕКТЫ И КНОПКИ НА БОКОВОЙ ПАНЕЛИ///
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // //функция исчезания кубов в найденых в domEvents
   var color_select_unvisibler = (color) => {
@@ -264,8 +284,8 @@ function init() {
       })
     }
 
-
-  ///////// применил отслеживание по клику с помощью библиотеки threex.domevents.js ////////
+  //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+  /////////////// применил отслеживание по клику с помощью библиотеки threex.domevents.js /////////////
   var domEvents = new THREEx.DomEvents(camera, renderer.domElement)
 
   //функция отслеживания событий для элементов THREE.js////
@@ -286,9 +306,7 @@ function init() {
     palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
 
-
-//////////////////////////////////////////
-
+  //////////////////////////////////////////
 
 } //init() end bracket
 
@@ -318,42 +336,45 @@ const to_one_fibbonachi_digit = function (digit) {
     return (summ > 9) ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
 
   }
+
 //////////функция конструктора объектов/////////////////////////////////////////////////////////////
 ///передаются координаты и номер цвета
 const axis_construct = plane_construct = function(x, y, z, colornum) {
 
     let cubus = new THREE.Mesh(cubeGeom(), cubeMaterial(colornum)) //функции определены перед init()
-    cubus.position.set(x,y,z)
+    cubus.position.set(x,y,z) // тут очевидно устанавливается позиция объекта
     cubus.colornum = colornum //идентификатор для отбора объектов по значению
-    scene.add(cubus)
+    scene.add(cubus) //визуализация полученного объекта
 
     return cubus
+
   }
 
 
   ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)////////////////////////////
   let plane_square_3x_algorithm = input_nums_fn => {
     //задаём основной цифро-световой массив мандалы
-    let plane_of_colors = []
+    let matrix = []
     //сначала назначаем ось по горизонтали
-      plane_of_colors[0] = input_nums_fn
+      matrix[0] = input_nums_fn
     //и зеркально по вертикали
     for (let i=1; i <= input_nums_fn.length; i++) {
-      plane_of_colors[i] = [plane_of_colors[0][i]]
+      matrix[i] = [matrix[0][i]]
     }
 
     //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что -1)
     for (let y=1; y < input_nums_fn.length; y++)
       for (let x=1; x < input_nums_fn.length; x++) {
 
-        let fibbo_number = to_one_fibbonachi_digit( plane_of_colors[y-1][x] +
-                                                    plane_of_colors[y][x-1] +
-                                                    plane_of_colors[y-1][x-1] )
+        let fibbo_number = to_one_fibbonachi_digit( matrix[y-1][x] +
+                                                    matrix[y][x-1] +
+                                                    matrix[y-1][x-1] )
 
-        plane_of_colors[y].push(fibbo_number)
+        matrix[y].push(fibbo_number)
       }
 
-    return plane_of_colors
+    return matrix
+
   }
 
   ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
@@ -361,19 +382,19 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
 
     //первый вариант
 
-    let axis_fn = [ //создаём базис отсчёта сумма посередине и обратка
+    let axis_fn = [ //создаём базис отсчёта сумма посередине и по краям
       input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
       ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
       ...input_nums_fn.slice(1), //обрезаем повторную сумму
       input_nums_fn[0] //и снова сумма в конце
       ]
 
-    //второй вариант
+    //второй вариант если true
     if (val) 
     axis_fn = [
       ...input_nums_fn,input_nums_fn[0],
       ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
-      ] //создаём базис отсчёта сумма посередине и обратка
+      ]
 
     let matrix = axis_fn.map(n => n = axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
 
@@ -383,7 +404,7 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
       for (let i=1; i < axis_fn.length; i++)
         for (let j=i; j < axis_fn.length; j++)
 
-            matrix[j][j-i] = 
+            matrix[j][j-i] =
               to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
                                         matrix[j][j-i+1]
                                         + matrix[j-1][j-i]
@@ -406,3 +427,4 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
     return matrix.reverse()
 
   }
+
