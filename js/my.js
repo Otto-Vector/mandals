@@ -37,10 +37,12 @@ function init(value_init) {
   renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
   //-40 для панели кнопок цвета
 
-  //добавление скрипта к документу в тег
+  //удаление предыдущего созданного объекта canvas
   let canv = document.getElementsByTagName("canvas")
-  if ( typeof(value_init) != 'object' ) document.body.removeChild(canv[0])
+  //если init() запущен в первый раз, то не удалять
+  if (+value_init) document.body.removeChild(canv[0])
 
+  //добавление скрипта к документу в тег
   document.body.appendChild( renderer.domElement )
   //при динамическом изменении размера окна
   window.addEventListener('resize', onWindowResize, false)
@@ -60,14 +62,15 @@ function init(value_init) {
   // 7 - на 6 пластин (цветок шахматный 2вар)   +
   // 8 - на квадрат шахматный расчёт (1вар)     +
   // 9 - на квадрат шахматый расчёт (2вар)      +
-  var value_default = ( typeof(value_init) == 'object' ) ? 4 : +value_init //проверка на первый запуск init()
+  var value_default = (+value_init) ? +value_init : 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
 
   //////функция для проверки различных значений value_default (прототипирована в Number)////////
   Number.prototype.true_of = function (...props) {
-    return props.indexOf(parseInt(this)) == -1 ? false : true }
+    return props.indexOf(+this) != -1 }
 
-  if (value_default.true_of(5,6,7)) camera.position.set( -45, 45, 45 ) //позиция камеры для трёхмерного цветка
-  if (value_default.true_of(4,8,9)) camera.position.set( 0, 0, 95 ) //позиция камеры для квадратов
+  if (value_default.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
+  if (value_default.true_of(4)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
+  if (value_default.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
 
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите значение для создания мандалы", '')
@@ -99,7 +102,7 @@ function init(value_init) {
   //возвращает число
   String.prototype.simbols_num_adapter = function (simbol) {
     return (!isNaN(simbol)) ? //если проверяемый символ является числом
-              +simbol : //то выводим его как число (здесь "плюс" это аналог toInt())
+              +simbol : //то выводим его как число (здесь "плюс" это аналог parseInt())
                 this.indexOf(simbol)%9+1 // если нет, то применяем число в соответствии с таблицей Урсулы
                //если символ отсутствует (indexOf возвращает -1), то по логике (+1) присваивается 0
     }
@@ -112,7 +115,7 @@ function init(value_init) {
       fn_nums[i] = simbols_static.simbols_num_adapter(this[i-1]) //применение функции адаптации из прототипа
       fn_nums[0] += fn_nums[i] //сумма для цвета числа в центре
     }
-    //фибоначи на нулевой элемент
+    //фибоначи на нулевой элемент суммы чисел
     fn_nums[0] = to_one_fibbonachi_digit(fn_nums[0])
 
     return fn_nums
