@@ -56,7 +56,7 @@ function init() {
   ///////////////////////////////////////////////////////////////////////////////
    //ввод цифр для расчёта мандалы
   let input_string = prompt("Введите значение для создания мандалы", '')
-  let test_string = "01234567789" //тестовая строка на которую заменяется при неверном вводе
+  let test_string = "09052020" //тестовая строка на которую заменяется при неверном вводе
   // let input_string = test_string
 
   let modification_to_normal = function (str, test) {
@@ -360,6 +360,26 @@ const axis_construct = plane_construct = function(x, y, z, colornum) {
 
     axis_fn.forEach( (n,i) => matrix[i][i] = n) // вписываем косую "ось" (базис) в матрицу подсчёта
 
+      //сначала расчёт диагонали в сторону уменьшения
+      for (let i=1; i < axis_fn.length; i++)
+        for (let j=i; j < axis_fn.length; j++)
+
+            matrix[j][j-i] = 
+              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
+                                        matrix[j][j-i+1]
+                                        + matrix[j-1][j-i]
+                                        + ((i%2==0) ? matrix[j-1][j-i+1] : 0) //нечетные диагонали - по три цифры
+                                        )
+      //расчёт диагонали в сторону увеличения
+       for (let i=0; i < axis_fn.length; i++)
+        for (let j=0; j < axis_fn.length-1-i; j++)
+
+            matrix[j][j+i+1] = 
+              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
+                                        matrix[j][j+i]
+                                        + matrix[j+1][j+i+1]
+                                        + ((i%2==0) ? matrix[j+1][j+i] : 0) //нечетные диагонали - по три цифры
+                                        )
     console.log(matrix)
 
   }
