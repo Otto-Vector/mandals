@@ -76,9 +76,24 @@ function init(value_init, re_input) {
                               //также вводится предыдущее значение (а при первом вводе - пустое поле)
                               (+value_init) ? re_input : ""
                             )
-  // let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
-  let test_string = "01234567890многоНоного Буковокдля - проверкиА0даптивностиитп" //тестовая строка на которую заменяется при неверном вводе
+  let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
+  // let test_string = "01234567890многоНоного Буковокдля - проверкиА0даптивностиитп" //тестовая строка на которую заменяется при неверном вводе
 
+
+  //////////////////////////////////////////////////////////////
+  ///Блок подстановки текущей даты
+  let date_from_pc = new Date()
+  //функция подстановки нуля в строку
+  Number.prototype.zero_include = function () {
+    return this < 10 ? "0"+this : this.toString()
+  }
+
+  date_from_pc = date_from_pc.getDate().zero_include()
+                + (date_from_pc.getMonth()+1).zero_include()
+                + date_from_pc.getFullYear()
+
+  test_string = date_from_pc
+  //////////////////////////////////////////////////////////////
 
   let modification_to_normal = function (str, test) {
 
