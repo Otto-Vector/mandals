@@ -28,7 +28,7 @@ function init(value_init, re_input) {
   scene.background = new THREE.Color( "white" ) //задал сцене задний фон
 
   //настроил параметры камеры
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 300 )
+  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
@@ -39,8 +39,7 @@ function init(value_init, re_input) {
 
   //удаление предыдущего созданного объекта canvas
   let canv = document.getElementsByTagName("canvas")
-  //если init() запущен в первый раз, то не удалять
-  if (+value_init) document.body.removeChild(canv[0])
+  if (+value_init) document.body.removeChild(canv[0]) //если init() запущен в первый раз, то не удалять
 
   //добавление скрипта к документу в тег
   document.body.appendChild( renderer.domElement )
@@ -51,7 +50,7 @@ function init(value_init, re_input) {
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
   controls = new THREE.OrbitControls (camera, renderer.domElement)
   controls.minDistance = 2
-  controls.maxDistance = 299
+  controls.maxDistance = 444
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -77,19 +76,19 @@ function init(value_init, re_input) {
                               //также вводится предыдущее значение (а при первом вводе - пустое поле)
                               (+value_init) ? re_input : ""
                             )
-  let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
-  // let test_string = "01234567890многоНоного Буковокдля - проверкиА0даптивностиитп" //тестовая строка на которую заменяется при неверном вводе
+  // let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
+  let test_string = "01234567890многоНоного Буковокдля - проверкиА0даптивностиитп" //тестовая строка на которую заменяется при неверном вводе
 
 
   let modification_to_normal = function (str, test) {
 
-    str = !str ? modification_to_normal(test) : str.replace(/\s/g, '') //убираем пробелы из строки
-
-    return  !str ? //проверка str на значения приводящие к false
+    return  (!str || !str.replace(/\s/g, '').length) ? //проверка str на значения приводящие к false (в том числе пустая строка после сброса пробелов)
       modification_to_normal(test) : //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается
         str
+          .replace(/\s/g, '')
           .slice(0,30) //обрезание более 30ти символов
           .toLowerCase() //убираем верхний регистр
+
   }
 
   input_string = modification_to_normal(input_string, test_string)
