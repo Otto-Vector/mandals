@@ -15,7 +15,7 @@ const cubeGeom = (size=1) => new THREE.CubeGeometry(size,size,size) //базов
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-function init(value_init) {
+function init(value_init, re_input) {
   //окрашиваем кнопки визуализации цветов
   let palitra = document.querySelectorAll(".palitra div")
     for (var i = 0; i < palitra.length; i++)
@@ -73,25 +73,35 @@ function init(value_init) {
   if (value_default.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
 
    //ввод цифр для расчёта мандалы
-  let input_string = prompt("Введите значение для создания мандалы", '')
+  let input_string = prompt ( "Введите значение для создания мандалы",
+                              //также вводится предыдущее значение (а при первом вводе - пустое поле)
+                              (+value_init) ? re_input : ""
+                            )
   let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
+  // let test_string = "01234567890многоНоного Буковокдля - проверкиА0даптивностиитп" //тестовая строка на которую заменяется при неверном вводе
 
-  document.querySelector('#select_mandala_type').onchange = function() {init(+this.value)}
 
   let modification_to_normal = function (str, test) {
-    str = !str ? //проверка str на значения приводящие к false 
-      test : //если ввод пустой то присваивается значение по умолчанию
-        str.slice(0,30) //обрезание более 30ти символов
-          .replace(/\s/g, '') //убираем пробелы из строки
-            .toLowerCase() //убираем верхний регистр
 
-    return !str ? modification_to_normal(str, test) : str //повторная проверка после убирания пробелов либо замыкание либо вывод результата
+    str = !str ? modification_to_normal(test) : str.replace(/\s/g, '') //убираем пробелы из строки
+
+    return  !str ? //проверка str на значения приводящие к false
+      modification_to_normal(test) : //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается
+        str
+          .slice(0,30) //обрезание более 30ти символов
+          .toLowerCase() //убираем верхний регистр
   }
 
   input_string = modification_to_normal(input_string, test_string)
 
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  ///DOM////////////////////////
+  ///title
   title = document.querySelectorAll("header.title");
   title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
+
+  //select
+  document.querySelector('#select_mandala_type').onchange = function() {init(+this.value, input_string)}
 
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
@@ -133,7 +143,6 @@ function init(value_init) {
                                           )
   ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
-
   
   //////////сборка осей по value_default направлениям //////////
   function axis_visual (input_nums_fn) {
