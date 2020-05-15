@@ -3,47 +3,151 @@
 
 window.onload = init
 
+let scene, camera, renderer, controls //глобальные переменные для создания сцены
 
-/////задание глобальных переменных////////////////////////////////////////
-let scene, camera, renderer, domEvents, controls
+function init(value_init, re_input) {
 
+  /////задание основных переменных////////////////////////////////////////
 
-//база цветов//
-const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
+  //база цветов//
+  let colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
 
-//размеры кубов
-let cubeGeom = new THREE.CubeGeometry(1,1,1) //базовый сборщик геометрии кубов
+  //размеры кубов//
+  let cubeGeom = new THREE.CubeGeometry(1,1,1) //базовый сборщик геометрии кубов
 
-//материал кубов
-let color_material = []
-colors.forEach( (color_n) =>
-  color_material.push( new THREE.MeshBasicMaterial({color: color_n }) )
-  )
-//еще один материал для бордера
-color_material[10] =  new THREE.MeshBasicMaterial({color: colors[9] })
+  //материал кубов создаётся из массива цветов от нуля до девяти соответственно
+  let color_material = []
+  colors.forEach( (color_n) =>
+    color_material.push( new THREE.MeshBasicMaterial({color: color_n }) )
+    )
+  //еще один материал для бордера и дальнейших манипуляций с ним
+  color_material[color_material.length] =  new THREE.MeshBasicMaterial({color: colors[9] })
 
-//////////функция конструктора объектов/////////////////////////////////////////////////////////////
-///передаются координаты и номер цвета
-let cubus_construct = function (x, y, z, colornum) {
+  //////////функция конструктора объектов//////////////////////////////////////////////////
+  ///передаются координаты и номер цвета
+  let cubus_construct = function (x, y, z, colornum) {
 
-    let cubus = new THREE.Mesh(cubeGeom, color_material[(colornum < 0 ? 10 : colornum)])
-    // let cubus = const_cubus[colornum]
-    cubus.position.set(x,y,z) // тут очевидно устанавливается позиция объекта
-    cubus.colornum = Math.abs(colornum) //идентификатор для отбора объектов по значению
-    scene.add(cubus) //визуализация полученного объекта
+      let cubus = new THREE.Mesh( cubeGeom,
+                                  color_material[
+                                    //если передаётся отрицательное значение цвета, то применяется последний материал
+                                    colornum < 0 ? color_material.length-1 : colornum
+                                    ]
+                                  )
+      cubus.position.set(x,y,z) // устанавливается позиция объекта
+      cubus.colornum = Math.abs(colornum) //идентификатор для отбора объектов по значению
+      scene.add(cubus) //визуализация полученного объекта
 
-    return cubus
+      return cubus
+
+    }
+
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ АНАЛИЗА И ПРЕОБРАЗОВАНИЯ///////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  // универсальная функция числа фибоначчи/////////////////
+    let to_one_fibbonachi_digit = function (digit) {
+
+      let summ = 
+        Math.abs(digit). //на всякий случай перевод из отрицательного в абсолютное значение
+        toString().     //перевод числа в строку для разъединения многозначных чисел
+        split('').     //перевод строки в массив
+        map(Number).  //перевод массива символов в массив чисел
+        reduce((sum,n) => sum+n) //перебор массива с подсчётом суммы чисел
+
+      return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
+
+    }
+
+  //////функция для проверки различных значений value_default (прототипирована в Number)////////
+    Number.prototype.true_of = function (...props) {
+      return props.indexOf(+this) != -1
+    }
+
+  ///////////////////////////////////////////////////////////////////////////////
+  /////////////////////АЛГОРИТМЫ ПОДСЧЁТА МАНДАЛ////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)///////
+  let plane_square_3x_algorithm = input_nums_fn => {
+    //задаём основной цифро-световой массив мандалы
+    let matrix = []
+    //сначала назначаем ось по горизонтали
+      matrix[0] = input_nums_fn
+    //и зеркально по вертикали от единицы
+    for (let i=1; i <= input_nums_fn.length; i++) {
+      //первое значение каждой строки
+      matrix[i] = [matrix[0][i]]
+    }
+
+    //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что подсчёт -1)
+    let fibbo_number
+    for (let y=1; y < input_nums_fn.length; y++)
+      for (let x=1; x < input_nums_fn.length; x++) {
+
+        fibbo_number = to_one_fibbonachi_digit( matrix[y-1][x] +
+                                                matrix[y][x-1] +
+                                                matrix[y-1][x-1] )
+
+        matrix[y].push(fibbo_number)
+      }
+
+    return matrix
 
   }
 
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-function init(value_init, re_input) {
+  ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
+  let chess_algorithm = (input_nums_fn, mirror_variant=false ) => {
 
-  //окрашиваем кнопки визуализации цветов
-  let palitra = document.querySelectorAll(".palitra div")
-    for (var i = 0; i < palitra.length; i++)
-      palitra[i].style.background = colors[i]
+    let axis_fn = !mirror_variant ?
+    //первый вариант если false
+      [ //создаём базис отсчёта сумма посередине и по краям
+      input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
+      ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
+      ...input_nums_fn.slice(1), //обрезаем повторную сумму
+      input_nums_fn[0] //и снова сумма в конце
+      ]
+      :
+    //второй вариант если true
+      [
+        ...input_nums_fn,
+        input_nums_fn[0],
+       ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
+      ]
+
+    let matrix = axis_fn.map(n => n = axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
+
+    axis_fn.forEach( (n,i) => matrix[i][i] = n) // вписываем косую "ось" (базис) в матрицу подсчёта
+
+      //сначала расчёт диагонали в сторону уменьшения
+      for (let i=1; i < axis_fn.length; i++)
+        for (let j=i; j < axis_fn.length; j++)
+
+            matrix[j][j-i] =
+              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
+                                        matrix[j][j-i+1]
+                                        + matrix[j-1][j-i]
+                                        + ((i%2==0) ? matrix[j-1][j-i+1] : 0) //нечетные диагонали - по три цифры
+                                        )
+
+      //расчёт диагонали в сторону увеличения
+       for (let i=0; i < axis_fn.length; i++)
+        for (let j=0; j < axis_fn.length-1-i; j++)
+
+            matrix[j][j+i+1] = 
+              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
+                                        matrix[j][j+i]
+                                        + matrix[j+1][j+i+1]
+                                        + ((i%2==0) ? matrix[j+1][j+i] : 0) //нечетные диагонали - по три цифры
+                                        )
+
+    //возвращаем развёрнутую наоборот матрицу, потому как отображение с другого угла, чем я посчитал
+    return matrix.reverse()
+
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
   ///////////////////////////////////////////////////////////////////////////
@@ -56,10 +160,10 @@ function init(value_init, re_input) {
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
-  if (!+value_init) renderer = new THREE.WebGLRenderer()
+  if (!+value_init) {renderer = new THREE.WebGLRenderer()
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
-
+  }
   //удаление предыдущего созданного объекта canvas
   // let canv = document.getElementsByTagName("canvas")
   // if (+value_init)document.body.removeChild(canv[0]) //если init() запущен в первый раз, то не удалять
@@ -84,11 +188,9 @@ function init(value_init, re_input) {
   // 7 - на 6 пластин (цветок шахматный 2вар)   +
   // 8 - на квадрат шахматный расчёт (1вар)     +
   // 9 - на квадрат шахматый расчёт (2вар)      +
-  var value_default = (+value_init) ? +value_init : 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
+  // var value_default = (+value_init) ? +value_init : 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
+  var value_default = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
 
-  //////функция для проверки различных значений value_default (прототипирована в Number)////////
-  Number.prototype.true_of = function (...props) {
-    return props.indexOf(+this) != -1 }
 
   if (value_default.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
   if (value_default.true_of(4)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
@@ -132,25 +234,11 @@ function init(value_init, re_input) {
 
   input_string = modification_to_normal(input_string, test_string)
 
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  ///DOM////////////////////////
-  ///title
-  let title = document.querySelectorAll("header.title");
-  title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
 
-  ////функция очистки памяти от объектов
+  ////функция очистки памяти от объектов THREEX
   function remove_all_objects_from_memory(object_to_clear) {
 
-    // // object_to_clear[i].mesh.dispose()
-    // object_to_clear[i].geometry.dispose()
-    // object_to_clear[i].material.dispose()
-
-    // // object_to_clear[i].indices = []
-    // // object_to_clear[i].vertices = []
-    // // object_to_clear[i].uvs = []
-
-    // object_to_clear[i] = null
-    //
+    //функция поиска соответствий на наличие объектов
     function disposeNode(parentObject) {
 
     parentObject.traverse(function (node) {
@@ -188,15 +276,34 @@ function init(value_init, re_input) {
       });
     }
 
-  for (i = 0; i < object_to_clear.length; i++) {
-    scene.remove( object_to_clear[i] )
-    disposeNode(object_to_clear[i])
-    object_to_clear[i] = null
-  }
-  object_to_clear.length = 0
+    //сама реализация очистки
+    for (i = 0; i < object_to_clear.length; i++) {
+
+      scene.remove( object_to_clear[i] ) //убираем объект со сцены
+      disposeNode(object_to_clear[i]) //запускаем встроенную функцию очистки
+      object_to_clear[i] = null //зачищаем сам массив
+    }
+
+    //дополнительная очистка (на всякий)
+    object_to_clear.length = 0
+
   }
 
-  //select
+  //////////////////////////////////////
+  ///DOM///////////////////////////////
+  ////////////////////////////////////
+
+  ///palitra
+  //окрашиваем кнопки визуализации цветов
+  let palitra = document.querySelectorAll(".palitra div")
+    for (var i = 0; i < palitra.length; i++)
+      palitra[i].style.background = colors[i]
+
+  ///title
+  let title = document.querySelectorAll("header.title");
+  title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
+
+  ///select
   document.querySelector('#select_mandala_type').onchange = function() {
 
         remove_all_objects_from_memory(axis)
@@ -279,7 +386,7 @@ function init(value_init, re_input) {
     let color_n = input_nums_fn[0]
     let border_fn = [] //массив для элементов обводки мандалы
 
-    color_material[10].color.set(colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
+    color_material[color_material.length-1].color.set(colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
 
     if ( value_default.true_of(4,8,9) )
       for (let i = -border_coordin; i < border_coordin; i++) {
@@ -405,7 +512,7 @@ function init(value_init, re_input) {
   }
 
   //////////////////////////////////////////
-} //init() end bracket
+// } //init() end bracket
 
 //////////////////////////////////////////////////////////////////////////////////
 /////функция изменения центровки камеры при изменении размера экрана///////////////
@@ -419,96 +526,6 @@ function onWindowResize() {
 
 }
 
-/////////////////////////////////////////////////////////
-// универсальная функция числа фибоначчи/////////////////
-const to_one_fibbonachi_digit = function (digit) {
-
-    let summ = 
-      Math.abs(digit). //на всякий случай перевод из отрицательного в абсолютное значение
-      toString().     //перевод числа в строку для разъединения многозначных чисел
-      split('').     //перевод строки в массив
-      map(Number).  //перевод массива символов в массив чисел
-      reduce((sum,n) => sum+n) //перебор массива с подсчётом суммы чисел
-
-    return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
-
-  }
 
 
-  ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)////////////////////////////
-  let plane_square_3x_algorithm = input_nums_fn => {
-    //задаём основной цифро-световой массив мандалы
-    let matrix = []
-    //сначала назначаем ось по горизонтали
-      matrix[0] = input_nums_fn
-    //и зеркально по вертикали
-    for (let i=1; i <= input_nums_fn.length; i++) {
-      matrix[i] = [matrix[0][i]]
-    }
-
-    //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что -1)
-    for (let y=1; y < input_nums_fn.length; y++)
-      for (let x=1; x < input_nums_fn.length; x++) {
-
-        let fibbo_number = to_one_fibbonachi_digit( matrix[y-1][x] +
-                                                    matrix[y][x-1] +
-                                                    matrix[y-1][x-1] )
-
-        matrix[y].push(fibbo_number)
-      }
-
-    return matrix
-
-  }
-
-  ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
-  let chess_algorithm = (input_nums_fn,val) => {
-
-    //первый вариант
-
-    let axis_fn = [ //создаём базис отсчёта сумма посередине и по краям
-      input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
-      ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
-      ...input_nums_fn.slice(1), //обрезаем повторную сумму
-      input_nums_fn[0] //и снова сумма в конце
-      ]
-
-    //второй вариант если true
-    if (val) 
-    axis_fn = [
-      ...input_nums_fn,input_nums_fn[0],
-      ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
-      ]
-
-    let matrix = axis_fn.map(n => n = axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
-
-    axis_fn.forEach( (n,i) => matrix[i][i] = n) // вписываем косую "ось" (базис) в матрицу подсчёта
-
-      //сначала расчёт диагонали в сторону уменьшения
-      for (let i=1; i < axis_fn.length; i++)
-        for (let j=i; j < axis_fn.length; j++)
-
-            matrix[j][j-i] =
-              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
-                                        matrix[j][j-i+1]
-                                        + matrix[j-1][j-i]
-                                        + ((i%2==0) ? matrix[j-1][j-i+1] : 0) //нечетные диагонали - по три цифры
-                                        )
-
-      //расчёт диагонали в сторону увеличения
-       for (let i=0; i < axis_fn.length; i++)
-        for (let j=0; j < axis_fn.length-1-i; j++)
-
-            matrix[j][j+i+1] = 
-              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
-                                        matrix[j][j+i]
-                                        + matrix[j+1][j+i+1]
-                                        + ((i%2==0) ? matrix[j+1][j+i] : 0) //нечетные диагонали - по три цифры
-                                        )
-
-    // console.log(matrix)
-
-    return matrix.reverse()
-
-  }
-
+} //init() end bracket
