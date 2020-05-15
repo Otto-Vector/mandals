@@ -4,17 +4,37 @@
 window.onload = init
 
 
-
 /////задание глобальных переменных////////////////////////////////////////
 let scene, camera, renderer, domEvents, controls
 
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
-//материал кубов
-let cubeMaterial = (color_set) => new THREE.MeshBasicMaterial({color: colors[color_set] }) //базовый сборщик материи кубов
+
 //размеры кубов
-let cubeGeom = (size=1) => new THREE.CubeGeometry(size,size,size) //базовый сборщик геометрии кубов
+let cubeGeom = new THREE.CubeGeometry(1,1,1) //базовый сборщик геометрии кубов
+
+//материал кубов
+let color_material = []
+colors.forEach( (color_n) =>
+  color_material.push( new THREE.MeshBasicMaterial({color: color_n }) )
+  )
+//еще один материал для бордера
+color_material[10] =  new THREE.MeshBasicMaterial({color: colors[9] })
+
+//////////функция конструктора объектов/////////////////////////////////////////////////////////////
+///передаются координаты и номер цвета
+let cubus_construct = function (x, y, z, colornum) {
+
+    let cubus = new THREE.Mesh(cubeGeom, color_material[(colornum < 0 ? 10 : colornum)])
+    // let cubus = const_cubus[colornum]
+    cubus.position.set(x,y,z) // тут очевидно устанавливается позиция объекта
+    cubus.colornum = Math.abs(colornum) //идентификатор для отбора объектов по значению
+    scene.add(cubus) //визуализация полученного объекта
+
+    return cubus
+
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,11 +50,7 @@ function init(value_init, re_input) {
   //добавил сцену
   if (!+value_init) scene = new THREE.Scene()
   if (!+value_init) scene.background = new THREE.Color( "white" ) //задал сцене задний фон
-  if (+value_init) {
-        // remove_all_objects_from_memory(axis)
-        // remove_all_objects_from_memory(plain_x_cube)
-        // remove_all_objects_from_memory(border)
-      }
+
   //настроил параметры камеры
   if (!+value_init) camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
@@ -169,8 +185,8 @@ function init(value_init, re_input) {
                 }
             }
         }
-    });
-}
+      });
+    }
 
   for (i = 0; i < object_to_clear.length; i++) {
     scene.remove( object_to_clear[i] )
@@ -183,7 +199,6 @@ function init(value_init, re_input) {
   //select
   document.querySelector('#select_mandala_type').onchange = function() {
 
-        // console.log(axis[0])
         remove_all_objects_from_memory(axis)
         remove_all_objects_from_memory(plain_x_cube)
         remove_all_objects_from_memory(border)
@@ -261,22 +276,19 @@ function init(value_init, re_input) {
   function border_visual (input_nums_fn) {
     //перменные для обводки мандалы
     let border_coordin = input_nums_fn.length
-    let border_color = input_nums_fn[0] //присваивается цвет нулевой клетки
+    let color_n = input_nums_fn[0]
     let border_fn = [] //массив для элементов обводки мандалы
-    let border_timeout = 0 //переменная для анимации отрисовки обводки
-    
+
+    color_material[10].color.set(colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
+
     if ( value_default.true_of(4,8,9) )
       for (let i = -border_coordin; i < border_coordin; i++) {
-
-        setTimeout(function(){ //анимация бордера
           border_fn.push(
-            cubus_construct( -border_coordin, i, 0, border_color), //левая
-            cubus_construct( i, border_coordin, 0, border_color), //верхняя
-            cubus_construct( border_coordin, -i, 0, border_color), //правая
-            cubus_construct( -i,-border_coordin, 0, border_color) //нижняя
+            cubus_construct( -border_coordin, i, 0, -color_n ), //левая
+            cubus_construct( i, border_coordin, 0, -color_n ), //верхняя
+            cubus_construct( border_coordin, -i, 0, -color_n ), //правая
+            cubus_construct( -i,-border_coordin, 0, -color_n ) //нижняя
           )
-        },
-          border_timeout = border_timeout+50) //прирост времени появления следуюдего элемента
 
       }
 
@@ -387,22 +399,6 @@ function init(value_init, re_input) {
     }
 
   //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-  /////////////// применил отслеживание по клику с помощью библиотеки threex.domevents.js /////////////
-  domEvents = new THREEx.DomEvents(camera, renderer.domElement)
-
-  //функция отслеживания событий для элементов THREE.js////
-  function mousedown_listener(arr) {
-    arr.forEach( function(entry) { 
-      domEvents.addEventListener( entry, 'mousedown', (event)=> {color_select_unvisibler(event.target.colornum)})
-    })
-  }
-
-  //назначил отслеживание событий на каждую ось
-  mousedown_listener(axis)
-  //назначил отслеживание событий на каждую плоскость
-  mousedown_listener(plain_x_cube)
-
-
   //отслеживание нажатия кнопок боковой панели
   for (var i = 0; i < palitra.length; i++) {
     palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
@@ -435,19 +431,6 @@ const to_one_fibbonachi_digit = function (digit) {
       reduce((sum,n) => sum+n) //перебор массива с подсчётом суммы чисел
 
     return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
-
-  }
-
-//////////функция конструктора объектов/////////////////////////////////////////////////////////////
-///передаются координаты и номер цвета
-let cubus_construct = function (x, y, z, colornum) {
-
-    let cubus = new THREE.Mesh(cubeGeom(), cubeMaterial(colornum)) //функции определены перед init()
-    cubus.position.set(x,y,z) // тут очевидно устанавливается позиция объекта
-    cubus.colornum = colornum //идентификатор для отбора объектов по значению
-    scene.add(cubus) //визуализация полученного объекта
-
-    return cubus
 
   }
 
