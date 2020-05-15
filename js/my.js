@@ -1,21 +1,25 @@
+"use strict"
+
 
 window.onload = init
 
 
 
 /////задание глобальных переменных////////////////////////////////////////
-var scene, camera, renderer, domEvents, controls
+let scene, camera, renderer, domEvents, controls
+
 
 //база цветов//
 const colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
 //материал кубов
-const cubeMaterial = (color_set) => new THREE.MeshBasicMaterial({color: colors[color_set] }) //базовый сборщик материи кубов
+let cubeMaterial = (color_set) => new THREE.MeshBasicMaterial({color: colors[color_set] }) //базовый сборщик материи кубов
 //размеры кубов
-const cubeGeom = (size=1) => new THREE.CubeGeometry(size,size,size) //базовый сборщик геометрии кубов
+let cubeGeom = (size=1) => new THREE.CubeGeometry(size,size,size) //базовый сборщик геометрии кубов
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 function init(value_init, re_input) {
+
   //окрашиваем кнопки визуализации цветов
   let palitra = document.querySelectorAll(".palitra div")
     for (var i = 0; i < palitra.length; i++)
@@ -24,25 +28,28 @@ function init(value_init, re_input) {
 
   ///////////////////////////////////////////////////////////////////////////
   //добавил сцену
-  scene = new THREE.Scene()
-  scene.background = new THREE.Color( "white" ) //задал сцене задний фон
-
+  if (!+value_init) scene = new THREE.Scene()
+  if (!+value_init) scene.background = new THREE.Color( "white" ) //задал сцене задний фон
+  if (+value_init) {
+        // remove_all_objects_from_memory(axis)
+        // remove_all_objects_from_memory(plain_x_cube)
+        // remove_all_objects_from_memory(border)
+      }
   //настроил параметры камеры
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
+  if (!+value_init) camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
   camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
 
   //выбрал рендер
-  renderer = new THREE.WebGLRenderer()
+  if (!+value_init) renderer = new THREE.WebGLRenderer()
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
-  //-40 для панели кнопок цвета
 
   //удаление предыдущего созданного объекта canvas
-  let canv = document.getElementsByTagName("canvas")
-  if (+value_init) document.body.removeChild(canv[0]) //если init() запущен в первый раз, то не удалять
+  // let canv = document.getElementsByTagName("canvas")
+  // if (+value_init)document.body.removeChild(canv[0]) //если init() запущен в первый раз, то не удалять
 
   //добавление скрипта к документу в тег
-  document.body.appendChild( renderer.domElement )
+  if (!+value_init) document.body.appendChild( renderer.domElement )
   //при динамическом изменении размера окна
   window.addEventListener('resize', onWindowResize, false)
 
@@ -93,6 +100,7 @@ function init(value_init, re_input) {
                 + date_from_pc.getFullYear()
 
   test_string = date_from_pc
+
   //////////////////////////////////////////////////////////////
 
   let modification_to_normal = function (str, test) {
@@ -111,11 +119,77 @@ function init(value_init, re_input) {
   //////////////////////////////////////////////////////////////////////////////////////////////
   ///DOM////////////////////////
   ///title
-  title = document.querySelectorAll("header.title");
+  let title = document.querySelectorAll("header.title");
   title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
 
+  ////функция очистки памяти от объектов
+  function remove_all_objects_from_memory(object_to_clear) {
+
+    // // object_to_clear[i].mesh.dispose()
+    // object_to_clear[i].geometry.dispose()
+    // object_to_clear[i].material.dispose()
+
+    // // object_to_clear[i].indices = []
+    // // object_to_clear[i].vertices = []
+    // // object_to_clear[i].uvs = []
+
+    // object_to_clear[i] = null
+    //
+    function disposeNode(parentObject) {
+
+    parentObject.traverse(function (node) {
+        if (node instanceof THREE.Mesh) {
+            if (node.geometry) {
+                node.geometry.dispose();
+            }
+
+            if (node.material) {
+
+                if (node.material instanceof THREE.MeshFaceMaterial || node.material instanceof THREE.MultiMaterial) {
+                    node.material.materials.forEach(function (mtrl, idx) {
+                        if (mtrl.map) mtrl.map.dispose();
+                        if (mtrl.lightMap) mtrl.lightMap.dispose();
+                        if (mtrl.bumpMap) mtrl.bumpMap.dispose();
+                        if (mtrl.normalMap) mtrl.normalMap.dispose();
+                        if (mtrl.specularMap) mtrl.specularMap.dispose();
+                        if (mtrl.envMap) mtrl.envMap.dispose();
+
+                        mtrl.dispose();    // disposes any programs associated with the material
+                    });
+                }
+                else {
+                    if (node.material.map) node.material.map.dispose();
+                    if (node.material.lightMap) node.material.lightMap.dispose();
+                    if (node.material.bumpMap) node.material.bumpMap.dispose();
+                    if (node.material.normalMap) node.material.normalMap.dispose();
+                    if (node.material.specularMap) node.material.specularMap.dispose();
+                    if (node.material.envMap) node.material.envMap.dispose();
+
+                    node.material.dispose();   // disposes any programs associated with the material
+                }
+            }
+        }
+    });
+}
+
+  for (i = 0; i < object_to_clear.length; i++) {
+    scene.remove( object_to_clear[i] )
+    disposeNode(object_to_clear[i])
+    object_to_clear[i] = null
+  }
+  object_to_clear.length = 0
+  }
+
   //select
-  document.querySelector('#select_mandala_type').onchange = function() {init(+this.value, input_string)}
+  document.querySelector('#select_mandala_type').onchange = function() {
+
+        // console.log(axis[0])
+        remove_all_objects_from_memory(axis)
+        remove_all_objects_from_memory(plain_x_cube)
+        remove_all_objects_from_memory(border)
+
+    init(+this.value, input_string)
+  }
 
   ///////блок адаптации букв в цифровой код////////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
@@ -163,20 +237,20 @@ function init(value_init, re_input) {
     let axis_fn = []
     //нулевой куб в центре оси
 
-    axis_fn[0] = axis_construct( 0,0,0, input_nums_fn[0] )
+    axis_fn[0] = cubus_construct( 0,0,0, input_nums_fn[0] )
 
     let color_n
     for (let i = 1; i < input_nums_fn.length; i++) {
       color_n = input_nums_fn[i]
 
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( i,0,0, color_n) )
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( 0,i,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( i,0,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,i,0, color_n) )
 
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( -i,0,0, color_n) )
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( axis_construct( 0,-i,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( -i,0,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,-i,0, color_n) )
 
-      if ( value_default.true_of(5,6,7) ) axis_fn.push( axis_construct( 0,0,i, color_n) )
-      if ( value_default.true_of(5,6,7) ) axis_fn.push( axis_construct( 0,0,-i, color_n) )
+      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,i, color_n) )
+      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,-i, color_n) )
     }
 
   return axis_fn
@@ -196,10 +270,10 @@ function init(value_init, re_input) {
 
         setTimeout(function(){ //анимация бордера
           border_fn.push(
-            axis_construct( -border_coordin, i, 0, border_color), //левая
-            axis_construct( i, border_coordin, 0, border_color), //верхняя
-            axis_construct( border_coordin, -i, 0, border_color), //правая
-            axis_construct( -i,-border_coordin, 0, border_color) //нижняя
+            cubus_construct( -border_coordin, i, 0, border_color), //левая
+            cubus_construct( i, border_coordin, 0, border_color), //верхняя
+            cubus_construct( border_coordin, -i, 0, border_color), //правая
+            cubus_construct( -i,-border_coordin, 0, border_color) //нижняя
           )
         },
           border_timeout = border_timeout+50) //прирост времени появления следуюдего элемента
@@ -216,6 +290,8 @@ function init(value_init, re_input) {
 
     let plain_x_cube_fn = []
     //отрисовка панелей
+    let color_n = plane_of_colors_fn[0][0]
+
     for (let y = 1; y < plane_of_colors_fn[0].length; y++)
       for (let x = 1; x < plane_of_colors_fn[0].length; x++) {
 
@@ -223,28 +299,28 @@ function init(value_init, re_input) {
         color_n = plane_of_colors_fn[y][x] 
 
         if (value_default.true_of(4,5,6,7,8,9))
-          plain_x_cube_fn.push( plane_construct( y, x, 0, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( y, x, 0, color_n) )
 
         if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( plane_construct( y, 0, x, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( y, 0, x, color_n) )
 
         if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( plane_construct( 0, -y, x, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( 0, -y, x, color_n) )
 
         if (value_default.true_of(4,5,6,7,8,9))
-          plain_x_cube_fn.push( plane_construct( -y, -x, 0, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( -y, -x, 0, color_n) )
 
         if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( plane_construct( -y, 0, -x, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( -y, 0, -x, color_n) )
 
         if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( plane_construct( 0, y, -x, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( 0, y, -x, color_n) )
 
         if (value_default.true_of(4,8,9))
-          plain_x_cube_fn.push( plane_construct( -x, y, 0, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( -x, y, 0, color_n) )
 
         if (value_default.true_of(4,8,9))
-          plain_x_cube_fn.push( plane_construct( x, -y, 0, color_n) )
+          plain_x_cube_fn.push( cubus_construct ( x, -y, 0, color_n) )
       }
 
     return plain_x_cube_fn
@@ -254,16 +330,16 @@ function init(value_init, re_input) {
 
   //задание объектов\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
   //// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
-  let axis = axis_visual (plane_of_colors[0]) //объявляем двумерный массив для оси
-  let plain_x_cube = plain_x_cube_visual (plane_of_colors) //пластины между осями
-  let border = border_visual (plane_of_colors[0]) //массив для элементов обводки мандалы
+  var axis = axis_visual (plane_of_colors[0]) //объявляем двумерный массив для оси
+  var plain_x_cube = plain_x_cube_visual (plane_of_colors) //пластины между осями
+  var border = border_visual (plane_of_colors[0]) //массив для элементов обводки мандалы
 
   ////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////
 
   ////анимация объектов////////////////////
-  animate()
+  if (!+value_init) animate()
 
   function animate() {
 
@@ -312,7 +388,7 @@ function init(value_init, re_input) {
 
   //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
   /////////////// применил отслеживание по клику с помощью библиотеки threex.domevents.js /////////////
-  var domEvents = new THREEx.DomEvents(camera, renderer.domElement)
+  domEvents = new THREEx.DomEvents(camera, renderer.domElement)
 
   //функция отслеживания событий для элементов THREE.js////
   function mousedown_listener(arr) {
@@ -333,7 +409,6 @@ function init(value_init, re_input) {
   }
 
   //////////////////////////////////////////
-
 } //init() end bracket
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -359,13 +434,13 @@ const to_one_fibbonachi_digit = function (digit) {
       map(Number).  //перевод массива символов в массив чисел
       reduce((sum,n) => sum+n) //перебор массива с подсчётом суммы чисел
 
-    return (summ > 9) ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
+    return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
 
   }
 
 //////////функция конструктора объектов/////////////////////////////////////////////////////////////
 ///передаются координаты и номер цвета
-const axis_construct = plane_construct = function(x, y, z, colornum) {
+let cubus_construct = function (x, y, z, colornum) {
 
     let cubus = new THREE.Mesh(cubeGeom(), cubeMaterial(colornum)) //функции определены перед init()
     cubus.position.set(x,y,z) // тут очевидно устанавливается позиция объекта
