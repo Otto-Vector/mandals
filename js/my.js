@@ -12,64 +12,79 @@ function init(value_init, re_input) {
   //база цветов//
   let colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
 
-  //размеры кубов//
-  let cubeGeom = new THREE.CubeGeometry(1,1,1) //базовый сборщик геометрии кубов
+  //базовый сборщик геометрии кубов//
+  let cubeGeom = new THREE.CubeGeometry(1,1,1) 
 
   //материал кубов создаётся из массива цветов от нуля до девяти соответственно
   let color_material = []
   colors.forEach( (color_n) =>
-    color_material.push( new THREE.MeshBasicMaterial({color: color_n }) )
+    color_material.push( new THREE.MeshBasicMaterial({ color: color_n }) )
     )
   //еще один материал для бордера и дальнейших манипуляций с ним
-  color_material[color_material.length] =  new THREE.MeshBasicMaterial({color: colors[9] })
+  color_material[color_material.length] =  new THREE.MeshBasicMaterial({ color: colors[9] })
 
   //////////функция конструктора объектов//////////////////////////////////////////////////
-  ///передаются координаты и номер цвета
-  let cubus_construct = function (x, y, z, colornum) {
+  let cubus_construct = function (x, y, z, colornum) {//передаются координаты и номер цвета
 
-      let cubus = new THREE.Mesh( cubeGeom,
-                                  color_material[
-                                    //если передаётся отрицательное значение цвета, то применяется последний материал
-                                    colornum < 0 ? color_material.length-1 : colornum
-                                    ]
-                                  )
+      let cubus = new THREE.Mesh( cubeGeom, //геометрия куба задана один раз
+                                  color_material[ //из массива заданых по цвету материалов
+                                    colornum < 0 ? //если передаётся отрицательное значение цвета (применяется в функции border_visual, там же передаётся цвет)
+                                      color_material.length-1 //то применяется последний материал, созданный специально для бордюра
+                                      :
+                                      colornum //или просто номер цвета
+                                  ]
+                                )
       cubus.position.set(x,y,z) // устанавливается позиция объекта
-      cubus.colornum = Math.abs(colornum) //идентификатор для отбора объектов по значению
+      cubus.colornum = Math.abs(colornum) //идентификатор для отбора объектов по значению цвета
       scene.add(cubus) //визуализация полученного объекта
 
       return cubus
-
-    }
+    }//возвращает новый объект куб, обработанный по заданным координатам и цвету
 
   ///////////////////////////////////////////////////////////////////////////////
   ///////ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ АНАЛИЗА И ПРЕОБРАЗОВАНИЯ///////////////////////
   /////////////////////////////////////////////////////////////////////////////
 
-  // универсальная функция числа фибоначчи/////////////////
-    let to_one_fibbonachi_digit = function (digit) {
+  ////универсальная функция числа фибоначчи/////////////////
+    let to_one_fibbonachi_digit = function (digit) {//передаётся числовое значение
 
       let summ = 
         Math.abs(digit). //на всякий случай перевод из отрицательного в абсолютное значение
         toString().     //перевод числа в строку для разъединения многозначных чисел
         split('').     //перевод строки в массив
         map(Number).  //перевод массива символов в массив чисел
-        reduce((sum,n) => sum+n) //перебор массива с подсчётом суммы чисел
+        reduce( (sum,n) => sum+n ) //перебор массива с подсчётом суммы чисел
 
       return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
+    }//возвращает одну цифру суммы всех сумм по фибоначчи
 
-    }
+  ////функция для проверки различных значений value_default (прототипирована в Number)
+    Number.prototype.true_of = function (...props) {//передаётся множество цифровых значений // обычно (1,2,3)
+      return props.indexOf(this) != -1 //проверяет, есть ли переменная, к которой применяется функция, в указанном множестве цифровых значений
+    }//возвращает boolean
 
-  //////функция для проверки различных значений value_default (прототипирована в Number)////////
-    Number.prototype.true_of = function (...props) {
-      return props.indexOf(+this) != -1
-    }
+  ////функция подстановки нуля в строку для даты (прототипирована в Number)
+    Number.prototype.zero_include = function () {//принимает число
+      return this < 10 ? "0"+this : this.toString() //добавляет "0" при значениях меньше 10
+    }//возвращает строку
+
+  ////функция нормализации введенной строки, и замены его на тестовое значение
+  let modification_to_normal = function (str, test) {//принимает две строки, str - на обработку, test - на замену, если str оказалась false
+
+    return  (!str || !str.replace(/\s/g, '') ) ? //проверка str на значения приводящие к false (в том числе пустая строка после сброса пробелов)
+      modification_to_normal(test,"0123456789") : //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается и оно
+        str
+          .replace(/\s/g, '') //убираем все пробелы
+          .slice(0,30) //обрезание более 30ти символов
+          .toLowerCase() //убираем верхний регистр
+  }//возвращает обработанную строку без пробелов меньше тридцати символов в нижнем регистре, либо обработанную тестовую строку
 
   ///////////////////////////////////////////////////////////////////////////////
   /////////////////////АЛГОРИТМЫ ПОДСЧЁТА МАНДАЛ////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
 
   ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)///////
-  let plane_square_3x_algorithm = input_nums_fn => {
+  let plane_square_3x_algorithm = input_nums_fn => {//принимает одномерный массив чисел, созданных из введенной строки
     //задаём основной цифро-световой массив мандалы
     let matrix = []
     //сначала назначаем ось по горизонтали
@@ -87,21 +102,21 @@ function init(value_init, re_input) {
 
         fibbo_number = to_one_fibbonachi_digit( matrix[y-1][x] +
                                                 matrix[y][x-1] +
-                                                matrix[y-1][x-1] )
+                                                matrix[y-1][x-1]
+                                              )
 
         matrix[y].push(fibbo_number)
       }
 
     return matrix
-
-  }
+  }//возвращает двумерный массив
 
   ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
   let chess_algorithm = (input_nums_fn, mirror_variant=false ) => {
 
     let axis_fn = !mirror_variant ?
     //первый вариант если false
-      [ //создаём базис отсчёта сумма посередине и по краям
+      [ //создаём базис отсчёта сумма посередине и по краям, основное "слово" от центра
       input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
       ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
       ...input_nums_fn.slice(1), //обрезаем повторную сумму
@@ -109,7 +124,7 @@ function init(value_init, re_input) {
       ]
       :
     //второй вариант если true
-      [
+      [//создаём базис отсчёта сумма посередине и по краям, основное "слово" от краёв к центру
         ...input_nums_fn,
         input_nums_fn[0],
        ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
@@ -124,118 +139,31 @@ function init(value_init, re_input) {
         for (let j=i; j < axis_fn.length; j++)
 
             matrix[j][j-i] =
-              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
+              to_one_fibbonachi_digit ( //складывается в шахматном порядке нечетная диагональ по две цифры
                                         matrix[j][j-i+1]
                                         + matrix[j-1][j-i]
-                                        + ((i%2==0) ? matrix[j-1][j-i+1] : 0) //нечетные диагонали - по три цифры
-                                        )
+                                        + ((i%2==0) ? matrix[j-1][j-i+1] : 0) //четные диагонали - по три цифры
+                                      )
 
       //расчёт диагонали в сторону увеличения
        for (let i=0; i < axis_fn.length; i++)
         for (let j=0; j < axis_fn.length-1-i; j++)
 
             matrix[j][j+i+1] = 
-              to_one_fibbonachi_digit ( //складывается в шахматном порядке первая/четная диагональ по две цифры
+              to_one_fibbonachi_digit ( //складывается в шахматном порядке нечетная диагональ по две цифры
                                         matrix[j][j+i]
                                         + matrix[j+1][j+i+1]
-                                        + ((i%2==0) ? matrix[j+1][j+i] : 0) //нечетные диагонали - по три цифры
-                                        )
+                                        + ((i%2==0) ? matrix[j+1][j+i] : 0) //четные диагонали - по три цифры
+                                      )
 
-    //возвращаем развёрнутую наоборот матрицу, потому как отображение с другого угла, чем я посчитал
     return matrix.reverse()
+  }//возвращаем развёрнутую наоборот двумерную матрицу, потому как отображение с другого угла
 
-  }
-  ///////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-  ///////////////////////////////////////////////////////////////////////////
-  //добавил сцену
-  if (!+value_init) scene = new THREE.Scene()
-  if (!+value_init) scene.background = new THREE.Color( "white" ) //задал сцене задний фон
-
-  //настроил параметры камеры
-  if (!+value_init) camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
-  camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
-
-  //выбрал рендер
-  if (!+value_init) {renderer = new THREE.WebGLRenderer()
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
-  }
-  //удаление предыдущего созданного объекта canvas
-  // let canv = document.getElementsByTagName("canvas")
-  // if (+value_init)document.body.removeChild(canv[0]) //если init() запущен в первый раз, то не удалять
-
-  //добавление скрипта к документу в тег
-  if (!+value_init) document.body.appendChild( renderer.domElement )
-  //при динамическом изменении размера окна
-  window.addEventListener('resize', onWindowResize, false)
-
-  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ///////////////////////////
-  // также активация внутри функции render() и onwindowresize() строкой controls.update()
-  controls = new THREE.OrbitControls (camera, renderer.domElement)
-  controls.minDistance = 2
-  controls.maxDistance = 444
-
-  //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
-  //  задаёт разные мандалы
-  // 4 - на квадрат (по три)                    +
-  // 5 - на 6 пластин (цветок шахматный 1вар)   +
-  // 6 - на 6 пластин (цветок по три)           +
-  // 7 - на 6 пластин (цветок шахматный 2вар)   +
-  // 8 - на квадрат шахматный расчёт (1вар)     +
-  // 9 - на квадрат шахматый расчёт (2вар)      +
-  // var value_default = (+value_init) ? +value_init : 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
-  var value_default = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
+  /////////////////////СПЕЦИАЛЬНЫЕ ФУНКЦИИ THREEX///////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
-
-  if (value_default.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
-  if (value_default.true_of(4)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
-  if (value_default.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
-
-   //ввод цифр для расчёта мандалы
-  let input_string = prompt ( "Введите значение для создания мандалы",
-                              //также вводится предыдущее значение (а при первом вводе - пустое поле)
-                              (+value_init) ? re_input : ""
-                            )
-  let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
-  // let test_string = "01234567890многоНоного Буковокдля - проверкиА0даптивностиитп" //тестовая строка на которую заменяется при неверном вводе
-
-
-  //////////////////////////////////////////////////////////////
-  ///Блок подстановки текущей даты
-  let date_from_pc = new Date()
-  //функция подстановки нуля в строку
-  Number.prototype.zero_include = function () {
-    return this < 10 ? "0"+this : this.toString()
-  }
-
-  date_from_pc = date_from_pc.getDate().zero_include()
-                + (date_from_pc.getMonth()+1).zero_include()
-                + date_from_pc.getFullYear()
-
-  test_string = date_from_pc
-
-  //////////////////////////////////////////////////////////////
-
-  let modification_to_normal = function (str, test) {
-
-    return  (!str || !str.replace(/\s/g, '') ) ? //проверка str на значения приводящие к false (в том числе пустая строка после сброса пробелов)
-      modification_to_normal(test,"0123456789") : //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается
-        str
-          .replace(/\s/g, '') //убираем все пробелы
-          .slice(0,30) //обрезание более 30ти символов
-          .toLowerCase() //убираем верхний регистр
-
-  }
-
-  input_string = modification_to_normal(input_string, test_string)
-
-
-  ////функция очистки памяти от объектов THREEX
+  ////функция очистки памяти от ссылок на объекты THREEX, оставшихся в render
   function remove_all_objects_from_memory(object_to_clear) {
 
     //функция поиска соответствий на наличие объектов
@@ -289,27 +217,100 @@ function init(value_init, re_input) {
 
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  //  if (!+value_init) - это проверка запущена ли функция init() в первый раз
+
+  ///////////////////PRE_BEGIN////////////////////////////////////////////////////////
+  //добавил сцену
+  if (!+value_init) scene = new THREE.Scene()
+  scene.background = new THREE.Color( "white" ) //задал сцене задний фон
+
+  //настроил параметры камеры
+  if (!+value_init) camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
+  camera.lookAt( 0, 0, 0 ) //смотреть в центр координат
+
+  //выбрал рендер
+  if (!+value_init) renderer = new THREE.WebGLRenderer()
+  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setSize( window.innerWidth-4, window.innerHeight-4 ) //отнял по 4 пикселя, потому что появляется прокрутка
+
+  //добавление скрипта к документу в тег
+  if (!+value_init) document.body.appendChild( renderer.domElement )
+  //при динамическом изменении размера окна
+  window.addEventListener('resize', onWindowResize, false)
+
+  ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ (оставил только приближение и удаление)//////////////////////
+  // также активация внутри функции render() и onwindowresize() строкой controls.update()
+  controls = new THREE.OrbitControls (camera, renderer.domElement)
+  controls.minDistance = 2
+  controls.maxDistance = 444
+
+  //////////////////////////BEGIN/////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  //  задаёт разные мандалы
+  // 4 - на квадрат (по три)                    +
+  // 5 - на 6 пластин (цветок шахматный 1вар)   +
+  // 6 - на 6 пластин (цветок по три)           +
+  // 7 - на 6 пластин (цветок шахматный 2вар)   +
+  // 8 - на квадрат шахматный расчёт (1вар)     +
+  // 9 - на квадрат шахматый расчёт (2вар)      +
+  // var value_default = (+value_init) ? +value_init : 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
+  let value_default = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
+
+
+  ///////////////БЛОК ОБРАБОТКИ ВВОДИМОЙ СТРОКИ///////////////////////////////////////////////
+
+  ///заменяемая строка при неверном вводе (сейчас вводит дату)
+  let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
+  ///Блок подстановки текущей даты
+  let date_from_pc = new Date()
+  //приводим дату к строке используя zero_include()
+  test_string = date_from_pc.getDate().zero_include()
+                + (date_from_pc.getMonth()+1).zero_include()
+                + date_from_pc.getFullYear()
+
+  //ввод строки через модальное окно
+  let input_string = prompt ( "Введите значение для создания мандалы",
+                              //также вводится предыдущее значение re_input (а при первом вводе - пустое поле)
+                              +value_init ? re_input : ""
+                            )
+  //нормализация введенной строки для корректного перевода в цифровой массив
+  input_string = modification_to_normal(input_string, test_string)
+
+
+  //////////////////////////////////////////////////////////////
+  //здесь будет адаптация отдаления камеры по размеру вводимого значения
+  if (value_default.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
+  if (value_default.true_of(4)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
+  if (value_default.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
+
+
   //////////////////////////////////////
   ///DOM///////////////////////////////
   ////////////////////////////////////
 
   ///palitra
-  //окрашиваем кнопки визуализации цветов
+  //задаём массив кнопок
   let palitra = document.querySelectorAll(".palitra div")
-    for (var i = 0; i < palitra.length; i++)
-      palitra[i].style.background = colors[i]
+  //окрашиваем кнопки визуализации цветов
+  palitra.forEach( (palitra,i) => palitra.style.background = colors[i] )
+
 
   ///title
-  let title = document.querySelectorAll("header.title");
+  let title = document.querySelectorAll("header.title")
   title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
 
   ///select
   document.querySelector('#select_mandala_type').onchange = function() {
+      //удаление предыдущих объектов из памяти и со сцены
+      remove_all_objects_from_memory(axis)
+      remove_all_objects_from_memory(plain_x_cube)
+      remove_all_objects_from_memory(border)
 
-        remove_all_objects_from_memory(axis)
-        remove_all_objects_from_memory(plain_x_cube)
-        remove_all_objects_from_memory(border)
-
+    //перезапуск init с выбраным значением типом новой мандалы и строкой из предыдущей
     init(+this.value, input_string)
   }
 
