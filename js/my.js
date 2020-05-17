@@ -45,6 +45,7 @@ function init(value_init, re_input) {
   ///////ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ АНАЛИЗА И ПРЕОБРАЗОВАНИЯ///////////////////////
   /////////////////////////////////////////////////////////////////////////////
 
+
   ////универсальная функция числа фибоначчи/////////////////
     let to_one_fibbonachi_digit = function (digit) {//передаётся числовое значение
 
@@ -58,15 +59,17 @@ function init(value_init, re_input) {
       return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
     }//возвращает одну цифру суммы всех сумм по фибоначчи
 
+
   ////функция для проверки различных значений value_default (прототипирована в Number)
-    Number.prototype.true_of = function (...props) {//передаётся множество цифровых значений // обычно (1,2,3)
+  if (!+value_init)  Number.prototype.true_of = function (...props) {//передаётся множество цифровых значений // обычно (1,2,3)
       return props.indexOf(this) != -1 //проверяет, есть ли переменная, к которой применяется функция, в указанном множестве цифровых значений
     }//возвращает boolean
 
   ////функция подстановки нуля в строку для даты (прототипирована в Number)
-    Number.prototype.zero_include = function () {//принимает число
+  if (!+value_init)  Number.prototype.zero_include = function () {//принимает число
       return this < 10 ? "0"+this : this.toString() //добавляет "0" при значениях меньше 10
     }//возвращает строку
+
 
   ////функция нормализации введенной строки, и замены его на тестовое значение
   let modification_to_normal = function (str, test) {//принимает две строки, str - на обработку, test - на замену, если str оказалась false
@@ -79,6 +82,23 @@ function init(value_init, re_input) {
           .toLowerCase() //убираем верхний регистр
   }//возвращает обработанную строку без пробелов меньше тридцати символов в нижнем регистре, либо обработанную тестовую строку
 
+
+
+  ///функция перевода строки в числа
+  if (!+value_init) String.prototype.to_num_and_summ = function (simbols_static_fn) {//принимает строку, где каждая позиция символа соответсвует числовому коду
+
+    let nums_line_fn =
+      this.split('') //перевод строки в массив
+        .map( string_simbol =>
+              +string_simbol || //если символ число, то возвращает число
+              simbols_static_fn.indexOf(string_simbol)%9+1 //иначе возвращает позицию символа в соответствии с таблицей Урсулы
+            )
+
+    //добавляется нулевой элемент суммы всех чисел по фибоначи
+    nums_line_fn.unshift( to_one_fibbonachi_digit(nums_line_fn.reduce( (sum,n) => sum+n )) )
+
+    return nums_line_fn
+  }//возвращает массив чисел
   ///////////////////////////////////////////////////////////////////////////////
   /////////////////////АЛГОРИТМЫ ПОДСЧЁТА МАНДАЛ////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
@@ -112,7 +132,7 @@ function init(value_init, re_input) {
   }//возвращает двумерный массив
 
   ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
-  let chess_algorithm = (input_nums_fn, mirror_variant=false ) => {
+  let chess_algorithm = (input_nums_fn, mirror_variant=false ) => {//принимает одномерный массив чисел, созданных из введенной строки и модификатор стиля отображения косой оси
 
     let axis_fn = !mirror_variant ?
     //первый вариант если false
@@ -221,7 +241,8 @@ function init(value_init, re_input) {
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  //  if (!+value_init) - это проверка запущена ли функция init() в первый раз
+  //  if (!+value_init) - это проверка запущена ли функция init()
+  //  в первый раз передаётся объект, который не является числом(NaN), соответственно - !false = true
 
   ///////////////////PRE_BEGIN////////////////////////////////////////////////////////
   //добавил сцену
@@ -245,8 +266,8 @@ function init(value_init, re_input) {
   ///////////МАНИПУЛЯЦИЯ СЦЕНОЙ (оставил только приближение и удаление)//////////////////////
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
   controls = new THREE.OrbitControls (camera, renderer.domElement)
-  controls.minDistance = 2
-  controls.maxDistance = 444
+  controls.minDistance = 2 //минимальная 
+  controls.maxDistance = 444 //и максимальная дистанция при ручном приближении
 
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -318,39 +339,19 @@ function init(value_init, re_input) {
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
 
-  //прототипируем в объект String,
-  //чтобы применять к разным переменным строк
-  //возвращает число
-  String.prototype.simbols_num_adapter = function (simbol) {
-    return (!isNaN(simbol)) ? //если проверяемый символ является числом
-              +simbol : //то выводим его как число (здесь "плюс" это аналог parseInt())
-                this.indexOf(simbol)%9+1 // если нет, то применяем число в соответствии с таблицей Урсулы
-               //если символ отсутствует (indexOf возвращает -1), то по логике (+1) присваивается 0
-    }
+  
   //////////////////////////////////////////////////////////
-  //прототипирование функции перевода строки в числа (возвращает массив чисел)
-  String.prototype.to_num = function () {
-    let fn_nums = [0, []]
-
-    for (let i=1; i <= this.length; i++) {
-      fn_nums[i] = simbols_static.simbols_num_adapter(this[i-1]) //применение функции адаптации из прототипа
-      fn_nums[0] += fn_nums[i] //сумма для цвета числа в центре
-    }
-    //фибоначи на нулевой элемент суммы чисел
-    fn_nums[0] = to_one_fibbonachi_digit(fn_nums[0])
-
-    return fn_nums
-  }
+  
   ////////////////////////////////////////////////////////////////////////////////////
   ///////////       ВЫБОР АЛГОРИТМА РАСЧЁТА              ////////////////////////////
   //высчитываем двумерный массив цветов для куба
   let plane_of_colors = []
   if (value_default.true_of(4,6))
-    plane_of_colors = plane_square_3x_algorithm( input_string.to_num() )
+    plane_of_colors = plane_square_3x_algorithm( input_string.to_num_and_summ(simbols_static) )
 
   if (value_default.true_of(5,7,8,9))
-    plane_of_colors = chess_algorithm( input_string.to_num()
-                                           ,value_default.true_of(7,9) //передается boolean для второго расчёта оси
+    plane_of_colors = chess_algorithm( input_string.to_num_and_summ(simbols_static)
+                                          , value_default.true_of(7,9) //передается boolean для второго расчёта оси
                                           )
   ////////////////////////////////////////////////////////////////////////////////
   //добавляем ось//
