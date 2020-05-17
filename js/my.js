@@ -16,12 +16,9 @@ function init(value_init, re_input) {
   let cubeGeom = new THREE.CubeGeometry(1,1,1) 
 
   //материал кубов создаётся из массива цветов от нуля до девяти соответственно
-  let color_material = []
-  colors.forEach( (color_n) =>
-    color_material.push( new THREE.MeshBasicMaterial({ color: color_n }) )
-    )
+  let color_material = colors.map( color_n => new THREE.MeshBasicMaterial({ color: color_n }) )
   //еще один материал для бордера и дальнейших манипуляций с ним
-  color_material[color_material.length] =  new THREE.MeshBasicMaterial({ color: colors[9] })
+  color_material.push( new THREE.MeshBasicMaterial({ color: colors[9] }) )
 
   //////////функция конструктора объектов//////////////////////////////////////////////////
   let cubus_construct = function (x, y, z, colornum) {//передаются координаты и номер цвета
@@ -83,7 +80,6 @@ function init(value_init, re_input) {
   }//возвращает обработанную строку без пробелов меньше тридцати символов в нижнем регистре, либо обработанную тестовую строку
 
 
-
   ///функция перевода строки в числа
   if (!+value_init) String.prototype.to_num_and_summ = function (simbols_static_fn) {//принимает строку, где каждая позиция символа соответсвует числовому коду
 
@@ -99,6 +95,7 @@ function init(value_init, re_input) {
 
     return nums_line_fn
   }//возвращает массив чисел
+
   ///////////////////////////////////////////////////////////////////////////////
   /////////////////////АЛГОРИТМЫ ПОДСЧЁТА МАНДАЛ////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
@@ -139,7 +136,7 @@ function init(value_init, re_input) {
       [ //создаём базис отсчёта сумма посередине и по краям, основное "слово" от центра
       input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
       ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
-      ...input_nums_fn.slice(1), //обрезаем повторную сумму
+      ...input_nums_fn.slice(1), //еще раз вставляем значение и обрезаем повторную сумму
       input_nums_fn[0] //и снова сумма в конце
       ]
       :
@@ -150,7 +147,7 @@ function init(value_init, re_input) {
        ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
       ]
 
-    let matrix = axis_fn.map(n => n = axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
+    let matrix = axis_fn.map(n => axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
 
     axis_fn.forEach( (n,i) => matrix[i][i] = n) // вписываем косую "ось" (базис) в матрицу подсчёта
 
