@@ -134,17 +134,17 @@ function init(value_init, re_input) {
     let axis_fn = !mirror_variant ?
     //первый вариант если false
       [ //создаём базис отсчёта сумма посередине и по краям, основное "слово" от центра
-      input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
-      ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
-      ...input_nums_fn.slice(1), //еще раз вставляем значение и обрезаем повторную сумму
-      input_nums_fn[0] //и снова сумма в конце
+        input_nums_fn[0], //это уже посчитанная заранее сумма вписанная в нулевой элемент
+        ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]), //разворот вводного значения, соотвественно сумма из нулевого значения становится в середине
+        ...input_nums_fn.slice(1), //еще раз вставляем значение и обрезаем повторную сумму
+        input_nums_fn[0] //и снова сумма в конце
       ]
       :
     //второй вариант если true
       [//создаём базис отсчёта сумма посередине и по краям, основное "слово" от краёв к центру
         ...input_nums_fn,
         input_nums_fn[0],
-       ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
+        ...input_nums_fn.map((n,i,arr) => arr[arr.length-1-i]) //аналог reverse() без изменения массива
       ]
 
     let matrix = axis_fn.map(n => axis_fn.map( n => 0)) // создаём двумерную матрицу на нулях на основе размера базиса
@@ -177,8 +177,128 @@ function init(value_init, re_input) {
   }//возвращаем развёрнутую наоборот двумерную матрицу, потому как отображение с другого угла
 
   ///////////////////////////////////////////////////////////////////////////////
+  /////// ФУНКЦИИ ВИЗУАЛЬНОЙ СБОРКИ и ГРУППИРОВКИ ОБЪЕКТОВ В МАССИВ ////////////
+  /////////////////////////////////////////////////////////////////////////////
+  
+
+  //////////сборка осей //////////
+  function axis_visual (input_nums_fn) {//принимает одномерный числовой массив
+    let axis_fn = []
+    //нулевой куб в центре оси
+
+    axis_fn[0] = cubus_construct( 0,0,0, input_nums_fn[0] )
+
+    let color_n
+    for (let i = 1; i < input_nums_fn.length; i++) {
+      color_n = input_nums_fn[i]
+
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( i,0,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,i,0, color_n) )
+
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( -i,0,0, color_n) )
+      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,-i,0, color_n) )
+
+      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,i, color_n) )
+      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,-i, color_n) )
+    }
+
+    return axis_fn
+  }//возвращает одномерный массив объектов
+
+
+  ///////рабочий вариант обводки мандалы////////////////////////
+  function border_visual (input_nums_fn) {//принимает одномерный числовой массив
+    //перменные для обводки мандалы
+    let border_coordin = input_nums_fn.length
+    let color_n = input_nums_fn[0]
+    let border_fn = [] //массив для элементов обводки мандалы
+
+    color_material[color_material.length-1].color.set(colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
+
+    if ( value_default.true_of(4,8,9) )
+      for (let i = -border_coordin; i < border_coordin; i++) {
+          border_fn.push(
+            cubus_construct( -border_coordin, i, 0, -color_n ), //левая
+            cubus_construct( i, border_coordin, 0, -color_n ), //верхняя
+            cubus_construct( border_coordin, -i, 0, -color_n ), //правая
+            cubus_construct( -i,-border_coordin, 0, -color_n ) //нижняя
+          )
+
+      }
+
+    return border_fn
+  }//возвращает одномерный массив объектов
+
+
+  ////////пластина/плоскость кубов/////////////
+  function plain_x_cube_visual (plane_of_colors_fn) {//принимает одномерный числовой массив
+
+    let plain_x_cube_fn = []
+    //отрисовка панелей
+    let color_n
+    for (let y = 1; y < plane_of_colors_fn[0].length; y++)
+      for (let x = 1; x < plane_of_colors_fn[0].length; x++) {
+
+        //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
+        color_n = plane_of_colors_fn[y][x] 
+
+        if (value_default.true_of(4,5,6,7,8,9))
+          plain_x_cube_fn.push( cubus_construct ( y, x, 0, color_n) )
+
+        if (value_default.true_of(4,5,6,7,8,9))
+          plain_x_cube_fn.push( cubus_construct ( -y, -x, 0, color_n) )
+
+        if (value_default.true_of(4,8,9))
+          plain_x_cube_fn.push( cubus_construct ( -x, y, 0, color_n) )
+
+        if (value_default.true_of(4,8,9))
+          plain_x_cube_fn.push( cubus_construct ( x, -y, 0, color_n) )
+
+        if (value_default.true_of(5,6,7))
+          plain_x_cube_fn.push( cubus_construct ( y, 0, x, color_n) )
+
+        if (value_default.true_of(5,6,7))
+          plain_x_cube_fn.push( cubus_construct ( 0, -y, x, color_n) )
+
+        if (value_default.true_of(5,6,7))
+          plain_x_cube_fn.push( cubus_construct ( -y, 0, -x, color_n) )
+
+        if (value_default.true_of(5,6,7))
+          plain_x_cube_fn.push( cubus_construct ( 0, y, -x, color_n) )
+      }
+
+    return plain_x_cube_fn
+  }//возвращает одномерный массив объектов
+
+
+  ///////////////////////////////////////////////////////////////////////////////
   /////////////////////СПЕЦИАЛЬНЫЕ ФУНКЦИИ THREEX///////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
+
+
+  /////функция изменения центровки камеры при изменении размера экрана///////////////
+  function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth-4, window.innerHeight-4)
+
+    controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
+
+  }
+
+
+  ////анимация
+  function animate() {
+
+    requestAnimationFrame( animate )
+
+    // рендеринг
+    controls.update() //манипуляция со сценой
+    renderer.render( scene, camera )
+    // console.log(camera.position)
+  }
+
 
   ////функция очистки памяти от ссылок на объекты THREEX, оставшихся в render
   function remove_all_objects_from_memory(object_to_clear) {
@@ -236,11 +356,12 @@ function init(value_init, re_input) {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
 
   //  if (!+value_init) - это проверка запущена ли функция init()
   //  в первый раз передаётся объект, который не является числом(NaN), соответственно - !false = true
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////PRE_BEGIN////////////////////////////////////////////////////////
   //добавил сцену
   if (!+value_init) scene = new THREE.Scene()
@@ -332,163 +453,48 @@ function init(value_init, re_input) {
     init(+this.value, input_string)
   }
 
-  ///////блок адаптации букв в цифровой код////////////////////////
+  //////////////////////////////////////////////////////////////
+  ///////блок адаптации букв в цифровой код////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-
   
-  //////////////////////////////////////////////////////////
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  ///////////       ВЫБОР АЛГОРИТМА РАСЧЁТА              ////////////////////////////
-  //высчитываем двумерный массив цветов для куба
+  ///////////ВЫБОР АЛГОРИТМА РАСЧЁТА///////////
+  //высчитываем двумерный массив цветов для одной стороны мандалы
   let plane_of_colors = []
   if (value_default.true_of(4,6))
     plane_of_colors = plane_square_3x_algorithm( input_string.to_num_and_summ(simbols_static) )
 
   if (value_default.true_of(5,7,8,9))
-    plane_of_colors = chess_algorithm( input_string.to_num_and_summ(simbols_static)
-                                          , value_default.true_of(7,9) //передается boolean для второго расчёта оси
-                                          )
-  ////////////////////////////////////////////////////////////////////////////////
-  //добавляем ось//
-  
-  //////////сборка осей по value_default направлениям //////////
-  function axis_visual (input_nums_fn) {
-    let axis_fn = []
-    //нулевой куб в центре оси
+    plane_of_colors = chess_algorithm ( input_string.to_num_and_summ(simbols_static)
+                                        , value_default.true_of(7,9) //передается boolean для второго расчёта оси
+                                      )
 
-    axis_fn[0] = cubus_construct( 0,0,0, input_nums_fn[0] )
-
-    let color_n
-    for (let i = 1; i < input_nums_fn.length; i++) {
-      color_n = input_nums_fn[i]
-
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( i,0,0, color_n) )
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,i,0, color_n) )
-
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( -i,0,0, color_n) )
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,-i,0, color_n) )
-
-      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,i, color_n) )
-      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,-i, color_n) )
-    }
-
-  return axis_fn
-  }
-
-  ///////рабочий вариант обводки мандалы////////////////////////
-
-  function border_visual (input_nums_fn) {
-    //перменные для обводки мандалы
-    let border_coordin = input_nums_fn.length
-    let color_n = input_nums_fn[0]
-    let border_fn = [] //массив для элементов обводки мандалы
-
-    color_material[color_material.length-1].color.set(colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
-
-    if ( value_default.true_of(4,8,9) )
-      for (let i = -border_coordin; i < border_coordin; i++) {
-          border_fn.push(
-            cubus_construct( -border_coordin, i, 0, -color_n ), //левая
-            cubus_construct( i, border_coordin, 0, -color_n ), //верхняя
-            cubus_construct( border_coordin, -i, 0, -color_n ), //правая
-            cubus_construct( -i,-border_coordin, 0, -color_n ) //нижняя
-          )
-
-      }
-
-    return border_fn
-  }
-
-
-  ////////пластина кубов/////////////
-
-  function plain_x_cube_visual (plane_of_colors_fn) {
-
-    let plain_x_cube_fn = []
-    //отрисовка панелей
-    let color_n = plane_of_colors_fn[0][0]
-
-    for (let y = 1; y < plane_of_colors_fn[0].length; y++)
-      for (let x = 1; x < plane_of_colors_fn[0].length; x++) {
-
-        //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
-        color_n = plane_of_colors_fn[y][x] 
-
-        if (value_default.true_of(4,5,6,7,8,9))
-          plain_x_cube_fn.push( cubus_construct ( y, x, 0, color_n) )
-
-        if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( y, 0, x, color_n) )
-
-        if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( 0, -y, x, color_n) )
-
-        if (value_default.true_of(4,5,6,7,8,9))
-          plain_x_cube_fn.push( cubus_construct ( -y, -x, 0, color_n) )
-
-        if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( -y, 0, -x, color_n) )
-
-        if (value_default.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( 0, y, -x, color_n) )
-
-        if (value_default.true_of(4,8,9))
-          plain_x_cube_fn.push( cubus_construct ( -x, y, 0, color_n) )
-
-        if (value_default.true_of(4,8,9))
-          plain_x_cube_fn.push( cubus_construct ( x, -y, 0, color_n) )
-      }
-
-    return plain_x_cube_fn
-    }
-
-
-
-  //задание объектов\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  ///////////////////////////////////////////////////////////////////////////////
+  //задание и визуализация объектов/////////////////////////////////////////////
   //// они все нужны для того, чтобы можно было к ним потом обращаться и манипулировать
   var axis = axis_visual (plane_of_colors[0]) //объявляем двумерный массив для оси
   var plain_x_cube = plain_x_cube_visual (plane_of_colors) //пластины между осями
   var border = border_visual (plane_of_colors[0]) //массив для элементов обводки мандалы
 
   ////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////
 
   ////анимация объектов////////////////////
   if (!+value_init) animate()
-
-  function animate() {
-
-    requestAnimationFrame( animate )
-    render()
-
-  }
-
-  function render() {
-
-    controls.update() //манипуляция со сценой
-    // console.log(camera.position)
-    renderer.render( scene, camera )
-
-
-    }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///МАНИПУЛЯЦИИ С ПРИМЕНЕНИЕМ И ОСЛЕЖИВАНИЕМ СОБЫТИЙ НАЖАТИЯ НА ОБЪЕКТЫ И КНОПКИ НА БОКОВОЙ ПАНЕЛИ///
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // //функция исчезания кубов в найденых в domEvents
-  var color_select_unvisibler = (color) => {
+  ////функция исчезания|появления кубов в найденых в domEvents
+  let color_select_unvisibler = (color) => {
 
     //функция перебора массива с отслеживанием нажатых кнопок
     function foreach_visibler(arr) { //в ф-цию передаем массив
       arr.forEach(function(item) { //перебираем массив
-          if (color == "#") item.visible = false //все искомые элементы становятся невидимыми
-          if (color == "@" ||
-              color == item.colornum ) item.visible = !item.visible //смена видимости на невидимость
-          if (color == "A") item.visible = true //все искомые элементы становятся видимыми
+          if (color === "#") item.visible = false //все искомые элементы становятся невидимыми
+          if (color === "@" ||
+              color === item.colornum ) item.visible = !item.visible //смена видимости на невидимость
+          if (color === "A") item.visible = true //все искомые элементы становятся видимыми
         })
     }
 
@@ -498,8 +504,8 @@ function init(value_init, re_input) {
     foreach_visibler(plain_x_cube)
 
     //только для бордера//
-    if (color == "B") border.forEach( function(entry) { 
-      entry.colornum = (entry.colornum == 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
+    if (color === "B") border.forEach( function(entry) { 
+      entry.colornum = (entry.colornum === 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
       entry.material.color.set(colors[entry.colornum]) //присвоение значения цвета
       })
     }
@@ -510,21 +516,5 @@ function init(value_init, re_input) {
     palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
 
-  //////////////////////////////////////////
-// } //init() end bracket
-
 //////////////////////////////////////////////////////////////////////////////////
-/////функция изменения центровки камеры при изменении размера экрана///////////////
-function onWindowResize() {
-
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth-4, window.innerHeight-4)
-
-  controls.update() //для сохранения пропорций при динамическом изменении ширины экрана
-
-}
-
-
-
 } //init() end bracket
