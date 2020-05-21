@@ -10,18 +10,18 @@ function init(value_init, re_input) {
   /////задание основных переменных////////////////////////////////////////
 
   //база цветов//
-  let colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
+  let basic_colors = ["#FFFFFF", "#E4388C", "#E4221B", "#FF7F00", "#FFED00", "#008739", "#02A7AA", "#47B3E7", "#2A4B9B", "#702283"]
 
   //базовый сборщик геометрии кубов//
   let cubeGeom = new THREE.CubeGeometry(1,1,1) 
 
   //материал кубов создаётся из массива цветов от нуля до девяти соответственно
-  let color_material = colors.map( color_n => new THREE.MeshBasicMaterial({ color: color_n }) )
+  let color_material = basic_colors.map( color_n => new THREE.MeshBasicMaterial({ color: color_n }) )
   //еще один материал для бордера и дальнейших манипуляций с ним
-  color_material.push( new THREE.MeshBasicMaterial({ color: colors[9] }) )
+  color_material.push( new THREE.MeshBasicMaterial({ color: basic_colors[9] }) )
 
   //////////функция конструктора объектов//////////////////////////////////////////////////
-  let cubus_construct = function (x, y, z, colornum) {//передаются координаты и номер цвета
+  let cubus_construct = function(x, y, z, colornum) {//передаются координаты и номер цвета
 
       let cubus = new THREE.Mesh( cubeGeom, //геометрия куба задана один раз
                                   color_material[ //из массива заданых по цвету материалов
@@ -44,57 +44,58 @@ function init(value_init, re_input) {
 
 
   ////универсальная функция числа фибоначчи/////////////////
-    let to_one_fibbonachi_digit = function (digit) {//передаётся числовое значение
+    let to_one_fibbonachi_digit = function(amount_from) {//передаётся числовое значение
 
       let summ = 
-        Math.abs(digit). //на всякий случай перевод из отрицательного в абсолютное значение
-        toString().     //перевод числа в строку для разъединения многозначных чисел
-        split('').     //перевод строки в массив
-        map(Number).  //перевод массива символов в массив чисел
-        reduce( (sum,n) => sum+n ) //перебор массива с подсчётом суммы чисел
+          Math.abs(+amount_from). //на всякий случай перевод из отрицательного в абсолютное значение
+          toString().     //перевод числа в строку для разъединения многозначных чисел
+          split('').     //перевод строки в массив
+          map(Number).  //перевод массива символов в массив чисел
+          reduce( (sum,n) => sum+n ) //перебор массива с подсчётом суммы чисел
 
       return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
     }//возвращает одну цифру суммы всех сумм по фибоначчи
 
 
-  ////функция для проверки различных значений value_default (прототипирована в Number)
-  if (!+value_init)  Number.prototype.true_of = function (...props) {//передаётся множество цифровых значений // обычно (1,2,3)
+  ////функция для проверки различных значений selected_mandala (прототипирована в Number)
+  if (!+value_init)  Number.prototype.true_of = function(...props) {//передаётся множество цифровых значений // обычно (1,2,3)
       return props.indexOf(this) != -1 //проверяет, есть ли переменная, к которой применяется функция, в указанном множестве цифровых значений
     }//возвращает boolean
 
   ////функция подстановки нуля в строку для даты (прототипирована в Number)
-  if (!+value_init)  Number.prototype.zero_include = function () {//принимает число
+  if (!+value_init) Number.prototype.zero_include = function() {//принимает число
       return this < 10 ? "0"+this : this.toString() //добавляет "0" при значениях меньше 10
     }//возвращает строку
 
+  //удаляет все пробелы
+  if (!+value_init) String.prototype.delete_all_spaces = function() { return this.replace(/\s/g, '') }
 
   ////функция нормализации введенной строки, и замены его на тестовое значение
-  let modification_to_normal = function (str, test) {//принимает две строки, str - на обработку, test - на замену, если str оказалась false
+  let modification_to_normal = function(string_from_user_input, string_by_default) {//принимает две строки, string_from_user_input - на обработку, string_by_default - на замену, если string_from_user_input оказалась false
 
-    return  (!str || !str.replace(/\s/g, '') ) ? //проверка str на значения приводящие к false (в том числе пустая строка после сброса пробелов)
-      modification_to_normal(test,"0123456789") : //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается и оно
-        str
-          .replace(/\s/g, '') //убираем все пробелы
-          .slice(0,30) //обрезание более 30ти символов
-          .toLowerCase() //убираем верхний регистр
+    return  ( !string_from_user_input ||
+              !string_from_user_input.delete_all_spaces()
+            ) ? //проверка string_from_user_input на значения приводящие к false (в том числе пустая строка после сброса пробелов)
+              modification_to_normal(string_by_default,"0123456789") //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается и оно
+            : 
+              string_from_user_input
+                .delete_all_spaces() //убираем все пробелы
+                .slice(0,30)        //обрезание более 30ти символов
+                .toLowerCase()     //убираем верхний регистр
   }//возвращает обработанную строку без пробелов меньше тридцати символов в нижнем регистре, либо обработанную тестовую строку
 
 
   ///функция перевода строки в числа
-  if (!+value_init) String.prototype.to_num_and_summ = function (simbols_static_fn) {//принимает строку, где каждая позиция символа соответсвует числовому коду
+  if (!+value_init) String.prototype.to_array_of_numbers = function(simbols_static_in_fn) {//принимает строку, где каждая позиция символа соответсвует числовому коду
 
-    let nums_line_fn =
-      this.split('') //перевод строки в массив
-        .map( string_simbol =>
-              +string_simbol || //если символ число, то возвращает число
-              simbols_static_fn.indexOf(string_simbol)%9+1 //иначе возвращает позицию символа в соответствии с таблицей Урсулы
-            )
-
-    //добавляется нулевой элемент суммы всех чисел по фибоначи
-    nums_line_fn.unshift( to_one_fibbonachi_digit(nums_line_fn.reduce( (sum,n) => sum+n )) )
-
-    return nums_line_fn
+    return this
+            .split('') //перевод строки в массив
+            .map( string_simbol =>   //пересборка в новый массив
+                  +string_simbol || //если символ число, то возвращает число
+                  simbols_static_in_fn.indexOf(string_simbol)%9+1 //иначе возвращает позицию символа в соответствии с таблицей Урсулы
+                )
   }//возвращает массив чисел
+
 
   ///////////////////////////////////////////////////////////////////////////////
   /////////////////////АЛГОРИТМЫ ПОДСЧЁТА МАНДАЛ////////////////////////////////
@@ -182,7 +183,7 @@ function init(value_init, re_input) {
   
 
   //////////сборка осей //////////
-  function axis_visual (input_nums_fn) {//принимает одномерный числовой массив
+  function axis_visual(input_nums_fn) {//принимает одномерный числовой массив
     let axis_fn = []
     //нулевой куб в центре оси
 
@@ -192,14 +193,14 @@ function init(value_init, re_input) {
     for (let i = 1; i < input_nums_fn.length; i++) {
       color_n = input_nums_fn[i]
 
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( i,0,0, color_n) )
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,i,0, color_n) )
+      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( i,0,0, color_n) )
+      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,i,0, color_n) )
 
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( -i,0,0, color_n) )
-      if ( value_default.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,-i,0, color_n) )
+      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( -i,0,0, color_n) )
+      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,-i,0, color_n) )
 
-      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,i, color_n) )
-      if ( value_default.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,-i, color_n) )
+      if ( selected_mandala.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,i, color_n) )
+      if ( selected_mandala.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,-i, color_n) )
     }
 
     return axis_fn
@@ -207,15 +208,15 @@ function init(value_init, re_input) {
 
 
   ///////рабочий вариант обводки мандалы////////////////////////
-  function border_visual (input_nums_fn) {//принимает одномерный числовой массив
+  function border_visual(input_nums_fn) {//принимает одномерный числовой массив
     //перменные для обводки мандалы
     let border_coordin = input_nums_fn.length
-    let color_n = input_nums_fn[0]
+    let color_n = summ_to_zero_elemet
     let border_fn = [] //массив для элементов обводки мандалы
 
-    color_material[color_material.length-1].color.set(colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
+    color_material[color_material.length-1].color.set(basic_colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
 
-    if ( value_default.true_of(4,8,9) )
+    if ( selected_mandala.true_of(4,8,9) )
       for (let i = -border_coordin; i < border_coordin; i++) {
           border_fn.push(
             cubus_construct( -border_coordin, i, 0, -color_n ), //левая
@@ -231,7 +232,7 @@ function init(value_init, re_input) {
 
 
   ////////пластина/плоскость кубов/////////////
-  function plain_x_cube_visual (plane_of_colors_fn) {//принимает одномерный числовой массив
+  function plain_x_cube_visual(plane_of_colors_fn) {//принимает одномерный числовой массив
 
     let plain_x_cube_fn = []
     //отрисовка панелей
@@ -242,28 +243,28 @@ function init(value_init, re_input) {
         //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
         color_n = plane_of_colors_fn[y][x] 
 
-        if (value_default.true_of(4,5,6,7,8,9))
+        if (selected_mandala.true_of(4,5,6,7,8,9))
           plain_x_cube_fn.push( cubus_construct ( y, x, 0, color_n) )
 
-        if (value_default.true_of(4,5,6,7,8,9))
+        if (selected_mandala.true_of(4,5,6,7,8,9))
           plain_x_cube_fn.push( cubus_construct ( -y, -x, 0, color_n) )
 
-        if (value_default.true_of(4,8,9))
+        if (selected_mandala.true_of(4,8,9))
           plain_x_cube_fn.push( cubus_construct ( -x, y, 0, color_n) )
 
-        if (value_default.true_of(4,8,9))
+        if (selected_mandala.true_of(4,8,9))
           plain_x_cube_fn.push( cubus_construct ( x, -y, 0, color_n) )
 
-        if (value_default.true_of(5,6,7))
+        if (selected_mandala.true_of(5,6,7))
           plain_x_cube_fn.push( cubus_construct ( y, 0, x, color_n) )
 
-        if (value_default.true_of(5,6,7))
+        if (selected_mandala.true_of(5,6,7))
           plain_x_cube_fn.push( cubus_construct ( 0, -y, x, color_n) )
 
-        if (value_default.true_of(5,6,7))
+        if (selected_mandala.true_of(5,6,7))
           plain_x_cube_fn.push( cubus_construct ( -y, 0, -x, color_n) )
 
-        if (value_default.true_of(5,6,7))
+        if (selected_mandala.true_of(5,6,7))
           plain_x_cube_fn.push( cubus_construct ( 0, y, -x, color_n) )
       }
 
@@ -387,6 +388,14 @@ function init(value_init, re_input) {
   controls.minDistance = 2 //минимальная 
   controls.maxDistance = 444 //и максимальная дистанция при ручном приближении
 
+
+
+
+
+
+
+
+  /////////////////////////////////////////////////////////////////////////////////
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   //  задаёт разные мандалы
@@ -396,18 +405,17 @@ function init(value_init, re_input) {
   // 7 - на 6 пластин (цветок шахматный 2вар)   +
   // 8 - на квадрат шахматный расчёт (1вар)     +
   // 9 - на квадрат шахматый расчёт (2вар)      +
-  // var value_default = (+value_init) ? +value_init : 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
-  let value_default = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
+  let selected_mandala = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
 
 
   ///////////////БЛОК ОБРАБОТКИ ВВОДИМОЙ СТРОКИ///////////////////////////////////////////////
 
   ///заменяемая строка при неверном вводе (сейчас вводит дату)
-  let test_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
+  let default_string = "01234567890" //тестовая строка на которую заменяется при неверном вводе
   ///Блок подстановки текущей даты
   let date_from_pc = new Date()
   //приводим дату к строке используя zero_include()
-  test_string = date_from_pc.getDate().zero_include()
+  default_string = date_from_pc.getDate().zero_include()
                 + (date_from_pc.getMonth()+1).zero_include()
                 + date_from_pc.getFullYear()
 
@@ -417,14 +425,14 @@ function init(value_init, re_input) {
                               +value_init ? re_input : ""
                             )
   //нормализация введенной строки для корректного перевода в цифровой массив
-  input_string = modification_to_normal(input_string, test_string)
+  input_string = modification_to_normal(input_string, default_string)
 
 
   //////////////////////////////////////////////////////////////
   //здесь будет адаптация отдаления камеры по размеру вводимого значения
-  if (value_default.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
-  if (value_default.true_of(4)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
-  if (value_default.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
+  if (selected_mandala.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
+  if (selected_mandala.true_of(4)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
+  if (selected_mandala.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
 
 
   //////////////////////////////////////
@@ -435,7 +443,7 @@ function init(value_init, re_input) {
   //задаём массив кнопок
   let palitra = document.querySelectorAll(".palitra div")
   //окрашиваем кнопки визуализации цветов
-  palitra.forEach( (palitra,i) => palitra.style.background = colors[i] )
+  palitra.forEach( (palitra,i) => palitra.style.background = basic_colors[i] )
 
 
   ///title
@@ -457,16 +465,24 @@ function init(value_init, re_input) {
   ///////блок адаптации букв в цифровой код////////////////////
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+
+  let string_for_algorithms = input_string.to_array_of_numbers(simbols_static)
+
+  //добавляется нулевой элемент суммы всех чисел по фибоначи
+  let summ_to_zero_elemet = to_one_fibbonachi_digit( string_for_algorithms.reduce( (sum,n) => sum+n ))
+
+  string_for_algorithms.unshift( summ_to_zero_elemet )
   
+
   ///////////ВЫБОР АЛГОРИТМА РАСЧЁТА///////////
   //высчитываем двумерный массив цветов для одной стороны мандалы
   let plane_of_colors = []
-  if (value_default.true_of(4,6))
-    plane_of_colors = plane_square_3x_algorithm( input_string.to_num_and_summ(simbols_static) )
+  if (selected_mandala.true_of(4,6))
+    plane_of_colors = plane_square_3x_algorithm( string_for_algorithms )
 
-  if (value_default.true_of(5,7,8,9))
-    plane_of_colors = chess_algorithm ( input_string.to_num_and_summ(simbols_static)
-                                        , value_default.true_of(7,9) //передается boolean для второго расчёта оси
+  if (selected_mandala.true_of(5,7,8,9))
+    plane_of_colors = chess_algorithm ( string_for_algorithms,
+                                        selected_mandala.true_of(7,9) //передается boolean для второго расчёта оси
                                       )
 
   ///////////////////////////////////////////////////////////////////////////////
@@ -486,15 +502,15 @@ function init(value_init, re_input) {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   ////функция исчезания|появления кубов в найденых в domEvents
-  let color_select_unvisibler = (color) => {
+  let color_select_unvisibler = (color_in_fn) => { //передаётся символ внутри кнопки
 
     //функция перебора массива с отслеживанием нажатых кнопок
     function foreach_visibler(arr) { //в ф-цию передаем массив
       arr.forEach(function(item) { //перебираем массив
-          if (color === "#") item.visible = false //все искомые элементы становятся невидимыми
-          if (color === "@" ||
-              color === item.colornum ) item.visible = !item.visible //смена видимости на невидимость
-          if (color === "A") item.visible = true //все искомые элементы становятся видимыми
+          if (color_in_fn === "#") item.visible = false //все искомые элементы становятся невидимыми
+          if (color_in_fn === "@" ||
+             +color_in_fn === +item.colornum ) item.visible = !item.visible //смена видимости на невидимость
+          if (color_in_fn === "A") item.visible = true //все искомые элементы становятся видимыми
         })
     }
 
@@ -504,9 +520,9 @@ function init(value_init, re_input) {
     foreach_visibler(plain_x_cube)
 
     //только для бордера//
-    if (color === "B") border.forEach( function(entry) { 
-      entry.colornum = (entry.colornum === 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
-      entry.material.color.set(colors[entry.colornum]) //присвоение значения цвета
+    if (color_in_fn === "B") border.forEach( function(entry) { 
+      entry.colornum = (+entry.colornum === 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
+      entry.material.color.set(basic_colors[entry.colornum]) //присвоение значения цвета
       })
     }
 
