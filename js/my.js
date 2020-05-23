@@ -366,7 +366,7 @@ function init(value_init, re_input) {
   ///////////////////PRE_BEGIN////////////////////////////////////////////////////////
   //добавил сцену
   if (!+value_init) scene = new THREE.Scene()
-  scene.background = new THREE.Color( "cyan" ) //задал сцене задний фон
+  scene.background = new THREE.Color( "white" ) //задал сцене задний фон
 
   //настроил параметры камеры
   if (!+value_init) camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
