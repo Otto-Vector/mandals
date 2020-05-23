@@ -44,16 +44,16 @@ function init(value_init, re_input) {
 
 
   ////универсальная функция числа фибоначчи/////////////////
-    let to_one_fibbonachi_digit = function(amount_from) {//передаётся числовое значение
+    let to_one_fibbonachi_digit = function(number_in_fn) {//передаётся числовое значение
 
-      let summ = 
-          Math.abs(+amount_from) //на всякий случай перевод из отрицательного в абсолютное значение с нумеризацией
+      let amount = 
+          Math.abs(+number_in_fn) //на всякий случай перевод из отрицательного в абсолютное значение с нумеризацией
           .toString()           //перевод числа в строку для разъединения многозначных чисел
           .split('')           //перевод строки в массив
           .map(Number)        //перевод массива символов в массив чисел
           .reduce( (sum,n) => sum+n ) //перебор массива с подсчётом суммы чисел
 
-      return summ > 9 ? to_one_fibbonachi_digit(summ) : summ //замыкание функции при многозначной сумме
+      return amount > 9 ? to_one_fibbonachi_digit(amount) : amount //замыкание функции при многозначной сумме
     }//возвращает одну цифру суммы всех сумм по фибоначчи
 
 
@@ -366,7 +366,7 @@ function init(value_init, re_input) {
   ///////////////////PRE_BEGIN////////////////////////////////////////////////////////
   //добавил сцену
   if (!+value_init) scene = new THREE.Scene()
-  scene.background = new THREE.Color( "white" ) //задал сцене задний фон
+  scene.background = new THREE.Color( "cyan" ) //задал сцене задний фон
 
   //настроил параметры камеры
   if (!+value_init) camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 500 )
