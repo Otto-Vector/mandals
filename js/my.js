@@ -23,7 +23,8 @@ function init(value_init, previous_input) {
   //////////функция конструктора объектов//////////////////////////////////////////////////
   function cubus_construct(x, y, z, colornum) {//передаются координаты и номер цвета
 
-      let color_material_choice = colornum < 0 ? color_material_for_border : color_material[colornum]
+      let color_material_choice = (colornum < 0) ? color_material_for_border //в конструкторе для бордюра задаются отрицательные значения цвета
+                                                 : color_material[colornum]
 
       let cubus = new THREE.Mesh( cubeGeom, //геометрия куба задана один раз
                                   color_material_choice
@@ -162,24 +163,26 @@ function init(value_init, previous_input) {
       //удаление предыдущих объектов из памяти и со сцены
       remove_all_objects_from_memory(axis)
       remove_all_objects_from_memory(plain_x_cube)
-      remove_all_objects_from_memory(border)
+      if (border) remove_all_objects_from_memory(border)
 
     //перезапуск init с выбраным значением типом новой мандалы и строкой из предыдущей
     init(+this.value, input_string)
   }
 
   //////////////////////////////////////////////////////////////
-  ///////блок адаптации букв в цифровой код////////////////////
+  /////// Блок адаптации букв в цифровой код //////////////////
+  ////////////////////////////////////////////////////////////
+  
   //символы расположены строго по таблице (удачно получилось то, что нужен всего один пробел)
   let simbols_static = "abcdefghijklmnopqrstuvwxyz абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
 
   let string_for_algorithms = input_string.to_array_of_numbers(simbols_static)
 
   //добавляется нулевой элемент суммы всех чисел по фибоначи
-  let summ_to_zero_elemet = to_one_fibbonachi_digit( string_for_algorithms.reduce( (sum,n) => sum+n ))
+  let summ_to_zero_element = to_one_fibbonachi_digit( string_for_algorithms.reduce( (sum,n) => sum+n ))
+  string_for_algorithms.unshift( summ_to_zero_element )
 
-  string_for_algorithms.unshift( summ_to_zero_elemet )
-  
+  // color_material_for_border.color.set(basic_colors[summ_to_zero_element]) //присваивается цвет нулевой клетки
 
   ///////////ВЫБОР АЛГОРИТМА РАСЧЁТА///////////
   //высчитываем двумерный массив цветов для одной стороны мандалы
@@ -194,7 +197,8 @@ function init(value_init, previous_input) {
                                       )
 
   ///////////////////////////////////////////////////////////////////////////////
-  //задание и визуализация объектов/////////////////////////////////////////////
+  //////////////// задание и визуализация объектов /////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   let axis = axis_visual( plane_of_colors[0] ) //задаём ось
 
@@ -394,17 +398,17 @@ function init(value_init, previous_input) {
   function border_visual(input_nums_fn) {//принимает одномерный числовой массив
     //перменные для обводки мандалы
     let border_coordin = input_nums_fn.length
-    let color_n = summ_to_zero_elemet
+    let color_n = summ_to_zero_element
     let border_fn = [] //массив для элементов обводки мандалы
-
-    color_material[color_material.length-1].color.set(basic_colors[color_n]) //присваивается цвет нулевой клетки (material[10] specially for border)
-
+  
+    color_material_for_border.color.set(basic_colors[color_n]) //присваивается цвет нулевой клетки
+  
       for (let i = -border_coordin; i < border_coordin; i++) {
           border_fn.push(
             cubus_construct( -border_coordin, i, 0, -color_n ), //левая
             cubus_construct( i, border_coordin, 0, -color_n ), //верхняя
             cubus_construct( border_coordin, -i, 0, -color_n ), //правая
-            cubus_construct( -i,-border_coordin, 0, -color_n ) //нижняя
+            cubus_construct( -i, -border_coordin, 0, -color_n ) //нижняя
           )
 
       }
