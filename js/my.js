@@ -129,7 +129,6 @@ function init(value_init, previous_input) {
 
   //ввод строки через модальное окно
   let input_string = prompt ( "Введите значение для создания мандалы",
-                              //также вводится предыдущее значение previous_input (а при первом вводе - пустое поле)
                               +value_init ? previous_input : ""
                             )
   //нормализация введенной строки для корректного перевода в цифровой массив
@@ -201,9 +200,10 @@ function init(value_init, previous_input) {
 
   let plain_x_cube = plain_x_cube_visual(plane_of_colors) //пластины между осями
 
-  if ( selected_mandala.true_of(4,8,9) ) //обводка только на квадратных мандалах
-    let border = border_visual(plane_of_colors[0]) //массив для элементов обводки мандалы
-
+  //массив для элементов обводки мандалы
+  let border = selected_mandala.true_of(4,8,9) ? //обводка только на квадратных мандалах
+               border_visual(plane_of_colors[0]) : null
+  
 
   ////анимация объектов////////////////////
   if (!+value_init) animate()
