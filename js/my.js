@@ -201,8 +201,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       if (border) remove_all_objects_from_memory(border)
 
       input_string = modification_to_normal(title_input.value)
+      
 
-      init(select_mandala_type.value, input_string, +number_of_symbols.value)
+      init(select_mandala_type.value, input_string, +number_of_symbols.value )
   }
 
   
@@ -219,8 +220,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   function string_for_algorithms_to_number_of_symbols(input_string_fn, number_of_symbols_fn) {
 
-    let number_of_interations_fn = input_string_fn.length - number_of_symbols_fn
-
+    let number_of_interations_fn = (number_of_symbols_fn != 0) ?
+                                   input_string_fn.length - number_of_symbols_fn
+                                   : 0
 
     function minus(mstring) {
       let minus_one = []
@@ -244,6 +246,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
                                  )
                             )
     }
+
   return input_string_fn
   }
 
