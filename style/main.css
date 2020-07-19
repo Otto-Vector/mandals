@@ -32,9 +32,9 @@ header {
 #title_input, #number_of_symbols {
     background-color: rgba(0,0,0,0);
     font-weight: bold;
-    font-size: 4.95vw;
+    font-size: 4vw;
     text-align: center;
-    line-height: 200%;
+    line-height: 150%;
     text-shadow: 1px 1px white;
 }
 

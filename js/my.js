@@ -203,7 +203,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       input_string = modification_to_normal(title_input.value)
       
 
-      init(select_mandala_type.value, input_string, +number_of_symbols.value )
+      init(select_mandala_type.value, input_string, +number_of_symbols.value || input_string.length )
   }
 
   
@@ -219,33 +219,53 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   let string_for_algorithms = input_string.to_array_of_numbers(simbols_static)
 
   function string_for_algorithms_to_number_of_symbols(input_string_fn, number_of_symbols_fn) {
+  
 
-    let number_of_interations_fn = (number_of_symbols_fn != 0) ?
-                                   input_string_fn.length - number_of_symbols_fn
-                                   : 0
-
-    function minus(mstring) {
+    function minus(mstring, mlength) {
       let minus_one = []
       for (let i=0; i < mstring.length-1; i++)
         minus_one.push(to_one_fibbonachi_digit(mstring[i]+mstring[i+1]))
-    return minus_one
+
+    return (minus_one.length == mlength) ? minus_one : minus(minus_one, mlength)
     }
+
+    //расширение по Урсуле
+    function plus(pstring, plength) {
+      let plus_one = pstring
+      plus_one.push(to_one_fibbonachi_digit( pstring[pstring.length-1] + pstring[pstring.length-2] ))
+
+    return (plus_one.length == plength) ? plus_one : plus(pstring, plength)
+    }
+
+    //расширение по Юле
+    function another_plus(astring, alength) {
+      let another_one = []
+      another_one.push(astring[0])
+
+      for (let i=0; i < astring.length-1; i++)
+        another_one.push( to_one_fibbonachi_digit(astring[i]+astring[i+1]),
+                          astring[i+1]
+                        )
+    return (another_one.length >= alength) ? another_one : another_plus(astring, alength)
+    }
+    
 
     //на уменьшение
-    if (number_of_interations_fn > 0 ) {
-      for (let i = 0; i < number_of_interations_fn; i++)
-        input_string_fn = minus(input_string_fn)
-    }
+    if (number_of_symbols_fn < input_string_fn.length )
+        input_string_fn = minus(input_string_fn, number_of_symbols_fn)
 
     //на расширение
-    if (number_of_interations_fn < 0) {
-      for (let i = 0; i < Math.abs(number_of_interations_fn); i++)
-        input_string_fn.push(
-          to_one_fibbonachi_digit( input_string_fn[input_string_fn.length-2]+
-                                   input_string_fn[input_string_fn.length-1]
-                                 )
-                            )
-    }
+    if (number_of_symbols_fn > input_string_fn.length) {
+        //классическое расширение
+        // input_string_fn = plus(input_string_fn, number_of_symbols_fn)
+
+        // массив расширяется на порядок (lenght*2-2)
+        input_string_fn = another_plus(input_string_fn, number_of_symbols_fn)
+
+        // сокращаем до нужной длины по стандартному алгоритму
+        if (input_string_fn.length != number_of_symbols_fn)
+          input_string_fn = minus(input_string_fn, number_of_symbols_fn)
+        }
 
   return input_string_fn
   }
@@ -258,7 +278,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   string_for_algorithms.unshift( summ_to_zero_element )
 
   //отображение чисто цифрового значения с суммой
-  let numeric_adaptation_text = string_for_algorithms.toString().delete_all_spaces() + " = " + string_for_algorithms[0]
+  let numeric_adaptation_text = string_for_algorithms.toString().delete_all_spaces() +
+        " = " + string_for_algorithms[0]
+        + " ("+ (string_for_algorithms.length-1)+ ")"
   numeric_adaptation.innerHTML = numeric_adaptation_text.slice(1)
 
   // color_material_for_border.color.set(basic_colors[summ_to_zero_element]) //присваивается цвет нулевой клетки
