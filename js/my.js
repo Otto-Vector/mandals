@@ -187,6 +187,13 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     number_of_symbols.placeholder = title_input.value.length
   }
 
+  //контроль ввода цифровых значений
+  number_of_symbols.oninput = function() {
+    number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
+    if (number_of_symbols.value == 0) number_of_symbols.value = ""
+    if (number_of_symbols.value > max_input_length) number_of_symbols.value = max_input_length
+  }
+  
   ok_button.onmousedown = function() {
       //удаление предыдущих объектов из памяти и со сцены
       remove_all_objects_from_memory(axis)
@@ -198,12 +205,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       init(select_mandala_type.value, input_string, +number_of_symbols.value)
   }
 
-  //
-  number_of_symbols.oninput = function() {
-    number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
-    if (number_of_symbols.value == 0) number_of_symbols.value = ""
-    if (number_of_symbols.value > max_input_length) number_of_symbols.value = max_input_length
-  }
+  
 
 
   //////////////////////////////////////////////////////////////
@@ -227,15 +229,21 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     return minus_one
     }
 
+    //на уменьшение
     if (number_of_interations_fn > 0 ) {
-      for (let i = 0; i < number_of_interations_fn; i++) {
+      for (let i = 0; i < number_of_interations_fn; i++)
         input_string_fn = minus(input_string_fn)
-        console.log(input_string_fn)
-      }
     }
 
-
-
+    //на расширение
+    if (number_of_interations_fn < 0) {
+      for (let i = 0; i < Math.abs(number_of_interations_fn); i++)
+        input_string_fn.push(
+          to_one_fibbonachi_digit( input_string_fn[input_string_fn.length-2]+
+                                   input_string_fn[input_string_fn.length-1]
+                                 )
+                            )
+    }
   return input_string_fn
   }
 
