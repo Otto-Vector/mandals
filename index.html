@@ -12,7 +12,12 @@
 </head>
 
 <body>
-    <header class="title">Название мандалы</header>
+    <header class="title">
+        <!-- <form name="mandala_parameters" action=""> -->
+        <input id="number_of_symbols" type="number" min="1" max="33" />
+        <input id="title_input" type="text" placeholder="Название мандалы" />
+        <div id="numeric_adaptation">numeric adaptation</div>
+    </header>
     <div class="palitra">
         <div>0</div>
         <div>1</div>
@@ -40,6 +45,8 @@
         <option value="8">квадрат шахматный расчёт (1вар)</option>
         <option value="9">квадрат шахматный расчёт (2вар)</option>
       </select>
+      <button id="ok_button">OK</button>
+        <!-- </form> -->
     </footer>
 </body>
 </html>

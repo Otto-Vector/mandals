@@ -7,17 +7,54 @@ canvas {
     margin: 0;
     padding: 0;
 }
-header.title {
+select, input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+/*сброс стилей инпутов*/
+input, button, select, textarea {
+  outline: 0;
+  border: none;
+}
+
+::-moz-focus-inner {
+  border: 0;
+  outline : 0;
+}
+
+header {
     position: absolute;
     top: 0;
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.1),rgba(0,0,0,0));
+    width: 100%;
+}
+#title_input, #number_of_symbols {
+    background-color: rgba(0,0,0,0);
     font-weight: bold;
     font-size: 4.95vw;
     text-align: center;
     line-height: 200%;
-    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.1),rgba(0,0,0,0));
     text-shadow: 1px 1px white;
+}
+
+#title_input {
+    width: 90%;
+}
+
+#number_of_symbols {
+    width: 9%;
+}
+
+#numeric_adaptation {
+    background-color: rgba(0,0,0,0);
+    font-size: 1vw;
+    color: gray;
+    text-shadow: 0.8px 0.8px white;
+    text-align: center;
     width: 100%;
 }
+
 .palitra {
     background-color: rgba(0,0,0,0);
     position: absolute;
@@ -57,9 +94,9 @@ footer label {
 
 }
   select {
-    -webkit-appearance: none;
+/*    -webkit-appearance: none;
     -moz-appearance: none;
-    appearance: none;
+    appearance: none;*/
     background: url("../img/arrow_down.png") 97% 50% no-repeat #e3e4e5;
     border: 1px solid #a2a2a2;
     border-radius: 3px;
@@ -69,3 +106,11 @@ footer label {
     margin-top: 5px;
     cursor: pointer;
   }
+
+#ok_button {
+    padding: 5px;
+    border-radius: 3px;
+    box-shadow: 1px 1px #a2a2a2;
+    cursor: pointer;
+    user-select: none;
+}

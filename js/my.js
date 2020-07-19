@@ -5,7 +5,7 @@ window.onload = init
 
 let scene, camera, renderer, controls //глобальные переменные для создания сцены
 
-function init(value_init, previous_input) {
+function init(value_init, previous_input, number_of_symbols_resize) {
 
   /////задание основных переменных////////////////////////////////////////
 
@@ -53,7 +53,7 @@ function init(value_init, previous_input) {
       }//возвращает строку
 
     //удаляет все пробелы
-    String.prototype.delete_all_spaces = function() { return this.replace(/\s/g, '') }
+    String.prototype.delete_all_spaces = function() { return this.replace(/[\s.,%]/g, '') }
 
     ///функция перевода строки в числа
     String.prototype.to_array_of_numbers = function(simbols_static_in_fn) {//принимает строку, где каждая позиция символа соответсвует числовому коду
@@ -114,8 +114,10 @@ function init(value_init, previous_input) {
   // 7 - на 6 пластин (цветок шахматный 2вар)   +
   // 8 - на квадрат шахматный расчёт (1вар)     +
   // 9 - на квадрат шахматый расчёт (2вар)      +
+  // 
   let selected_mandala = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
 
+  let max_input_length = 33
 
   ///////////////БЛОК ОБРАБОТКИ ВВОДИМОЙ СТРОКИ///////////////////////////////////////////////
 
@@ -125,14 +127,17 @@ function init(value_init, previous_input) {
   let date_from_pc = new Date()
   //приводим дату к строке используя zero_include()
   default_string = date_from_pc.getDate().zero_include()
-                + (date_from_pc.getMonth()+1).zero_include()
-                + date_from_pc.getFullYear()
+                 + (date_from_pc.getMonth()+1).zero_include()
+                 + date_from_pc.getFullYear()
 
   //ввод строки через модальное окно
-  let input_string = prompt ( "Введите значение для создания мандалы",
-                              +value_init ? previous_input : ""
-                            )
+  // let input_string = prompt ( "Введите значение для создания мандалы",
+  //                             +value_init ? previous_input : ""
+  //                           )
   //нормализация введенной строки для корректного перевода в цифровой массив
+  // input_string = undefined;
+  let input_string = +value_init ? previous_input : ""
+
   input_string = modification_to_normal(input_string, default_string)
 
 
@@ -154,20 +159,52 @@ function init(value_init, previous_input) {
   palitra.forEach( (palitra,i) => palitra.style.background = basic_colors[i] )
 
 
-  ///title
-  let title = document.querySelectorAll("header.title")
-  title[0].innerHTML = input_string; //вывод в заголовок обработанного текста
+  ///title_input
+  let title_input = document.querySelector("#title_input")
+  title_input.value = input_string; //вывод в заголовок обработанного текста
+  
+  ///number_of_symbols
+  let number_of_symbols = document.querySelector("#number_of_symbols")
+  number_of_symbols.placeholder = title_input.value.length
 
-  ///select
-  document.querySelector('#select_mandala_type').onchange = function() {
+  //selected_mandals_type
+  let selected_mandala_type = document.querySelector("#select_mandala_type")
+
+  ///numeric_adaptation
+  let numeric_adaptation = document.querySelector("#numeric_adaptation")
+
+  //ОК
+  let ok_button = document.querySelector("#ok_button")
+
+  ///события///
+  title_input.oninput = function() {
+    //обрезаем ввод
+    title_input.value = title_input.value.delete_all_spaces()
+    if (title_input.value.length >= max_input_length)
+      title_input.value = title_input.value.substr(0,max_input_length)
+
+    //данные о длине вводимой строки сразу вводятся в поле
+    number_of_symbols.placeholder = title_input.value.length
+  }
+
+  ok_button.onmousedown = function() {
       //удаление предыдущих объектов из памяти и со сцены
       remove_all_objects_from_memory(axis)
       remove_all_objects_from_memory(plain_x_cube)
       if (border) remove_all_objects_from_memory(border)
 
-    //перезапуск init с выбраным значением типом новой мандалы и строкой из предыдущей
-    init(+this.value, input_string)
+      input_string = modification_to_normal(title_input.value)
+
+      init(select_mandala_type.value, input_string, +number_of_symbols.value)
   }
+
+  //
+  number_of_symbols.oninput = function() {
+    number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
+    if (number_of_symbols.value == 0) number_of_symbols.value = ""
+    if (number_of_symbols.value > max_input_length) number_of_symbols.value = max_input_length
+  }
+
 
   //////////////////////////////////////////////////////////////
   /////// Блок адаптации букв в цифровой код //////////////////
@@ -178,9 +215,40 @@ function init(value_init, previous_input) {
 
   let string_for_algorithms = input_string.to_array_of_numbers(simbols_static)
 
+  function string_for_algorithms_to_number_of_symbols(input_string_fn, number_of_symbols_fn) {
+
+    let number_of_interations_fn = input_string_fn.length - number_of_symbols_fn
+
+
+    function minus(mstring) {
+      let minus_one = []
+      for (let i=0; i < mstring.length-1; i++)
+        minus_one.push(to_one_fibbonachi_digit(mstring[i]+mstring[i+1]))
+    return minus_one
+    }
+
+    if (number_of_interations_fn > 0 ) {
+      for (let i = 0; i < number_of_interations_fn; i++) {
+        input_string_fn = minus(input_string_fn)
+        console.log(input_string_fn)
+      }
+    }
+
+
+
+  return input_string_fn
+  }
+
+  string_for_algorithms = string_for_algorithms_to_number_of_symbols(string_for_algorithms, number_of_symbols_resize)
+
+
   //добавляется нулевой элемент суммы всех чисел по фибоначи
   let summ_to_zero_element = to_one_fibbonachi_digit( string_for_algorithms.reduce( (sum,n) => sum+n ))
   string_for_algorithms.unshift( summ_to_zero_element )
+
+  //отображение чисто цифрового значения с суммой
+  let numeric_adaptation_text = string_for_algorithms.toString().delete_all_spaces() + " = " + string_for_algorithms[0]
+  numeric_adaptation.innerHTML = numeric_adaptation_text.slice(1)
 
   // color_material_for_border.color.set(basic_colors[summ_to_zero_element]) //присваивается цвет нулевой клетки
 
@@ -272,15 +340,17 @@ function init(value_init, previous_input) {
   ////функция нормализации введенной строки, и замены его на тестовое значение
   function modification_to_normal(string_from_user_input, string_by_default) {//принимает две строки, string_from_user_input - на обработку, string_by_default - на замену, если string_from_user_input оказалась false
 
-    return  ( !string_from_user_input ||
-              !string_from_user_input.delete_all_spaces()
+    return  (
+              !string_from_user_input ||
+              !string_from_user_input.trim() ||
+              +string_from_user_input == 0
             ) ? //проверка string_from_user_input на значения приводящие к false (в том числе пустая строка после сброса пробелов)
-              modification_to_normal(string_by_default,"0123456789") //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается и оно
-            : 
-              string_from_user_input
-                .delete_all_spaces() //убираем все пробелы
-                .slice(0,30)        //обрезание более 30ти символов
-                .toLowerCase()     //убираем верхний регистр
+                modification_to_normal(string_by_default,"0123456789") //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается и оно
+              : 
+                string_from_user_input
+                  .delete_all_spaces() //убираем все пробелы
+                  .slice(0,max_input_length)        //обрезание более 30ти символов
+                  .toLowerCase()     //убираем верхний регистр
   }//возвращает обработанную строку без пробелов меньше тридцати символов в нижнем регистре, либо обработанную тестовую строку
 
 
