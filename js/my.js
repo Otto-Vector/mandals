@@ -259,7 +259,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     return (another_one.length >= alength) ? another_one : another_plus(another_one, alength)
     }
     
-
     //на уменьшение
     if (number_of_symbols_fn < input_string_fn.length )
         input_string_fn = minus(input_string_fn, number_of_symbols_fn)
@@ -271,7 +270,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
         // массив расширяется на порядок (lenght*2-1)
         input_string_fn = another_plus(input_string_fn, number_of_symbols_fn)
-        console.log(input_string_fn)
+        
         // сокращаем до нужной длины по стандартному алгоритму
         if (input_string_fn.length != number_of_symbols_fn)
           input_string_fn = minus(input_string_fn, number_of_symbols_fn)
@@ -292,6 +291,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         " = " + string_for_algorithms[0]
   
   numeric_adaptation.innerHTML = numeric_adaptation_text.slice(1)
+
+
 
   ///////////ВЫБОР АЛГОРИТМА РАСЧЁТА///////////
   //высчитываем двумерный массив цветов для одной стороны мандалы
