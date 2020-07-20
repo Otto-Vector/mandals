@@ -149,12 +149,18 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///DOM///////////////////////////////
   ////////////////////////////////////
 
+  ///statistic
+  let statistic = document.querySelector("#statistic")
+
+  let statistic_item = document.querySelectorAll("#statistic div")
+  //обнуление значений статы
+  for (let i = 1; i < statistic_item.length; i++) statistic_item[i].innerHTML = 0
+  
   ///palitra
   //задаём массив кнопок
   let palitra = document.querySelectorAll(".palitra div")
   //окрашиваем кнопки визуализации цветов
   palitra.forEach( (palitra,i) => palitra.style.background = basic_colors[i] )
-
 
   ///title_input
   let title_input = document.querySelector("#title_input")
@@ -228,63 +234,14 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   let string_for_algorithms = input_string.to_array_of_numbers(simbols_static)
 
-  function string_for_algorithms_to_number_of_symbols(input_string_fn, number_of_symbols_fn) {
-  
-
-    function minus(mstring, mlength) {
-      let minus_one = []
-      for (let i=0; i < mstring.length-1; i++)
-        minus_one.push(to_one_fibbonachi_digit(mstring[i]+mstring[i+1]))
-
-    return (minus_one.length == mlength) ? minus_one : minus(minus_one, mlength)
-    }
-
-    //расширение по Урсуле
-    function plus(pstring, plength) {
-      let plus_one = pstring
-      plus_one.push(to_one_fibbonachi_digit( pstring[pstring.length-1] + pstring[pstring.length-2] ))
-
-    return (plus_one.length == plength) ? plus_one : plus(pstring, plength)
-    }
-
-    //расширение по Юле
-    function another_plus(astring, alength) {
-      let another_one = []
-      another_one.push(astring[0])
-
-      for (let i=0; i < astring.length-1; i++)
-        another_one.push( to_one_fibbonachi_digit(astring[i]+astring[i+1]),
-                          astring[i+1]
-                        )
-    return (another_one.length >= alength) ? another_one : another_plus(another_one, alength)
-    }
-    
-    //на уменьшение
-    if (number_of_symbols_fn < input_string_fn.length )
-        input_string_fn = minus(input_string_fn, number_of_symbols_fn)
-
-    //на расширение
-    if (number_of_symbols_fn > input_string_fn.length) {
-        //классическое расширение
-        // input_string_fn = plus(input_string_fn, number_of_symbols_fn)
-
-        // массив расширяется на порядок (lenght*2-1)
-        input_string_fn = another_plus(input_string_fn, number_of_symbols_fn)
-        
-        // сокращаем до нужной длины по стандартному алгоритму
-        if (input_string_fn.length != number_of_symbols_fn)
-          input_string_fn = minus(input_string_fn, number_of_symbols_fn)
-        }
-
-  return input_string_fn
-  }
-
   string_for_algorithms = string_for_algorithms_to_number_of_symbols(string_for_algorithms, number_of_symbols_resize)
 
 
   //добавляется нулевой элемент суммы всех чисел по фибоначи
   let summ_to_zero_element = to_one_fibbonachi_digit( string_for_algorithms.reduce( (sum,n) => sum+n ))
+  
   string_for_algorithms.unshift( summ_to_zero_element )
+
 
   //отображение чисто цифрового значения с суммой
   let numeric_adaptation_text = string_for_algorithms.toString().delete_all_spaces() +
@@ -322,13 +279,25 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ////анимация объектов////////////////////
   if (!+value_init) animate()
 
-
+  //подсчёт статистики и его отображение
+  statistic_value(axis)
+  statistic_value(plain_x_cube)
+  
   //отслеживание нажатия кнопок боковой панели и передача содержимого этих кнопок
-  for (let i = 0; i < palitra.length; i++)
+  for (let i = 0; i < palitra.length; i++) {
     palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
+  }
+
+  //затемнение неактивных кнопок на основе статы
+  for (let i = 1; i < 10; i++) {
+    palitra[i].style.opacity = statistic_item[i].innerHTML == 0 ? 0.5 : 1
+  }
 
 
   //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+  //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+  //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+
   //КОНЕЦ ОСНОВНОГО БЛОКА, ДАЛЬШЕ ТОЛЬКО ФУНКЦИИ//
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -353,6 +322,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     //перебор по плоскостям
     foreach_visibler(plain_x_cube)
 
+    //дополнительно статистика на "S"
+    if (color_in_fn === "S") statistic.style.display = statistic.style.display == "block" ? "none" : "block"
+
     //только для бордера//
     if (color_in_fn === "B") border.forEach( function(entry) { 
       entry.colornum = (+entry.colornum === 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
@@ -360,8 +332,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       })
 
     //отдаление/приближение//
-    if (color_in_fn === "+") camera.position.z = camera.position.z - 15
-    if (color_in_fn === "-") camera.position.z = camera.position.z + 15
+    if (color_in_fn === "+") camera.position.z = camera.position.z - 10
+    if (color_in_fn === "-") camera.position.z = camera.position.z + 10
     }
 
 
@@ -380,7 +352,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
           .reduce( (sum,n) => sum+n ) //перебор массива с подсчётом суммы чисел
 
       return amount > 9 ? to_one_fibbonachi_digit(amount) : amount //замыкание функции при многозначной сумме
-    }//возвращает одну цифру суммы всех сумм по фибоначчи
+  }//возвращает одну цифру суммы всех сумм по фибоначчи
 
 
   ////функция нормализации введенной строки, и замены его на тестовое значение
@@ -399,6 +371,66 @@ function init(value_init, previous_input, number_of_symbols_resize) {
                   .toLowerCase()     //убираем верхний регистр
   }//возвращает обработанную строку без пробелов меньше тридцати символов в нижнем регистре, либо обработанную тестовую строку
 
+
+  ////функция пересборки цифрового кода строки до нужного количества цифр
+  function string_for_algorithms_to_number_of_symbols(input_array_fn, number_of_symbols_fn) {
+
+    //сужение по Урсуле
+    function minus(minarray, mlength) {//массив и количество нужных чисел
+      let minus_one = []
+      for (let i=0; i < minarray.length-1; i++)
+        minus_one.push(to_one_fibbonachi_digit(minarray[i]+minarray[i+1]))
+
+      return (minus_one.length == mlength) ? minus_one : minus(minus_one, mlength)
+    }//возвращает сужаемый до нужного количества цифр массив
+
+    //расширение по Урсуле
+    // function plus(pstring, plength) {
+    //   let plus_one = pstring
+    //   plus_one.push(to_one_fibbonachi_digit( pstring[pstring.length-1] + pstring[pstring.length-2] ))
+
+    // return (plus_one.length == plength) ? plus_one : plus(pstring, plength)
+    // }
+
+    //расширение по Юле
+    function another_plus(another_plus_array, alength) {
+      let another_one = []
+      another_one.push(another_plus_array[0])
+
+      for (let i=0; i < another_plus_array.length-1; i++)
+        another_one.push( to_one_fibbonachi_digit(another_plus_array[i]+another_plus_array[i+1]),
+                          another_plus_array[i+1]
+                        )
+      return (another_one.length >= alength) ? another_one : another_plus(another_one, alength)
+    }// массив расширяется на порядок (lenght*2-1)
+    
+    //на уменьшение
+    if (number_of_symbols_fn < input_array_fn.length )
+        input_array_fn = minus(input_array_fn, number_of_symbols_fn)
+
+    //на расширение
+    if (number_of_symbols_fn > input_array_fn.length) {
+        //классическое расширение
+        // input_array_fn = plus(input_array_fn, number_of_symbols_fn)
+
+        // массив расширяется на порядок (lenght*2-1)
+        input_array_fn = another_plus(input_array_fn, number_of_symbols_fn)
+        
+        // сокращаем до нужной длины по стандартному алгоритму
+        if (input_array_fn.length != number_of_symbols_fn)
+          input_array_fn = minus(input_array_fn, number_of_symbols_fn)
+        }
+
+    return input_array_fn
+  }
+
+  ///подсчёт статистики
+  function statistic_value(objects_to_count) {
+    for (let i = 0; i < objects_to_count.length; i++)
+      if (objects_to_count[i].colornum !=0) //ноль не считаем
+        statistic_item[objects_to_count[i].colornum].innerHTML =
+          ++statistic_item[objects_to_count[i].colornum].innerHTML
+  }//манипуляция с DOM объектами statistic_item
 
   ///////////////////////////////////////////////////////////////////////////////
   /////////////////////АЛГОРИТМЫ ПОДСЧЁТА МАНДАЛ////////////////////////////////

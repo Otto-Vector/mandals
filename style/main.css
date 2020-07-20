@@ -55,17 +55,36 @@ header {
     width: 100%;
 }
 
-.palitra {
-    background-color: rgba(0,0,0,0);
+
+section.sidebar {
     position: absolute;
+    display: flex;
     right: 5px;
     top: 10px;
+}
+
+section.sidebar #statistic {
+    padding-top: 12px;
+    display: none;
+    transition-duration: 1s;
+}
+
+section.sidebar #statistic div {
+    padding: 0px;
+    padding-bottom: 10.2px;
+    text-align: right;
+}
+
+
+section.sidebar .palitra {
+    background-color: rgba(0,0,0,0);
     text-align: center;
     font-weight: bold;
     color: rgba(0,0,0,0.6);
     padding: 5px;
 }
-.palitra div {
+
+section.sidebar .palitra div {
     width: 20px;
     height: 20px;
     border: 1px solid;
@@ -77,6 +96,7 @@ header {
     padding-top: 2px;
     background-color: white;
 }
+
 footer {
     position: absolute;
     bottom: 0;
@@ -93,10 +113,8 @@ footer label {
     text-transform: uppercase;
 
 }
-  select {
-/*    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;*/
+
+select {
     background: url("../img/arrow_down.png") 97% 50% no-repeat #e3e4e5;
     border: 1px solid #a2a2a2;
     border-radius: 3px;
