@@ -130,10 +130,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
                  + (date_from_pc.getMonth()+1).zero_include()
                  + date_from_pc.getFullYear()
 
-  //ввод строки через модальное окно
-  // let input_string = prompt ( "Введите значение для создания мандалы",
-  //                             +value_init ? previous_input : ""
-  //                           )
+    
   //нормализация введенной строки для корректного перевода в цифровой массив
   // input_string = undefined;
   let input_string = +value_init ? previous_input : ""
@@ -177,9 +174,18 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   let ok_button = document.querySelector("#ok_button")
 
   ///события///
+  //контроль ввода цифровых значений
+  number_of_symbols.oninput = function() {
+    number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
+    if (number_of_symbols.value == 0) number_of_symbols.value = ""
+    if (number_of_symbols.value > max_input_length) number_of_symbols.value = max_input_length
+  }
+
+  //контроль ввода значений мандалы
   title_input.oninput = function() {
-    //обрезаем ввод
+    //убираем пробелы,точки и запятые при вводе
     title_input.value = title_input.value.delete_all_spaces()
+    //обрезаем ввод
     if (title_input.value.length >= max_input_length)
       title_input.value = title_input.value.substr(0,max_input_length)
 
@@ -187,25 +193,28 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     number_of_symbols.placeholder = title_input.value.length
   }
 
-  //контроль ввода цифровых значений
-  number_of_symbols.oninput = function() {
-    number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
-    if (number_of_symbols.value == 0) number_of_symbols.value = ""
-    if (number_of_symbols.value > max_input_length) number_of_symbols.value = max_input_length
-  }
-  
-  ok_button.onmousedown = function() {
+  //пересборка мандалы по нажанию Enter в полях ввода
+  title_input.onkeydown = function(e) { if (e.key == "Enter") reinit() }
+  number_of_symbols.onkeydown = function(e) { if (e.key == "Enter") reinit() }
+  //пересборка мандалы по нажанию кнопки "ОК"
+  ok_button.onmousedown = function() { reinit() }
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //функция перезапуска мандалы с новыми данными//
+  function reinit() {
       //удаление предыдущих объектов из памяти и со сцены
       remove_all_objects_from_memory(axis)
       remove_all_objects_from_memory(plain_x_cube)
       if (border) remove_all_objects_from_memory(border)
 
       input_string = modification_to_normal(title_input.value)
-      
 
       init(select_mandala_type.value, input_string, +number_of_symbols.value || input_string.length )
   }
-
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 
 
@@ -280,10 +289,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //отображение чисто цифрового значения с суммой
   let numeric_adaptation_text = string_for_algorithms.toString().delete_all_spaces() +
         " = " + string_for_algorithms[0]
-        + " ("+ (string_for_algorithms.length-1)+ ")"
+  
   numeric_adaptation.innerHTML = numeric_adaptation_text.slice(1)
-
-  // color_material_for_border.color.set(basic_colors[summ_to_zero_element]) //присваивается цвет нулевой клетки
 
   ///////////ВЫБОР АЛГОРИТМА РАСЧЁТА///////////
   //высчитываем двумерный массив цветов для одной стороны мандалы
@@ -349,6 +356,10 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       entry.colornum = (+entry.colornum === 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
       entry.material.color.set(basic_colors[entry.colornum]) //присвоение значения цвета
       })
+
+    //отдаление/приближение//
+    if (color_in_fn === "+") camera.position.z = camera.position.z - 15
+    if (color_in_fn === "-") camera.position.z = camera.position.z + 15
     }
 
 
