@@ -194,9 +194,10 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   }
 
   //пересборка мандалы по нажанию Enter в полях ввода
-  title_input.onkeydown = function(e) { if (e.key == "Enter") reinit() }
-  number_of_symbols.onkeydown = function(e) { if (e.key == "Enter") reinit() }
-  //пересборка мандалы по нажанию кнопки "ОК"
+  title_input.onkeydown = onEnter
+  number_of_symbols.onkeydown = onEnter
+  function onEnter(e) { if (e.key == "Enter") reinit() }
+    //пересборка мандалы по нажанию кнопки "ОК"
   ok_button.onmousedown = function() { reinit() }
 
 
@@ -255,7 +256,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         another_one.push( to_one_fibbonachi_digit(astring[i]+astring[i+1]),
                           astring[i+1]
                         )
-    return (another_one.length >= alength) ? another_one : another_plus(astring, alength)
+    return (another_one.length >= alength) ? another_one : another_plus(another_one, alength)
     }
     
 
@@ -268,9 +269,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         //классическое расширение
         // input_string_fn = plus(input_string_fn, number_of_symbols_fn)
 
-        // массив расширяется на порядок (lenght*2-2)
+        // массив расширяется на порядок (lenght*2-1)
         input_string_fn = another_plus(input_string_fn, number_of_symbols_fn)
-
+        console.log(input_string_fn)
         // сокращаем до нужной длины по стандартному алгоритму
         if (input_string_fn.length != number_of_symbols_fn)
           input_string_fn = minus(input_string_fn, number_of_symbols_fn)
