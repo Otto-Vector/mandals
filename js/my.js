@@ -118,6 +118,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   let selected_mandala = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
 
   let max_input_length = 33
+  let max_expansion_length = 57
 
   ///////////////БЛОК ОБРАБОТКИ ВВОДИМОЙ СТРОКИ///////////////////////////////////////////////
 
@@ -169,6 +170,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///number_of_symbols
   let number_of_symbols = document.querySelector("#number_of_symbols")
   number_of_symbols.placeholder = title_input.value.length
+  number_of_symbols.max = max_expansion_length
 
   //selected_mandals_type
   let selected_mandala_type = document.querySelector("#select_mandala_type")
@@ -184,7 +186,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   number_of_symbols.oninput = function() {
     number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
     if (number_of_symbols.value == 0) number_of_symbols.value = ""
-    if (number_of_symbols.value > max_input_length) number_of_symbols.value = max_input_length
+    if (number_of_symbols.value > max_expansion_length) number_of_symbols.value = max_expansion_length
   }
 
   //контроль ввода значений мандалы
