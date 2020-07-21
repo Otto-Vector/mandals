@@ -64,27 +64,34 @@ section.sidebar {
 }
 
 section.sidebar #statistic {
-    padding-top: 12px;
-    display: none;
-    transition-duration: 1s;
+    padding-top: 5px;
+    font-size: 0.01%;
+    filter: blur(10px);
+    transition: 0.5s ease-in-out;
+    user-select: none;
 }
 
 section.sidebar #statistic div {
-    padding: 0px;
-    padding-bottom: 10.2px;
+    height: 20px;
+    border: 1px solid;
+    border-radius: 5px;
+    border-color: transparent;
+    margin: 5px 0px;
+    user-select: none;
+    padding-top: 2px;
     text-align: right;
 }
 
 
-section.sidebar .palitra {
-    background-color: rgba(0,0,0,0);
-    text-align: center;
-    font-weight: bold;
-    color: rgba(0,0,0,0.6);
+section.sidebar #palitra {
     padding: 5px;
+    background-color: rgba(0,0,0,0);
+    color: rgba(0,0,0,0.6);
 }
 
-section.sidebar .palitra div {
+.palitra_button {
+    font-weight: bold;
+    text-align: center;
     width: 20px;
     height: 20px;
     border: 1px solid;
@@ -94,7 +101,13 @@ section.sidebar .palitra div {
     cursor: pointer;
     user-select: none;
     padding-top: 2px;
-    background-color: white;
+    background-color: whitesmoke;
+}
+
+#left_panel {
+    position: absolute;
+    top: 100px;
+    left: 10px;
 }
 
 footer {

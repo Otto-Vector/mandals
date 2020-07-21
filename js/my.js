@@ -158,7 +158,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   
   ///palitra
   //задаём массив кнопок
-  let palitra = document.querySelectorAll(".palitra div")
+  let palitra = document.querySelectorAll(".palitra_button")
   //окрашиваем кнопки визуализации цветов
   palitra.forEach( (palitra,i) => palitra.style.background = basic_colors[i] )
 
@@ -323,7 +323,11 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     foreach_visibler(plain_x_cube)
 
     //дополнительно статистика на "S"
-    if (color_in_fn === "S") statistic.style.display = statistic.style.display == "block" ? "none" : "block"
+    if (color_in_fn === "S") {
+      statistic.style.filter = statistic.style.filter == "blur(0px)" ? "blur(10px)" : "blur(0px)"
+      statistic.style.fontSize = statistic.style.fontSize == "100%" ? "0.001px" : "100%"
+    }
+
 
     //только для бордера//
     if (color_in_fn === "B") border.forEach( function(entry) { 
