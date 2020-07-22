@@ -40,6 +40,7 @@ header {
 
 #title_input {
     width: 90%;
+    margin-left: -4.5%;
 }
 
 #number_of_symbols {
@@ -50,7 +51,7 @@ header {
     background-color: rgba(0,0,0,0);
     font-size: 2vw;
     color: gray;
-    text-shadow: 0.8px 0.8px white;
+    text-shadow: 0px .8px white;
     text-align: center;
     width: 100%;
 }
