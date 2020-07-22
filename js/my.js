@@ -151,7 +151,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ////////////////////////////////////
 
   ///statistic
-  let statistic = document.querySelector("#statistic")
+  // let statistic = document.querySelector("#statistic")
 
   let statistic_item = document.querySelectorAll("#statistic div")
   //обнуление значений статы
@@ -188,6 +188,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     if (number_of_symbols.value == 0) number_of_symbols.value = ""
     if (number_of_symbols.value > max_expansion_length) number_of_symbols.value = max_expansion_length
   }
+  
+  let title_input_length = 0;
 
   //контроль ввода значений мандалы
   title_input.oninput = function() {
@@ -204,7 +206,28 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //пересборка мандалы по нажанию Enter в полях ввода
   title_input.onkeydown = onEnter
   number_of_symbols.onkeydown = onEnter
-  function onEnter(e) { if (e.key == "Enter") reinit() }
+
+  function onEnter(e) {
+
+    if (e.key == "Enter") reinit()
+
+    number_of_symbols_changer_from_current()
+
+    function number_of_symbols_changer_from_current() {
+    if (e.key == "ArrowUp" || e.key == "ArrowDown") 
+        //если поле пустое, то отсчет ведется от длины введенного текста
+        if (!number_of_symbols.value) number_of_symbols.value = title_input.value.length
+
+        //добавление манипуляции с количеством из поля ввода имени мандалы
+        if (e.target.id == title_input.id)
+          if (e.key == "ArrowUp" && number_of_symbols.value < max_expansion_length)
+            ++number_of_symbols.value
+          else if (e.key == "ArrowDown" && number_of_symbols.value > 1)
+            --number_of_symbols.value
+      }
+
+  }
+
     //пересборка мандалы по нажанию кнопки "ОК"
   ok_button.onmousedown = function() { reinit() }
 
