@@ -211,19 +211,18 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
     if (e.key == "Enter") reinit()
 
-    number_of_symbols_changer_from_current()
+    if (e.key == "ArrowUp" || e.key == "ArrowDown") number_of_symbols_changer_from_current()
 
     function number_of_symbols_changer_from_current() {
-    if (e.key == "ArrowUp" || e.key == "ArrowDown") 
-        //если поле пустое, то отсчет ведется от длины введенного текста
-        if (!number_of_symbols.value) number_of_symbols.value = title_input.value.length
+      //если поле пустое, то отсчет ведется от длины введенного текста
+      if (!number_of_symbols.value) number_of_symbols.value = title_input.value.length
 
-        //добавление манипуляции с количеством из поля ввода имени мандалы
-        if (e.target.id == title_input.id)
-          if (e.key == "ArrowUp" && number_of_symbols.value < max_expansion_length)
-            ++number_of_symbols.value
-          else if (e.key == "ArrowDown" && number_of_symbols.value > 1)
-            --number_of_symbols.value
+      //добавление манипуляций с количеством из поля ввода имени мандалы
+      if (e.target.id == title_input.id)
+        if (e.key == "ArrowUp" && number_of_symbols.value < max_expansion_length)
+          ++number_of_symbols.value
+        else if (e.key == "ArrowDown" && number_of_symbols.value > 1)
+          --number_of_symbols.value
       }
 
   }
@@ -424,8 +423,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     //расширение по Юле
     function another_plus(another_plus_array, alength) {
       let another_one = []
+      //первый символ добавляется автоматически
       another_one.push(another_plus_array[0])
-
+      
       for (let i=0; i < another_plus_array.length-1; i++)
         another_one.push( to_one_fibbonachi_digit(another_plus_array[i]+another_plus_array[i+1]),
                           another_plus_array[i+1]
@@ -438,7 +438,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         input_array_fn = minus(input_array_fn, number_of_symbols_fn)
 
     //на расширение
-    if (number_of_symbols_fn > input_array_fn.length) {
+    if (input_array_fn.length != 1 && //блокируем расширение одного символа
+          number_of_symbols_fn > input_array_fn.length) {
         //классическое расширение
         // input_array_fn = plus(input_array_fn, number_of_symbols_fn)
 
