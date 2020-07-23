@@ -287,6 +287,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
                                         selected_mandala.true_of(7,9) //передается boolean для второго расчёта оси
                                       )
 
+  // console.clear()
+  // console.log (plane_of_colors)
+  
   ///////////////////////////////////////////////////////////////////////////////
   //////////////// задание и визуализация объектов /////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
@@ -473,10 +476,11 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     //сначала назначаем ось по горизонтали
       matrix[0] = input_nums_in_fn
     //и зеркально по вертикали от единицы
-    for (let i=1; i <= input_nums_in_fn.length; i++) {
+    for (let i=1; i < input_nums_in_fn.length; i++) {
       //первое значение каждой строки
       matrix[i] = [matrix[0][i]]
     }
+
 
     //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что подсчёт -1)
     let fibbo_number
@@ -493,6 +497,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
     return matrix
   }//возвращает двумерный массив
+
 
   ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
   function chess_algorithm(input_nums_fn, mirror_variant = false ) {//принимает одномерный массив чисел, созданных из введенной строки и модификатор стиля отображения косой оси
