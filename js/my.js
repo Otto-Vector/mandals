@@ -108,7 +108,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   //  задаёт разные мандалы
-  // 3 - "конверт"
+  // 3 - "ромб" (концентрация квадрата по три)  +
   // 4 - на квадрат (по три)                    +
   // 5 - на 6 пластин (цветок шахматный 1вар)   +
   // 6 - на 6 пластин (цветок по три)           +
@@ -180,7 +180,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   let numeric_adaptation = document.querySelector("#numeric_adaptation")
 
   //ОК
-  let ok_button = document.querySelector("#ok_button")
+  // let ok_button = document.querySelector("#ok_button")
 
   ///события///
   //контроль ввода цифровых значений
@@ -204,6 +204,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     number_of_symbols.placeholder = title_input.value.length
   }
 
+  selected_mandala_type.oninput = function() { reinit() }
   //пересборка мандалы по нажанию Enter в полях ввода
   title_input.onkeydown = onEnter
   number_of_symbols.onkeydown = onEnter
@@ -228,8 +229,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   }
 
-    //пересборка мандалы по нажанию кнопки "ОК"
-  ok_button.onmousedown = function() { reinit() }
+  //пересборка мандалы по нажанию кнопки "ОК"
+  // ok_button.onmousedown = function() { reinit() }
 
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
