@@ -108,6 +108,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //////////////////////////BEGIN/////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   //  задаёт разные мандалы
+  // 3 - "конверт"
   // 4 - на квадрат (по три)                    +
   // 5 - на 6 пластин (цветок шахматный 1вар)   +
   // 6 - на 6 пластин (цветок по три)           +
@@ -258,8 +259,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   let string_for_algorithms = input_string.to_array_of_numbers(simbols_static)
 
+  //изменяет размер обрабатываемой числовой строки
   string_for_algorithms = string_for_algorithms_to_number_of_symbols(string_for_algorithms, number_of_symbols_resize)
-
 
   //добавляется нулевой элемент суммы всех чисел по фибоначи
   let summ_to_zero_element = to_one_fibbonachi_digit( string_for_algorithms.reduce( (sum,n) => sum+n ))
@@ -282,14 +283,15 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   if ( selected_mandala.true_of(4,6) )
     plane_of_colors = plane_square_3x_algorithm( string_for_algorithms )
 
+  if ( selected_mandala.true_of(3) )
+    plane_of_colors = curtail_diamond_algorithm(plane_square_3x_algorithm( string_for_algorithms ))
+
   if ( selected_mandala.true_of(5,7,8,9) )
     plane_of_colors = chess_algorithm ( string_for_algorithms,
                                         selected_mandala.true_of(7,9) //передается boolean для второго расчёта оси
                                       )
 
-  // console.clear()
-  // console.log (plane_of_colors)
-  
+
   ///////////////////////////////////////////////////////////////////////////////
   //////////////// задание и визуализация объектов /////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
@@ -498,6 +500,21 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     return matrix
   }//возвращает двумерный массив
 
+  function curtail_diamond_algorithm(plane_of_colors_in_fn) {
+    // let diamond_matrix = plane_of_colors_in_fn.map(function (item) {return [...item]})
+    let diamond_matrix = [...plane_of_colors_in_fn]
+   
+    for (let x=1; x < plane_of_colors_in_fn.length-1; x++)
+      for (let y=1; y < plane_of_colors_in_fn.length-x; y++) {
+      diamond_matrix[x][y] = to_one_fibbonachi_digit(
+          plane_of_colors_in_fn[x][y]+
+          plane_of_colors_in_fn[plane_of_colors_in_fn.length-x][plane_of_colors_in_fn.length-y]
+          )
+      diamond_matrix[plane_of_colors_in_fn.length-x][plane_of_colors_in_fn.length-y] = 0
+      }
+    
+    return diamond_matrix
+  }
 
   ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
   function chess_algorithm(input_nums_fn, mirror_variant = false ) {//принимает одномерный массив чисел, созданных из введенной строки и модификатор стиля отображения косой оси
@@ -563,14 +580,16 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     for (let i = 1; i < input_nums_fn.length; i++) {
       color_n = input_nums_fn[i]
 
-      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( i,0,0, color_n) )
-      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,i,0, color_n) )
+      axis_fn.push( cubus_construct( i,0,0, color_n) )
+      axis_fn.push( cubus_construct( 0,i,0, color_n) )
 
-      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( -i,0,0, color_n) )
-      if ( selected_mandala.true_of(4,5,6,7,8,9) ) axis_fn.push( cubus_construct( 0,-i,0, color_n) )
+      axis_fn.push( cubus_construct( -i,0,0, color_n) )
+      axis_fn.push( cubus_construct( 0,-i,0, color_n) )
 
-      if ( selected_mandala.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,i, color_n) )
-      if ( selected_mandala.true_of(5,6,7) ) axis_fn.push( cubus_construct( 0,0,-i, color_n) )
+      if ( selected_mandala.true_of(5,6,7) ) {
+        axis_fn.push( cubus_construct( 0,0,i, color_n) )
+        axis_fn.push( cubus_construct( 0,0,-i, color_n) )
+      }
     }
 
     return axis_fn
@@ -612,16 +631,14 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
         color_n = plane_of_colors_fn[y][x] 
 
-        if (selected_mandala.true_of(4,5,6,7,8,9))
-          plain_x_cube_fn.push( cubus_construct ( y, x, 0, color_n) )
+        plain_x_cube_fn.push( cubus_construct ( y, x, 0, color_n) )
 
-        if (selected_mandala.true_of(4,5,6,7,8,9))
-          plain_x_cube_fn.push( cubus_construct ( -y, -x, 0, color_n) )
+        plain_x_cube_fn.push( cubus_construct ( -y, -x, 0, color_n) )
 
-        if (selected_mandala.true_of(4,8,9))
+        if (selected_mandala.true_of(3,4,8,9))
           plain_x_cube_fn.push( cubus_construct ( -x, y, 0, color_n) )
 
-        if (selected_mandala.true_of(4,8,9))
+        if (selected_mandala.true_of(3,4,8,9))
           plain_x_cube_fn.push( cubus_construct ( x, -y, 0, color_n) )
 
         if (selected_mandala.true_of(5,6,7))
