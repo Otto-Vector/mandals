@@ -118,7 +118,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   // 
   let selected_mandala = +value_init || 4 //проверка на первый запуск init() (по умолчанию 4-ый вариант)
 
+  //максимальное количество символов вводимой строки
   let max_input_length = 33
+  //максимальное количество знаков на расширение
   let max_expansion_length = 57
 
   ///////////////БЛОК ОБРАБОТКИ ВВОДИМОЙ СТРОКИ///////////////////////////////////////////////
@@ -152,8 +154,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ////////////////////////////////////
 
   ///statistic
-  // let statistic = document.querySelector("#statistic")
-
   let statistic_item = document.querySelectorAll("#statistic div")
   //обнуление значений статы
   for (let i = 1; i < statistic_item.length; i++) statistic_item[i].innerHTML = 0
@@ -173,14 +173,11 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   number_of_symbols.placeholder = title_input.value.length
   number_of_symbols.max = max_expansion_length
 
-  //selected_mandals_type
+  ///selected mandalas type
   let selected_mandala_type = document.querySelector("#select_mandala_type")
 
   ///numeric_adaptation
   let numeric_adaptation = document.querySelector("#numeric_adaptation")
-
-  //ОК
-  // let ok_button = document.querySelector("#ok_button")
 
   ////////////////////////////////////////////////////////////////
   ///события/////////////////////////////////////////////////////
@@ -191,6 +188,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
     //удаляем первый ноль
     if (number_of_symbols.value == 0) number_of_symbols.value = ""
+    //предотвращаем ввод от руки большого значения
+    if (number_of_symbols.value > max_expansion_length) number_of_symbols.value = max_expansion_length
   }
   
   //контроль ввода значений мандалы
@@ -203,6 +202,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
     //данные о длине вводимой строки сразу вводятся в поле
     number_of_symbols.placeholder = title_input.value.length
+    number_of_symbols.value = ""
   }
 
   selected_mandala_type.oninput = function() { reinit() }
