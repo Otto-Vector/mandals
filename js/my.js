@@ -146,7 +146,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //////////////////////////////////////////////////////////////
   //здесь будет адаптация отдаления камеры по размеру вводимого значения
   if (selected_mandala.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
-  if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 20 ) //позиция камеры для квадратов
+  if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 70 ) //позиция камеры для квадратов
   if (selected_mandala.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
 
 
