@@ -5,6 +5,7 @@ window.onload = init
 
 let scene, camera, renderer, controls //глобальные переменные для создания сцены
 
+
 function init(value_init, previous_input, number_of_symbols_resize) {
 
   /////задание основных переменных////////////////////////////////////////
@@ -145,7 +146,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //////////////////////////////////////////////////////////////
   //здесь будет адаптация отдаления камеры по размеру вводимого значения
   if (selected_mandala.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
-  if (selected_mandala.true_of(4)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
+  if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 20 ) //позиция камеры для квадратов
   if (selected_mandala.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
 
 
@@ -239,6 +240,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       remove_all_objects_from_memory(axis)
       remove_all_objects_from_memory(plain_x_cube)
       if (border) remove_all_objects_from_memory(border)
+      if (scale_border) {
+        scene.remove( scale_border )
+        scale_border = null }
 
       input_string = modification_to_normal(title_input.value)
 
@@ -302,9 +306,28 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   let plain_x_cube = plain_x_cube_visual(plane_of_colors) //пластины между осями
 
   //массив для элементов обводки мандалы
-  let border = selected_mandala.true_of(4,8,9) ? //обводка только на квадратных мандалах
+  let border = selected_mandala.true_of(3,4,8,9) ? //обводка только на квадратных мандалах
                border_visual(plane_of_colors[0]) : null
+
+  let scale_border = selected_mandala.true_of(3) ? x_border_visual(border) : null
   
+  
+     
+  function x_border_visual(border_in_fn) {
+
+    let x_border = new THREE.Group()
+    let scale_p = 0.75
+    border_in_fn.forEach(function(item) {x_border.add(item)} )
+    scene.add(x_border)
+
+    x_border.rotation.z = THREE.Math.degToRad( 45 )
+    x_border.position.set(0,0,0.5)
+    x_border.scale.set(scale_p,scale_p,scale_p)
+
+    border_in_fn.forEach( function(entry) { entry.material.color.set(basic_colors[0]) } )
+
+    return x_border
+  }
 
   ////анимация объектов////////////////////
   if (!+value_init) animate()
