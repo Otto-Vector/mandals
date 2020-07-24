@@ -182,16 +182,17 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //ОК
   // let ok_button = document.querySelector("#ok_button")
 
-  ///события///
+  ////////////////////////////////////////////////////////////////
+  ///события/////////////////////////////////////////////////////
+
   //контроль ввода цифровых значений
   number_of_symbols.oninput = function() {
+    //убираем ввод недопустимых символов
     number_of_symbols.value = number_of_symbols.value.delete_all_spaces()
+    //удаляем первый ноль
     if (number_of_symbols.value == 0) number_of_symbols.value = ""
-    if (number_of_symbols.value > max_expansion_length) number_of_symbols.value = max_expansion_length
   }
   
-  let title_input_length = 0;
-
   //контроль ввода значений мандалы
   title_input.oninput = function() {
     //убираем пробелы,точки и запятые при вводе
@@ -234,14 +235,16 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   //функция перезапуска мандалы с новыми данными//
   function reinit() {
-      //удаление предыдущих объектов из памяти и со сцены
+
       remove_all_objects_from_memory(axis)
       remove_all_objects_from_memory(plain_x_cube)
       if (border) remove_all_objects_from_memory(border)
 
       input_string = modification_to_normal(title_input.value)
 
-      init(select_mandala_type.value, input_string, +number_of_symbols.value || input_string.length )
+      let number_of_symbols_correct = +number_of_symbols.value || input_string.length
+
+      init(select_mandala_type.value, input_string, number_of_symbols_correct )
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -307,8 +310,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   if (!+value_init) animate()
 
   //подсчёт статистики и его отображение
-  statistic_value(axis)
-  statistic_value(plain_x_cube)
+  statistic_value([...axis,...plain_x_cube])
   
   //отслеживание нажатия кнопок боковой панели и передача содержимого этих кнопок
   for (let i = 0; i < palitra.length; i++) {
@@ -337,7 +339,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   function color_select_unvisibler(color_in_fn) { //передаётся символ внутри кнопки
 
     //функция перебора массива с отслеживанием нажатых кнопок
-    function foreach_visibler(arr) { //в ф-цию передаем массив
+    function toggle_visibler(arr) { //в ф-цию передаем массив
       arr.forEach(function(item) { //перебираем массив
           if (color_in_fn === "#") item.visible = false //все искомые элементы становятся невидимыми
           if (color_in_fn === "@" ||
@@ -348,25 +350,21 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
     function button_visibler(arr) {
       
-      
       for (let i=1; i < 10; i++) {
         palitra[i].classList.remove("unactive_visual_button")
-        palitra[i].visual = 0
-        arr.forEach(function(item) {
-          if (item.colornum == i && item.visible == false) ++palitra[i].visual
-        })
-        if (palitra[i].visual > 0 ) palitra[i].classList.add("unactive_visual_button")
+     
+        let visible_of = (element) => element.colornum == i && element.visible == false
+
+        if (arr.some(visible_of)) palitra[i].classList.add("unactive_visual_button")
       }
-
-
     }
 
-    foreach_visibler([...axis,...plain_x_cube])
+    toggle_visibler([...axis,...plain_x_cube])
     button_visibler([...axis,...plain_x_cube])
     //перебор по осям
-    // foreach_visibler(axis)
+    // toggle_visibler(axis)
     //перебор по плоскостям
-    // foreach_visibler(plain_x_cube)
+    // toggle_visibler(plain_x_cube)
 
     //дополнительно статистика на "S"
     if (color_in_fn === "S") { statistic.classList.toggle("active") }
