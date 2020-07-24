@@ -66,10 +66,15 @@ section.sidebar {
 
 section.sidebar #statistic {
     padding-top: 5px;
+    user-select: none;
     font-size: 0.01%;
     filter: blur(10px);
     transition: 0.5s ease-in-out;
-    user-select: none;
+}
+
+section.sidebar #statistic.active {
+    font-size: 100%;
+    filter: blur(0);
 }
 
 section.sidebar #statistic div {
@@ -91,18 +96,37 @@ section.sidebar #palitra {
 }
 
 .palitra_button {
-    font-weight: bold;
-    text-align: center;
     width: 20px;
     height: 20px;
     border: 1px solid;
+    border-color: black;
     border-radius: 5px;
-    box-shadow: 1px 1px 2px;
+
     margin: 5px;
+    padding-top: 2px;
+    padding-left: 1px;
+
+    background-color: whitesmoke;
+    box-shadow: 1px 1px 2px;
+
+    font-weight: bold;
+    text-align: center;
+
     cursor: pointer;
     user-select: none;
-    padding-top: 2px;
-    background-color: whitesmoke;
+    opacity: 1;
+    transition: 0.3s
+}
+
+.unactive_static_button {
+    opacity: .5;
+}
+
+.unactive_visual_button {
+    border-color: transparent;
+    border-radius: 50%;
+    box-shadow: 0 0 4px;
+    color: white;
 }
 
 #left_panel {

@@ -229,10 +229,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   }
 
-  //пересборка мандалы по нажанию кнопки "ОК"
-  // ok_button.onmousedown = function() { reinit() }
-
-
+ 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   //функция перезапуска мандалы с новыми данными//
@@ -320,7 +317,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   //затемнение неактивных кнопок на основе статы
   for (let i = 1; i < 10; i++) {
-    palitra[i].style.opacity = statistic_item[i].innerHTML == 0 ? 0.5 : 1
+    palitra[i].classList.remove("unactive_static_button")
+    palitra[i].classList.remove("unactive_visual_button")
+    if (statistic_item[i].innerHTML == 0) palitra[i].classList.toggle("unactive_static_button")
   }
 
 
@@ -347,17 +346,30 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         })
     }
 
-    //перебор по осям
-    foreach_visibler(axis)
-    //перебор по плоскостям
-    foreach_visibler(plain_x_cube)
+    function button_visibler(arr) {
+      
+      
+      for (let i=1; i < 10; i++) {
+        palitra[i].classList.remove("unactive_visual_button")
+        palitra[i].visual = 0
+        arr.forEach(function(item) {
+          if (item.colornum == i && item.visible == false) ++palitra[i].visual
+        })
+        if (palitra[i].visual > 0 ) palitra[i].classList.add("unactive_visual_button")
+      }
 
-    //дополнительно статистика на "S"
-    if (color_in_fn === "S") {
-      statistic.style.filter = statistic.style.filter == "blur(0px)" ? "blur(10px)" : "blur(0px)"
-      statistic.style.fontSize = statistic.style.fontSize == "100%" ? "0.001px" : "100%"
+
     }
 
+    foreach_visibler([...axis,...plain_x_cube])
+    button_visibler([...axis,...plain_x_cube])
+    //перебор по осям
+    // foreach_visibler(axis)
+    //перебор по плоскостям
+    // foreach_visibler(plain_x_cube)
+
+    //дополнительно статистика на "S"
+    if (color_in_fn === "S") { statistic.classList.toggle("active") }
 
     //только для бордера//
     if (color_in_fn === "B") border.forEach( function(entry) { 
