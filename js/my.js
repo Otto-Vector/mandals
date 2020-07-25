@@ -161,6 +161,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //окрашиваем кнопки визуализации цветов
   palitra.forEach( (palitra,i) => palitra.style.background = basic_colors[i] )
 
+
   ///title_input
   let title_input = document.querySelector("#title_input")
   title_input.value = input_string; //вывод в заголовок обработанного текста
@@ -169,6 +170,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   let number_of_symbols = document.querySelector("#number_of_symbols")
   number_of_symbols.placeholder = title_input.value.length
   number_of_symbols.max = max_expansion_length
+
+  ///clear_button
+  let clear_button = document.querySelector("#clear_button")
 
   ///selected mandalas type
   let selected_mandala_type = document.querySelector("#select_mandala_type")
@@ -201,8 +205,19 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     number_of_symbols.placeholder = title_input.value.length
     number_of_symbols.value = ""
   }
-
+  
+  //очистка поля title_input
+  clear_button.onclick = () => {
+    title_input.value = ""
+    number_of_symbols.value = ""
+    number_of_symbols.placeholder = 0
+    let todo_focus_wrap = () => title_input.focus()
+    todo_focus_wrap()
+    }
+  
+  //перезапуск по выбору типа мандалы
   selected_mandala_type.oninput = function() { reinit() }
+  
   //пересборка мандалы по нажанию Enter в полях ввода
   title_input.onkeydown = onEnter
   number_of_symbols.onkeydown = onEnter

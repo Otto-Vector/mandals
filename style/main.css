@@ -39,16 +39,30 @@ header {
     text-shadow: 1px 1px white;
 }
 
-#title_input {
-    width: 90%;
-    margin-left: -4.5%;
-}
-
 #number_of_symbols {
     position: relative;
     width: 9%;
     z-index: 10;
 }
+
+#title_input {
+    width: 89%;
+    margin-left: -3.9%;
+}
+
+#clear_button {
+    width: 4%;
+    height: 4vw;
+    margin-top: 1vw;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml;charset=utf8,%3C?xml version='1.0' standalone='no'?%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 20010904//EN' 'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'%3E%3Csvg version='1.0' xmlns='http://www.w3.org/2000/svg' width='512.000000pt' height='512.000000pt' viewBox='0 0 512.000000 512.000000' preserveAspectRatio='xMidYMid meet'%3E%3Cg transform='translate(0.000000,512.000000) scale(0.100000,-0.100000)' fill='%23808080' stroke='none'%3E%3Cpath d='M1636 4465 c-21 -7 -52 -26 -68 -42 -49 -46 -1521 -1732 -1543 -1766 -28 -44 -28 -150 0 -194 26 -42 1508 -1734 1551 -1773 18 -16 50 -34 71 -39 26 -7 499 -11 1461 -11 1594 0 1505 -4 1662 73 166 81 297 250 335 432 22 105 22 2725 0 2830 -38 182 -169 351 -335 432 -157 77 -67 73 -1667 73 -1186 -1 -1435 -3 -1467 -15z m2941 -422 c47 -22 99 -77 115 -122 19 -53 19 -2669 0 -2722 -16 -45 -68 -100 -115 -122 -32 -16 -147 -17 -1409 -17 l-1374 0 -650 742 c-357 408 -649 749 -649 758 0 9 292 350 649 758 l650 742 1374 0 c1262 0 1377 -1 1409 -17z'/%3E%3Cpath d='M2480 3389 c-56 -25 -77 -44 -100 -89 -28 -56 -32 -100 -14 -160 15 -52 33 -72 277 -317 l261 -263 -261 -263 c-244 -245 -262 -265 -277 -317 -23 -76 -2 -165 51 -212 30 -27 105 -58 143 -58 76 0 115 31 382 298 l258 256 257 -255 c142 -141 272 -264 289 -272 47 -24 104 -30 152 -18 81 22 151 111 152 191 0 90 -7 100 -288 383 l-266 267 266 268 c281 282 288 292 288 382 -1 80 -71 169 -152 191 -48 12 -105 6 -152 -18 -17 -8 -147 -131 -289 -272 l-257 -255 -258 256 c-267 267 -306 298 -382 298 -19 0 -55 -10 -80 -21z'/%3E%3C/g%3E%3C/svg%3E");
+    background-position: 50% 42%;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+
 
 #numeric_adaptation {
     background-color: rgba(0,0,0,0);
@@ -64,7 +78,7 @@ section.sidebar {
     position: absolute;
     display: flex;
     right: 5px;
-    top: 10px;
+    top: 95px;
 }
 
 section.sidebar #statistic {
