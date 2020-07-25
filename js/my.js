@@ -111,9 +111,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //  задаёт разные мандалы
   // 3 - "ромб" (концентрация квадрата по три)  +
   // 4 - на квадрат (по три)                    +
-  // 5 - на 6 пластин (цветок шахматный 1вар)   +
-  // 6 - на 6 пластин (цветок по три)           +
-  // 7 - на 6 пластин (цветок шахматный 2вар)   +
   // 8 - на квадрат шахматный расчёт (1вар)     +
   // 9 - на квадрат шахматый расчёт (2вар)      +
   // 
@@ -145,7 +142,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   //////////////////////////////////////////////////////////////
   //здесь будет адаптация отдаления камеры по размеру вводимого значения
-  if (selected_mandala.true_of(5,6,7)) camera.position.set( -95, 95, 95 ) //позиция камеры для трёхмерного цветка
   if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 70 ) //позиция камеры для квадратов
   if (selected_mandala.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
 
@@ -285,15 +281,15 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //высчитываем двумерный массив цветов для одной стороны мандалы
   let plane_of_colors = []
 
-  if ( selected_mandala.true_of(4,6) )
+  if ( selected_mandala.true_of(4) )
     plane_of_colors = plane_square_3x_algorithm( string_for_algorithms )
 
   if ( selected_mandala.true_of(3) )
-    plane_of_colors = curtail_diamond_algorithm(plane_square_3x_algorithm( string_for_algorithms ))
+    plane_of_colors = curtail_diamond_algorithm( plane_square_3x_algorithm( string_for_algorithms ) )
 
-  if ( selected_mandala.true_of(5,7,8,9) )
+  if ( selected_mandala.true_of(8,9) )
     plane_of_colors = chess_algorithm ( string_for_algorithms,
-                                        selected_mandala.true_of(7,9) //передается boolean для второго расчёта оси
+                                        selected_mandala.true_of(9) //передается boolean для второго расчёта оси
                                       )
 
 
@@ -306,8 +302,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   let plain_x_cube = plain_x_cube_visual(plane_of_colors) //пластины между осями
 
   //массив для элементов обводки мандалы
-  let border = selected_mandala.true_of(3,4,8,9) ? //обводка только на квадратных мандалах
-               border_visual(plane_of_colors[0]) : null
+  let border = border_visual(plane_of_colors[0])
 
   let scale_border = selected_mandala.true_of(3) ? x_border_visual(border) : null
   
@@ -316,7 +311,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   function x_border_visual(border_in_fn) {
 
     let x_border = new THREE.Group()
-    let scale_p = 0.75
+    let scale_p = 0.75 //уменьшение повернутой обводки
     border_in_fn.forEach(function(item) {x_border.add(item)} )
     scene.add(x_border)
 
@@ -382,12 +377,10 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       }
     }
 
+    //запуск девизуализации осей и плоскостей
     toggle_visibler([...axis,...plain_x_cube])
+    //запуск изменения формы кнопок при нажатии девизуализации
     button_visibler([...axis,...plain_x_cube])
-    //перебор по осям
-    // toggle_visibler(axis)
-    //перебор по плоскостям
-    // toggle_visibler(plain_x_cube)
 
     //дополнительно статистика на "S"
     if (color_in_fn === "S") { statistic.classList.toggle("active") }
@@ -606,24 +599,23 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //////////сборка осей //////////
   function axis_visual(input_nums_fn) {//принимает одномерный числовой массив
     let axis_fn = []
-    //нулевой куб в центре оси
 
+    //нулевой куб в центре оси
     axis_fn[0] = cubus_construct( 0,0,0, input_nums_fn[0] )
 
     let color_n
     for (let i = 1; i < input_nums_fn.length; i++) {
       color_n = input_nums_fn[i]
 
+      //направо
       axis_fn.push( cubus_construct( i,0,0, color_n) )
+      //вверх
       axis_fn.push( cubus_construct( 0,i,0, color_n) )
-
+      //налево
       axis_fn.push( cubus_construct( -i,0,0, color_n) )
+      //вниз
       axis_fn.push( cubus_construct( 0,-i,0, color_n) )
 
-      if ( selected_mandala.true_of(5,6,7) ) {
-        axis_fn.push( cubus_construct( 0,0,i, color_n) )
-        axis_fn.push( cubus_construct( 0,0,-i, color_n) )
-      }
     }
 
     return axis_fn
@@ -665,27 +657,14 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         //назначение цвета в соответствии с цветоцифрами, вычисленными по примененному алгоритму
         color_n = plane_of_colors_fn[y][x] 
 
+        //верх-право
         plain_x_cube_fn.push( cubus_construct ( y, x, 0, color_n) )
-
+        //низ-лево
         plain_x_cube_fn.push( cubus_construct ( -y, -x, 0, color_n) )
-
-        if (selected_mandala.true_of(3,4,8,9))
-          plain_x_cube_fn.push( cubus_construct ( -x, y, 0, color_n) )
-
-        if (selected_mandala.true_of(3,4,8,9))
-          plain_x_cube_fn.push( cubus_construct ( x, -y, 0, color_n) )
-
-        if (selected_mandala.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( y, 0, x, color_n) )
-
-        if (selected_mandala.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( 0, -y, x, color_n) )
-
-        if (selected_mandala.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( -y, 0, -x, color_n) )
-
-        if (selected_mandala.true_of(5,6,7))
-          plain_x_cube_fn.push( cubus_construct ( 0, y, -x, color_n) )
+        //верх-лево
+        plain_x_cube_fn.push( cubus_construct ( -x, y, 0, color_n) )
+        //низ-право
+        plain_x_cube_fn.push( cubus_construct ( x, -y, 0, color_n) )
       }
 
     return plain_x_cube_fn
