@@ -51,6 +51,8 @@ header {
 }
 
 #clear_button {
+    position: absolute;
+    right: 1.5%;
     width: 4%;
     height: 4vw;
     margin-top: 1vw;
@@ -61,7 +63,6 @@ header {
     background-repeat: no-repeat;
     cursor: pointer;
 }
-
 
 
 #numeric_adaptation {
@@ -76,9 +77,9 @@ header {
 
 section.sidebar {
     position: absolute;
+    top: 7vw;
     display: flex;
     right: 5px;
-    top: 95px;
 }
 
 section.sidebar #statistic {
@@ -148,7 +149,7 @@ section.sidebar #palitra {
 
 #left_panel {
     position: absolute;
-    top: 100px;
+    top: 7.5vw;
     left: 10px;
 }
 
@@ -169,7 +170,11 @@ footer label {
 
 }
 
-select {
+.select_mandala_type {
+    user-select: none;
+}
+
+#select_mandala_type {
     background: url("../img/arrow_down.png") 97% 50% no-repeat #e3e4e5;
     border: 1px solid #a2a2a2;
     border-radius: 3px;
@@ -180,10 +185,4 @@ select {
     cursor: pointer;
   }
 
-#ok_button {
-    padding: 5px;
-    border-radius: 3px;
-    box-shadow: 1px 1px #a2a2a2;
-    cursor: pointer;
-    user-select: none;
-}
+
