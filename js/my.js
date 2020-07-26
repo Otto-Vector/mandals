@@ -142,7 +142,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   //////////////////////////////////////////////////////////////
   //здесь будет адаптация отдаления камеры по размеру вводимого значения
-  if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 70 ) //позиция камеры для квадратов
+  if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 80 ) //позиция камеры для квадратов
   if (selected_mandala.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
 
 
@@ -176,6 +176,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   ///selected mandalas type
   let selected_mandala_type = document.querySelector("#select_mandala_type")
+  select_mandala_type.value = selected_mandala
 
   ///numeric_adaptation
   let numeric_adaptation = document.querySelector("#numeric_adaptation")
@@ -326,7 +327,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   function x_border_visual(border_in_fn) {
 
     let x_border = new THREE.Group()
-    let scale_p = 0.75 //уменьшение повернутой обводки
+    //уменьшение повернутой обводки (0.75 идеальное значение для 8 символов, от него и "скакал")
+    let scale_p = 0.75 - Math.atan((string_for_algorithms.length-9))/50 //c применением арктангенс/коэффициэнта
+    console.log(scale_p)
     border_in_fn.forEach(function(item) {x_border.add(item)} )
     scene.add(x_border)
 
