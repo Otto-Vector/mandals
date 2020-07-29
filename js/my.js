@@ -209,20 +209,25 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   }
 
   function statistic_button__sort() {
+    
     let buffer_sort_arr = []
+    
     for (let i = 1; i < 10; i++) {
-      let buffer_sort_obj = {value : 0, position : 0}
-      buffer_sort_obj.value = statistic_item[i].innerHTML
-      buffer_sort_obj.position = i
-      buffer_sort_arr.push(buffer_sort_obj)
+      
+      let buffer_sort_item = {
+        value : statistic_item[i].innerHTML,
+        position : palitra[i].innerHTML
+      }
+
+      buffer_sort_arr.push(buffer_sort_item)
     }
 
     buffer_sort_arr.sort(function(a, b) { return a.value - b.value })
 
-    if (statistic_button.className == "up")
-       buffer_sort_arr.reverse()
+    if (statistic_button.className == "up") buffer_sort_arr.reverse()
 
     for (let i = 1; i < 10; i++) {
+    
       statistic_item[i].innerHTML = buffer_sort_arr[i-1].value
       palitra[i].innerHTML = buffer_sort_arr[i-1].position
     }
