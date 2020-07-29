@@ -457,6 +457,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       entry.material.color.set(basic_colors[entry.colornum]) //присвоение значения цвета
       })
 
+    if (color_in_fn === "b") border.forEach( function(entry) { entry.visible = !entry.visible } )
     //отдаление/приближение//
     if (color_in_fn === "+") camera.position.z = camera.position.z - 10
     if (color_in_fn === "-") camera.position.z = camera.position.z + 10
