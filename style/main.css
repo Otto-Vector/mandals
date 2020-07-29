@@ -86,13 +86,16 @@ section.sidebar #statistic {
     padding-top: 5px;
     user-select: none;
     font-size: 0.01%;
-    filter: blur(10px);
+    filter: blur(50px);
     transition: 0.5s ease-in-out;
 }
 
 section.sidebar #statistic.active {
     font-size: 100%;
     filter: blur(0);
+    width: auto;
+    /*height: auto;*/
+    /*user-select: auto;*/
 }
 
 section.sidebar #statistic div {
@@ -101,11 +104,27 @@ section.sidebar #statistic div {
     border-radius: 5px;
     border-color: transparent;
     margin: 5px 0px;
-    user-select: none;
     padding-top: 2px;
     text-align: right;
 }
 
+#statistic_button {
+    width: 20px;
+    height: 20px;
+
+    margin: 5px;
+    padding-top: 2px;
+    padding-left: 1px;
+
+    background: url("../img/arrow_down.png") 50% 50% no-repeat whitesmoke;
+    
+    cursor: pointer;
+    user-select: none;
+    transition: 0.3s
+}
+#statistic_button.up {
+    transform: rotate(180deg);
+}
 
 section.sidebar #palitra {
     padding: 5px;

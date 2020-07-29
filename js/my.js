@@ -153,15 +153,29 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///statistic
   let statistic_item = document.querySelectorAll("#statistic div")
   //обнуление значений статы
-  for (let i = 1; i < statistic_item.length; i++) statistic_item[i].innerHTML = 0
-  
+  for (let i = 1; i < statistic_item.length; i++) {
+    statistic_item[i].innerHTML = 0
+  }
+
+  /// statistic_button
+  let statistic_button = document.querySelector("#statistic_button")
+
   ///palitra
   //задаём массив кнопок
   let palitra = document.querySelectorAll(".palitra_button")
   //окрашиваем кнопки визуализации цветов
-  palitra.forEach( (palitra,i) => palitra.style.background = basic_colors[i] )
-
-
+  
+  function palitra_button__default_pos_value() {
+    for (let i = 1; i < 10; i++) palitra[i].innerHTML = i
+  }
+  
+  function palitra_button__colored() {
+    palitra.forEach( (palitra_item) => palitra_item.style.background = basic_colors[palitra_item.innerHTML] )
+  }
+  
+  palitra_button__default_pos_value()
+  palitra_button__colored()
+  
   ///title_input
   let title_input = document.querySelector("#title_input")
   title_input.value = input_string; //вывод в заголовок обработанного текста
@@ -183,6 +197,35 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   ////////////////////////////////////////////////////////////////
   ///события/////////////////////////////////////////////////////
+
+  statistic_button.onclick = function() {
+    statistic_button.classList.toggle("up")
+    statistic_button_sort()
+    palitra_button__colored()
+    palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
+    palitra_button__check_unactive("unactive_static_button")
+  }
+
+  function statistic_button_sort() {
+    let buffer_sort_arr = []
+    for (let i = 1; i < 10; i++) {
+      let buffer_sort_obj = {value : 0, position : 0}
+      buffer_sort_obj.value = statistic_item[i].innerHTML
+      buffer_sort_obj.position = i
+      buffer_sort_arr.push(buffer_sort_obj)
+    }
+
+    buffer_sort_arr.sort(function(a, b) { return a.value - b.value })
+
+    if (statistic_button.className == "up")
+       buffer_sort_arr.reverse()
+
+    for (let i = 1; i < 10; i++) {
+      statistic_item[i].innerHTML = buffer_sort_arr[i-1].value
+      palitra[i].innerHTML = buffer_sort_arr[i-1].position
+    }
+    
+  }
 
   //контроль ввода цифровых значений
   number_of_symbols.oninput = function() {
@@ -317,36 +360,19 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   let plain_x_cube = plain_x_cube_visual(plane_of_colors) //пластины между осями
 
+  let axis_plain_arr = [...axis,...plain_x_cube]
+
   //массив для элементов обводки мандалы
   let border = border_visual(plane_of_colors[0])
 
   let scale_border = selected_mandala.true_of(3) ? x_border_visual(border) : null
   
   
-     
-  function x_border_visual(border_in_fn) {
-
-    let x_border = new THREE.Group()
-    //уменьшение повернутой обводки (0.75 идеальное значение для 8 символов, от него и "скакал")
-    let scale_p = 0.75 - Math.atan((string_for_algorithms.length-9))/50 //c применением арктангенс/коэффициэнта
-    console.log(scale_p)
-    border_in_fn.forEach(function(item) {x_border.add(item)} )
-    scene.add(x_border)
-
-    x_border.rotation.z = THREE.Math.degToRad( 45 )
-    x_border.position.set(0,0,0.5)
-    x_border.scale.set(scale_p,scale_p,scale_p)
-
-    border_in_fn.forEach( function(entry) { entry.material.color.set(basic_colors[0]) } )
-
-    return x_border
-  }
-
   ////анимация объектов////////////////////
   if (!+value_init) animate()
 
   //подсчёт статистики и его отображение
-  statistic_value([...axis,...plain_x_cube])
+  statistic_value(axis_plain_arr)
   
   //отслеживание нажатия кнопок боковой панели и передача содержимого этих кнопок
   for (let i = 0; i < palitra.length; i++) {
@@ -354,11 +380,27 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   }
 
   //затемнение неактивных кнопок на основе статы
-  for (let i = 1; i < 10; i++) {
-    palitra[i].classList.remove("unactive_static_button")
-    palitra[i].classList.remove("unactive_visual_button")
-    if (statistic_item[i].innerHTML == 0) palitra[i].classList.toggle("unactive_static_button")
+  function palitra_button__check_unactive(unactive_class) {
+    for (let i = 1; i < 10; i++) {
+      palitra[i].classList.remove(unactive_class)
+      if (statistic_item[i].innerHTML == 0) palitra[i].classList.toggle(unactive_class)
+    }
   }
+
+  //запуск изменение формы кнопок при проверке девизуализации
+  function palitra_button__unactive_visibler(arr, unactive_visual_class) {
+    
+    for (let i=1; i < 10; i++) {
+      palitra[i].classList.remove(unactive_visual_class)
+   
+      let visible_of = (element) => element.colornum == palitra[i].innerHTML && element.visible == false
+
+      if (arr.some(visible_of)) palitra[i].classList.add(unactive_visual_class)
+    }
+  }
+
+  palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
+  palitra_button__check_unactive("unactive_static_button")
 
 
   //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
@@ -384,24 +426,24 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         })
     }
 
-    function button_visibler(arr) {
-      
-      for (let i=1; i < 10; i++) {
-        palitra[i].classList.remove("unactive_visual_button")
-     
-        let visible_of = (element) => element.colornum == i && element.visible == false
-
-        if (arr.some(visible_of)) palitra[i].classList.add("unactive_visual_button")
-      }
-    }
 
     //запуск девизуализации осей и плоскостей
-    toggle_visibler([...axis,...plain_x_cube])
+    toggle_visibler(axis_plain_arr)
     //запуск изменения формы кнопок при нажатии девизуализации
-    button_visibler([...axis,...plain_x_cube])
+    palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
 
     //дополнительно статистика на "S"
-    if (color_in_fn === "S") { statistic.classList.toggle("active") }
+    if (color_in_fn === "S") {
+      statistic.classList.toggle("active")
+
+      if (statistic.className != "active") {
+        palitra_button__default_pos_value()
+        palitra_button__colored()
+        statistic_value(axis_plain_arr)
+        palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
+        palitra_button__check_unactive("unactive_static_button")
+      }
+    }
 
     //только для бордера//
     if (color_in_fn === "B") border.forEach( function(entry) { 
@@ -507,7 +549,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///подсчёт статистики
   function statistic_value(objects_to_count) {
     for (let i = 0; i < objects_to_count.length; i++)
-      if (objects_to_count[i].colornum !=0) //ноль не считаем
+      if (objects_to_count[i].colornum !== 0) //ноль не считаем
         statistic_item[objects_to_count[i].colornum].innerHTML =
           ++statistic_item[objects_to_count[i].colornum].innerHTML
   }//манипуляция с DOM объектами statistic_item
@@ -687,6 +729,24 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
     return plain_x_cube_fn
   }//возвращает одномерный массив объектов
+
+  function x_border_visual(border_in_fn) {
+
+    let x_border = new THREE.Group()
+    //уменьшение повернутой обводки (0.75 идеальное значение для 8 символов, от него и "скакал")
+    let scale_p = 0.75 - Math.atan((string_for_algorithms.length-9))/50 //c применением арктангенс/коэффициэнта
+    console.log(scale_p)
+    border_in_fn.forEach(function(item) {x_border.add(item)} )
+    scene.add(x_border)
+
+    x_border.rotation.z = THREE.Math.degToRad( 45 )
+    x_border.position.set(0,0,0.5)
+    x_border.scale.set(scale_p,scale_p,scale_p)
+
+    border_in_fn.forEach( function(entry) { entry.material.color.set(basic_colors[0]) } )
+
+    return x_border
+  }
 
 
   ///////////////////////////////////////////////////////////////////////////////
