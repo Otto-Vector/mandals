@@ -153,9 +153,11 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///statistic
   let statistic_item = document.querySelectorAll("#statistic div")
   //обнуление значений статы
-  for (let i = 1; i < statistic_item.length; i++) {
-    statistic_item[i].innerHTML = 0
+  function statistic_item__zero() {
+    for (let i = 1; i < statistic_item.length; i++) statistic_item[i].innerHTML = 0
   }
+  
+  statistic_item__zero()
 
   /// statistic_button
   let statistic_button = document.querySelector("#statistic_button")
@@ -163,12 +165,12 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///palitra
   //задаём массив кнопок
   let palitra = document.querySelectorAll(".palitra_button")
-  //окрашиваем кнопки визуализации цветов
   
   function palitra_button__default_pos_value() {
     for (let i = 1; i < 10; i++) palitra[i].innerHTML = i
   }
   
+  //окрашиваем кнопки визуализации цветов
   function palitra_button__colored() {
     palitra.forEach( (palitra_item) => palitra_item.style.background = basic_colors[palitra_item.innerHTML] )
   }
@@ -200,13 +202,13 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   statistic_button.onclick = function() {
     statistic_button.classList.toggle("up")
-    statistic_button_sort()
+    statistic_button__sort()
     palitra_button__colored()
     palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
     palitra_button__check_unactive("unactive_static_button")
   }
 
-  function statistic_button_sort() {
+  function statistic_button__sort() {
     let buffer_sort_arr = []
     for (let i = 1; i < 10; i++) {
       let buffer_sort_obj = {value : 0, position : 0}
@@ -439,6 +441,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       if (statistic.className != "active") {
         palitra_button__default_pos_value()
         palitra_button__colored()
+        statistic_item__zero()
         statistic_value(axis_plain_arr)
         palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
         palitra_button__check_unactive("unactive_static_button")
