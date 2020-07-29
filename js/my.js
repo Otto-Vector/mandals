@@ -204,7 +204,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     statistic_button.classList.toggle("up")
     statistic_button__sort()
     palitra_button__colored()
-    palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
+    palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
     palitra_button__check_unactive("unactive_static_button")
   }
 
@@ -367,8 +367,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   let plain_x_cube = plain_x_cube_visual(plane_of_colors) //пластины между осями
 
-  let axis_plain_arr = [...axis,...plain_x_cube]
-
   //массив для элементов обводки мандалы
   let border = border_visual(plane_of_colors[0])
 
@@ -379,7 +377,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   if (!+value_init) animate()
 
   //подсчёт статистики и его отображение
-  statistic_value(axis_plain_arr)
+  statistic_value([...axis,...plain_x_cube])
   
   //отслеживание нажатия кнопок боковой панели и передача содержимого этих кнопок
   for (let i = 0; i < palitra.length; i++) {
@@ -406,7 +404,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     }
   }
 
-  palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
+  palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
   palitra_button__check_unactive("unactive_static_button")
 
 
@@ -435,9 +433,9 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
 
     //запуск девизуализации осей и плоскостей
-    toggle_visibler(axis_plain_arr)
+    toggle_visibler([...axis,...plain_x_cube])
     //запуск изменения формы кнопок при нажатии девизуализации
-    palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
+    palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
 
     //дополнительно статистика на "S"
     if (color_in_fn === "S") {
@@ -447,8 +445,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         palitra_button__default_pos_value()
         palitra_button__colored()
         statistic_item__zero()
-        statistic_value(axis_plain_arr)
-        palitra_button__unactive_visibler(axis_plain_arr, "unactive_visual_button")
+        statistic_value([...axis,...plain_x_cube])
+        palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
         palitra_button__check_unactive("unactive_static_button")
       }
     }
