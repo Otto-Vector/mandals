@@ -152,11 +152,8 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   ///statistic
   let statistic_item = document.querySelectorAll("#statistic div")
-  //обнуление значений статы
-  function statistic_item__zero() {
-    for (let i = 1; i < statistic_item.length; i++) statistic_item[i].innerHTML = 0
-  }
   
+  //обнуление значений статы
   statistic_item__zero()
 
   /// statistic_button
@@ -166,24 +163,19 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   //задаём массив кнопок
   let palitra = document.querySelectorAll(".palitra_button")
   
-  function palitra_button__default_pos_value() {
-    for (let i = 1; i < 10; i++) palitra[i].innerHTML = i
-  }
-  
-  //окрашиваем кнопки визуализации цветов
-  function palitra_button__colored() {
-    palitra.forEach( (palitra_item) => palitra_item.style.background = basic_colors[palitra_item.innerHTML] )
-  }
-  
+  //возвращение кнопок на дефолтное значение
   palitra_button__default_pos_value()
+  //окрашиваем кнопки визуализации цветов
   palitra_button__colored()
   
   ///title_input
   let title_input = document.querySelector("#title_input")
-  title_input.value = input_string; //вывод в заголовок обработанного текста
+  //вывод в заголовок обработанного текста
+  title_input.value = input_string
   
   ///number_of_symbols
   let number_of_symbols = document.querySelector("#number_of_symbols")
+  //задание дефолтных значений поля ввода количества символов
   number_of_symbols.placeholder = title_input.value.length
   number_of_symbols.max = max_expansion_length
 
@@ -192,6 +184,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   ///selected mandalas type
   let selected_mandala_type = document.querySelector("#select_mandala_type")
+  //задание дефолтных значений
   select_mandala_type.value = selected_mandala
 
   ///numeric_adaptation
@@ -208,31 +201,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     palitra_button__check_unactive("unactive_static_button")
   }
 
-  function statistic_button__sort() {
-    
-    let buffer_sort_arr = []
-    
-    for (let i = 1; i < 10; i++) {
-      
-      let buffer_sort_item = {
-        value : statistic_item[i].innerHTML,
-        position : palitra[i].innerHTML
-      }
-
-      buffer_sort_arr.push(buffer_sort_item)
-    }
-
-    buffer_sort_arr.sort(function(a, b) { return a.value - b.value })
-
-    if (statistic_button.className == "up") buffer_sort_arr.reverse()
-
-    for (let i = 1; i < 10; i++) {
-    
-      statistic_item[i].innerHTML = buffer_sort_arr[i-1].value
-      palitra[i].innerHTML = buffer_sort_arr[i-1].position
-    }
-    
-  }
 
   //контроль ввода цифровых значений
   number_of_symbols.oninput = function() {
@@ -316,7 +284,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 
-
   //////////////////////////////////////////////////////////////
   /////// Блок адаптации букв в цифровой код //////////////////
   ////////////////////////////////////////////////////////////
@@ -362,49 +329,33 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///////////////////////////////////////////////////////////////////////////////
   //////////////// задание и визуализация объектов /////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
-
-  let axis = axis_visual( plane_of_colors[0] ) //задаём ось
-
-  let plain_x_cube = plain_x_cube_visual(plane_of_colors) //пластины между осями
-
+  
+  //задаём ось
+  let axis = axis_visual( plane_of_colors[0] )
+  //пластины между осями
+  let plain_x_cube = plain_x_cube_visual(plane_of_colors)
   //массив для элементов обводки мандалы
   let border = border_visual(plane_of_colors[0])
-
+  //массив для поворота и изменения размера обводки в мандале "ромб"
   let scale_border = selected_mandala.true_of(3) ? x_border_visual(border) : null
   
   
+  //подсчёт статистики и его отображение
+  statistic__value_counter([...axis,...plain_x_cube])
+  
+
   ////анимация объектов////////////////////
   if (!+value_init) animate()
 
-  //подсчёт статистики и его отображение
-  statistic_value([...axis,...plain_x_cube])
   
   //отслеживание нажатия кнопок боковой панели и передача содержимого этих кнопок
   for (let i = 0; i < palitra.length; i++) {
-    palitra[i].onmousedown = (event) => color_select_unvisibler(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
+    palitra[i].onmousedown = (event) => selected_button(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
 
   //затемнение неактивных кнопок на основе статы
-  function palitra_button__check_unactive(unactive_class) {
-    for (let i = 1; i < 10; i++) {
-      palitra[i].classList.remove(unactive_class)
-      if (statistic_item[i].innerHTML == 0) palitra[i].classList.toggle(unactive_class)
-    }
-  }
-
-  //запуск изменение формы кнопок при проверке девизуализации
-  function palitra_button__unactive_visibler(arr, unactive_visual_class) {
-    
-    for (let i=1; i < 10; i++) {
-      palitra[i].classList.remove(unactive_visual_class)
-   
-      let visible_of = (element) => element.colornum == palitra[i].innerHTML && element.visible == false
-
-      if (arr.some(visible_of)) palitra[i].classList.add(unactive_visual_class)
-    }
-  }
-
   palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
+  //запуск изменения формы кнопок при проверке девизуализации
   palitra_button__check_unactive("unactive_static_button")
 
 
@@ -418,16 +369,16 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ///МАНИПУЛЯЦИИ С ПРИМЕНЕНИЕМ И ОСЛЕЖИВАНИЕМ СОБЫТИЙ НАЖАТИЯ НА ОБЪЕКТЫ И КНОПКИ НА БОКОВОЙ ПАНЕЛИ///
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  ////функция исчезания|появления кубов
-  function color_select_unvisibler(color_in_fn) { //передаётся символ внутри кнопки
+  ////функция проверки нажатой кнопки боковых панелей
+  function selected_button(selected_html_content) { //передаётся символ внутри кнопки
 
     //функция перебора массива с отслеживанием нажатых кнопок
     function toggle_visibler(arr) { //в ф-цию передаем массив
       arr.forEach(function(item) { //перебираем массив
-          if (color_in_fn === "#") item.visible = false //все искомые элементы становятся невидимыми
-          if (color_in_fn === "@" ||
-             +color_in_fn === +item.colornum ) item.visible = !item.visible //смена видимости на невидимость
-          if (color_in_fn === "A") item.visible = true //все искомые элементы становятся видимыми
+          if (selected_html_content === "#") item.visible = false //все искомые элементы становятся невидимыми
+          if (selected_html_content === "@" ||
+             +selected_html_content === +item.colornum ) item.visible = !item.visible //смена видимости на невидимость
+          if (selected_html_content === "A") item.visible = true //все искомые элементы становятся видимыми
         })
     }
 
@@ -438,32 +389,120 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
 
     //дополнительно статистика на "S"
-    if (color_in_fn === "S") {
+    if (selected_html_content === "S") {
       statistic.classList.toggle("active")
 
       if (statistic.className != "active") {
+
         palitra_button__default_pos_value()
         palitra_button__colored()
+
         statistic_item__zero()
-        statistic_value([...axis,...plain_x_cube])
+        statistic__value_counter([...axis,...plain_x_cube])
+
         palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
         palitra_button__check_unactive("unactive_static_button")
+
       }
     }
 
     //только для бордера//
-    if (color_in_fn === "B") border.forEach( function(entry) { 
+    if (selected_html_content === "B") border.forEach( function(entry) { 
       entry.colornum = (+entry.colornum === 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
       entry.material.color.set(basic_colors[entry.colornum]) //присвоение значения цвета
       })
 
-    if (color_in_fn === "b") border.forEach( function(entry) { entry.visible = !entry.visible } )
+    //отображение бордера//
+    if (selected_html_content === "b") {
+      border.forEach( function(entry) { entry.visible = !entry.visible } )
+      "unactive_static_button"
+    }
+    
     //отдаление/приближение//
-    if (color_in_fn === "+") camera.position.z = camera.position.z - 10
-    if (color_in_fn === "-") camera.position.z = camera.position.z + 10
+    if (selected_html_content === "+") camera.position.z = camera.position.z - 10
+    if (selected_html_content === "-") camera.position.z = camera.position.z + 10
+    
+  }
+
+
+  //обнуление значений статы
+  function statistic_item__zero() {
+    for (let i = 1; i < statistic_item.length; i++) statistic_item[i].innerHTML = 0
+  }
+  
+  //возвращение кнопок на дефолтное значение
+  function palitra_button__default_pos_value() {
+    for (let i = 1; i < 10; i++) palitra[i].innerHTML = i
+  }
+  
+  //окрашиваем кнопки визуализации цветов
+  function palitra_button__colored() {
+    palitra.forEach( (palitra_item) => palitra_item.style.background = basic_colors[palitra_item.innerHTML] )
+  }
+  
+  //затемнение неактивных кнопок на основе статы
+  function palitra_button__check_unactive(unactive_class) {
+
+    for (let i = 1; i < 10; i++) {
+
+      palitra[i].classList.remove(unactive_class)
+
+      if (statistic_item[i].innerHTML == 0) palitra[i].classList.toggle(unactive_class)
     }
 
+  }
 
+  //запуск изменения формы кнопок при проверке девизуализации
+  function palitra_button__unactive_visibler(arr, unactive_visual_class) {
+   
+    for (let i=1; i < 10; i++) {
+
+      palitra[i].classList.remove(unactive_visual_class)
+   
+      let visible_of = (element) => element.colornum == palitra[i].innerHTML && element.visible == false
+
+      if (arr.some(visible_of)) palitra[i].classList.add(unactive_visual_class)
+    }
+
+  }
+
+
+  ///подсчёт статистики
+  function statistic__value_counter(objects_to_count) {
+
+    for (let i = 0; i < objects_to_count.length; i++)
+      if (objects_to_count[i].colornum !== 0) //ноль не считаем
+        statistic_item[objects_to_count[i].colornum].innerHTML =
+          ++statistic_item[objects_to_count[i].colornum].innerHTML
+
+  }//манипуляция с DOM объектами statistic_item
+
+  //запуск сортировки по возрастанию/убыванию со сменой значения кнопок цвета
+  function statistic_button__sort() {
+      
+    let buffer_sort_arr = []
+    
+    for (let i = 1; i < 10; i++) {
+      
+      let buffer_sort_item = {
+        value : statistic_item[i].innerHTML,
+        position : palitra[i].innerHTML
+      }
+
+      buffer_sort_arr.push(buffer_sort_item)
+    }
+
+    buffer_sort_arr.sort(function(a, b) { return a.value - b.value })
+
+    if (statistic_button.className == "up") buffer_sort_arr.reverse()
+
+    for (let i = 1; i < 10; i++) {
+    
+      statistic_item[i].innerHTML = buffer_sort_arr[i-1].value
+      palitra[i].innerHTML = buffer_sort_arr[i-1].position
+    }
+
+  }
   ///////////////////////////////////////////////////////////////////////////////
   ///////ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ АНАЛИЗА И ПРЕОБРАЗОВАНИЯ///////////////////////
   /////////////////////////////////////////////////////////////////////////////
@@ -471,32 +510,35 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ////универсальная функция числа фибоначчи/////////////////
   function to_one_fibbonachi_digit(number_in_fn) {//передаётся числовое значение
 
-      let amount = 
-          Math.abs(+number_in_fn) //на всякий случай перевод из отрицательного в абсолютное значение с нумеризацией
-          .toString()           //перевод числа в строку для разъединения многозначных чисел
-          .split('')           //перевод строки в массив
-          .map(Number)        //перевод массива символов в массив чисел
-          .reduce( (sum,n) => sum+n ) //перебор массива с подсчётом суммы чисел
+    let amount = 
+        Math.abs(+number_in_fn) //на всякий случай перевод из отрицательного в абсолютное значение с нумеризацией
+        .toString()           //перевод числа в строку для разъединения многозначных чисел
+        .split('')           //перевод строки в массив
+        .map(Number)        //перевод массива символов в массив чисел
+        .reduce( (sum,n) => sum+n ) //перебор массива с подсчётом суммы чисел
 
-      return amount > 9 ? to_one_fibbonachi_digit(amount) : amount //замыкание функции при многозначной сумме
+    return amount > 9 ? to_one_fibbonachi_digit(amount) : amount //замыкание функции при многозначной сумме
   }//возвращает одну цифру суммы всех сумм по фибоначчи
 
 
   ////функция нормализации введенной строки, и замены его на тестовое значение
-  function modification_to_normal(string_from_user_input, string_by_default) {//принимает две строки, string_from_user_input - на обработку, string_by_default - на замену, если string_from_user_input оказалась false
-
+  function modification_to_normal(string_from_user_input, string_by_default) {
+  //принимает две строки, string_from_user_input - на обработку
+  //string_by_default - на замену, если string_from_user_input оказалась false
+  
     return  (
               !string_from_user_input ||
               !string_from_user_input.trim() ||
               +string_from_user_input == 0
             ) ? //проверка string_from_user_input на значения приводящие к false (в том числе пустая строка после сброса пробелов)
-                modification_to_normal(string_by_default,"0123456789") //если ввод пустой то присваивается значение по умолчанию //и (на всякий случай) обрабатывается и оно
+                //присваивается значение по умолчанию //и (на всякий случай) обрабатывается и оно
+                modification_to_normal( string_by_default, "0123456789" )
               : 
                 string_from_user_input
                   .delete_all_spaces() //убираем все пробелы
-                  .slice(0,max_input_length)        //обрезание более 30ти символов
+                  .slice( 0, max_input_length )        //обрезание более 30ти символов
                   .toLowerCase()     //убираем верхний регистр
-  }//возвращает обработанную строку без пробелов меньше тридцати символов в нижнем регистре, либо обработанную тестовую строку
+  }//возвращает обработанную строку без пробелов меньше max_input_length символов в нижнем регистре либо обработанную тестовую строку
 
 
   ////функция пересборки цифрового кода строки до нужного количества цифр
@@ -553,13 +595,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     return input_array_fn
   }
 
-  ///подсчёт статистики
-  function statistic_value(objects_to_count) {
-    for (let i = 0; i < objects_to_count.length; i++)
-      if (objects_to_count[i].colornum !== 0) //ноль не считаем
-        statistic_item[objects_to_count[i].colornum].innerHTML =
-          ++statistic_item[objects_to_count[i].colornum].innerHTML
-  }//манипуляция с DOM объектами statistic_item
 
   ///////////////////////////////////////////////////////////////////////////////
   /////////////////////АЛГОРИТМЫ ПОДСЧЁТА МАНДАЛ////////////////////////////////
