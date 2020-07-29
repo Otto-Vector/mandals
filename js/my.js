@@ -735,7 +735,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     let x_border = new THREE.Group()
     //уменьшение повернутой обводки (0.75 идеальное значение для 8 символов, от него и "скакал")
     let scale_p = 0.75 - Math.atan((string_for_algorithms.length-9))/50 //c применением арктангенс/коэффициэнта
-    console.log(scale_p)
+
     border_in_fn.forEach(function(item) {x_border.add(item)} )
     scene.add(x_border)
 
