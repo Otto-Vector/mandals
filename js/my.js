@@ -266,13 +266,13 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     //смена класса для визуализации параметров статы
     statistic_sort_button.classList.toggle("up")
     //сортировка
-    statistic_button__sort()
+    statistic_sort_button__sort()
     //перекрашивание кнопок по изменившемуся значению
     palitra_button__colored()
     //переотметка неактивных визуально кубов
     palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
     //проверка на нулевые значения статы
-    palitra_button__check_unactive("unactive_static_button")
+    palitra_button__check_unactive("opacity_button")
   }
 
  
@@ -376,7 +376,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
 
   //запуск изменения формы кнопок при проверке девизуализации
-  palitra_button__check_unactive("unactive_static_button")
+  palitra_button__check_unactive("opacity_button")
 
 
   //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
@@ -426,7 +426,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
         //применение доп.эффектов на кнопки цвета на основе данных статы
         palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
-        palitra_button__check_unactive("unactive_static_button")
+        palitra_button__check_unactive("opacity_button")
 
       }
     }
@@ -440,11 +440,10 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     //отображение бордера//
     if (selected_html_content === "b") {
       border.forEach( function(entry) { entry.visible = !entry.visible } )
-      "unactive_static_button"
     }
     
     //отдаление/приближение//
-    if (selected_html_content === "+") camera.position.z = camera.position.z - 10
+    if (selected_html_content === "+") camera.position.z = (camera.position.z > 10) ? camera.position.z - 10 : 10
     if (selected_html_content === "-") camera.position.z = camera.position.z + 10
     
   }
@@ -504,7 +503,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
 
   //запуск сортировки по возрастанию/убыванию со сменой значения кнопок цвета
-  function statistic_button__sort() {
+  function statistic_sort_button__sort() {
       
     let buffer_sort_arr = []
     

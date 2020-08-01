@@ -138,6 +138,7 @@ section.sidebar #statistic div {
     user-select: none;
     transition: 0.3s
 }
+
 .up {
     transform: rotate(180deg);
 }
@@ -171,7 +172,7 @@ section.sidebar #palitra {
     transition: 0.3s
 }
 
-.unactive_static_button {
+.opacity_button {
     opacity: .5;
 }
 
