@@ -100,7 +100,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   // также активация внутри функции render() и onwindowresize() строкой controls.update()
   controls = new THREE.OrbitControls (camera, renderer.domElement)
   controls.minDistance = 2 //минимальная 
-  controls.maxDistance = 444 //и максимальная дистанция при ручном приближении
+  controls.maxDistance = 444 //максимальная дистанция при ручном приближении
 
 
 
@@ -133,73 +133,73 @@ function init(value_init, previous_input, number_of_symbols_resize) {
                  + date_from_pc.getFullYear()
 
     
-  //нормализация введенной строки для корректного перевода в цифровой массив
-  // input_string = undefined;
+  
+  //пустая строка при первой инициализации
   let input_string = +value_init ? previous_input : ""
 
+  //нормализация введенной строки для корректного перевода в цифровой массив
   input_string = modification_to_normal(input_string, default_string)
 
 
   //////////////////////////////////////////////////////////////
   //здесь будет адаптация отдаления камеры по размеру вводимого значения
-  if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 60 ) //позиция камеры для квадратов
-  if (selected_mandala.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для квадратов
+  if (selected_mandala.true_of(4,3)) camera.position.set( 0, 0, 60 ) //позиция камеры для малых квадратов
+  if (selected_mandala.true_of(8,9)) camera.position.set( 0, 0, 120 ) //позиция камеры для больших квадратов
 
 
   //////////////////////////////////////
   ///DOM///////////////////////////////
   ////////////////////////////////////
 
-  ///statistic
+  ///statistic_item
+  //объекты пунктов статы
   let statistic_item = document.querySelectorAll("#statistic div")
   
   //обнуление значений статы
   statistic_item__zero()
 
-  /// statistic_button
+  ///statistic_button
+  //кнопка вывода статы
   let statistic_button = document.querySelector("#statistic_button")
 
   ///palitra
   //задаём массив кнопок
   let palitra = document.querySelectorAll(".palitra_button")
   
-  //возвращение кнопок на дефолтное значение
+  //возвращение кнопок в дефолтное значение
   palitra_button__default_pos_value()
   //окрашиваем кнопки визуализации цветов
   palitra_button__colored()
   
   ///title_input
+  //поле ввода значения/имени мандалы
   let title_input = document.querySelector("#title_input")
   //вывод в заголовок обработанного текста
   title_input.value = input_string
   
   ///number_of_symbols
+  //количество символов для расширения/сужения мандалы
   let number_of_symbols = document.querySelector("#number_of_symbols")
   //задание дефолтных значений поля ввода количества символов
   number_of_symbols.placeholder = title_input.value.length
   number_of_symbols.max = max_expansion_length
 
   ///clear_button
+  //кнопка очистки значений и фокусировка на поле ввода
   let clear_button = document.querySelector("#clear_button")
 
   ///selected mandalas type
+  //селект для выбора типа мандалы
   let selected_mandala_type = document.querySelector("#select_mandala_type")
   //задание дефолтных значений
   select_mandala_type.value = selected_mandala
 
   ///numeric_adaptation
+  //справочная строка под title`ом
   let numeric_adaptation = document.querySelector("#numeric_adaptation")
 
   ////////////////////////////////////////////////////////////////
   ///события/////////////////////////////////////////////////////
-
-  statistic_button.onclick = function() {
-    statistic_button.classList.toggle("up")
-    statistic_button__sort()
-    palitra_button__colored()
-    palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
-    palitra_button__check_unactive("unactive_static_button")
-  }
 
 
   //контроль ввода цифровых значений
@@ -261,12 +261,27 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   }
 
+  //нажатие кнопки сортировки статы
+  statistic_sort_button.onclick = function() {
+    //смена класса для визуализации параметров статы
+    statistic_sort_button.classList.toggle("up")
+    //сортировка
+    statistic_button__sort()
+    //перекрашивание кнопок по изменившемуся значению
+    palitra_button__colored()
+    //переотметка неактивных визуально кубов
+    palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
+    //проверка на нулевые значения статы
+    palitra_button__check_unactive("unactive_static_button")
+  }
+
  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   //функция перезапуска мандалы с новыми данными//
   function reinit() {
 
+      //зачистка памяти
       remove_all_objects_from_memory(axis)
       remove_all_objects_from_memory(plain_x_cube)
       if (border) remove_all_objects_from_memory(border)
@@ -274,10 +289,12 @@ function init(value_init, previous_input, number_of_symbols_resize) {
         scene.remove( scale_border )
         scale_border = null }
 
+      //обработка введенной строки
       input_string = modification_to_normal(title_input.value)
-
+      //дополнительная проверка на ошибки при вводе значений количетва символов
       let number_of_symbols_correct = +number_of_symbols.value || input_string.length
 
+      //перезапуск
       init(select_mandala_type.value, input_string, number_of_symbols_correct )
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,14 +315,15 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   //добавляется нулевой элемент суммы всех чисел по фибоначи
   let summ_to_zero_element = to_one_fibbonachi_digit( string_for_algorithms.reduce( (sum,n) => sum+n ))
-  
+  //в начало массива
   string_for_algorithms.unshift( summ_to_zero_element )
 
 
-  //отображение чисто цифрового значения с суммой
+  //отображение чисто цифрового значения с суммой под title
   let numeric_adaptation_text = string_for_algorithms.toString().delete_all_spaces() +
-        " = " + string_for_algorithms[0]
-  
+                                " = " +
+                                string_for_algorithms[0]
+  //удаление суммарной цифры из начала строки
   numeric_adaptation.innerHTML = numeric_adaptation_text.slice(1)
 
 
@@ -325,25 +343,23 @@ function init(value_init, previous_input, number_of_symbols_resize) {
                                         selected_mandala.true_of(9) //передается boolean для второго расчёта оси
                                       )
 
-
   ///////////////////////////////////////////////////////////////////////////////
   //////////////// задание и визуализация объектов /////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
   
   //задаём ось
   let axis = axis_visual( plane_of_colors[0] )
+
   //пластины между осями
   let plain_x_cube = plain_x_cube_visual(plane_of_colors)
+
   //массив для элементов обводки мандалы
   let border = border_visual(plane_of_colors[0])
+
   //массив для поворота и изменения размера обводки в мандале "ромб"
   let scale_border = selected_mandala.true_of(3) ? x_border_visual(border) : null
   
   
-  //подсчёт статистики и его отображение
-  statistic__value_counter([...axis,...plain_x_cube])
-  
-
   ////анимация объектов////////////////////
   if (!+value_init) animate()
 
@@ -353,8 +369,12 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     palitra[i].onmousedown = (event) => selected_button(event.target.innerHTML) //передача в функцию визуального содержимого кнопки
   }
 
+  //подсчёт статистики и его отображение
+  statistic__value_counter([...axis,...plain_x_cube])
+
   //затемнение неактивных кнопок на основе статы
   palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
+
   //запуск изменения формы кнопок при проверке девизуализации
   palitra_button__check_unactive("unactive_static_button")
 
@@ -389,24 +409,29 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
 
     //дополнительно статистика на "S"
-    if (selected_html_content === "S") {
+    if (selected_html_content === "S") { //отобразить/спрятать
+      
       statistic.classList.toggle("active")
 
+      //при девизуализации статы, кнопки цвета возвращаются на свои места
       if (statistic.className != "active") {
 
+        //возврат и перекрас кнопок цвета
         palitra_button__default_pos_value()
         palitra_button__colored()
 
+        //переподсчёт статы по новым положениям кнопок
         statistic_item__zero()
         statistic__value_counter([...axis,...plain_x_cube])
 
+        //применение доп.эффектов на кнопки цвета на основе данных статы
         palitra_button__unactive_visibler([...axis,...plain_x_cube], "unactive_visual_button")
         palitra_button__check_unactive("unactive_static_button")
 
       }
     }
 
-    //только для бордера//
+    //смена цвета для бордера//
     if (selected_html_content === "B") border.forEach( function(entry) { 
       entry.colornum = (+entry.colornum === 9 ) ? 0 : ++entry.colornum //перебор цвета в замкнутом цикле 9 и смена значения
       entry.material.color.set(basic_colors[entry.colornum]) //присвоение значения цвета
@@ -477,6 +502,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   }//манипуляция с DOM объектами statistic_item
 
+
   //запуск сортировки по возрастанию/убыванию со сменой значения кнопок цвета
   function statistic_button__sort() {
       
@@ -492,9 +518,10 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       buffer_sort_arr.push(buffer_sort_item)
     }
 
+    //сама сортировка
     buffer_sort_arr.sort(function(a, b) { return a.value - b.value })
-
-    if (statistic_button.className == "up") buffer_sort_arr.reverse()
+    //зеркальная пересборка массива сотрировки
+    if (statistic_sort_button.className == "up") buffer_sort_arr.reverse()
 
     for (let i = 1; i < 10; i++) {
     
@@ -553,15 +580,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       return (minus_one.length == mlength) ? minus_one : minus(minus_one, mlength)
     }//возвращает сужаемый до нужного количества цифр массив
 
-    //расширение по Урсуле
-    // function plus(pstring, plength) {
-    //   let plus_one = pstring
-    //   plus_one.push(to_one_fibbonachi_digit( pstring[pstring.length-1] + pstring[pstring.length-2] ))
-
-    // return (plus_one.length == plength) ? plus_one : plus(pstring, plength)
-    // }
-
-    //расширение по Юле
+    //расширение по суммам между каждым числом (одна итерация => (123) = (13253))
     function another_plus(another_plus_array, alength) {
       let another_one = []
       //первый символ добавляется автоматически
@@ -581,13 +600,11 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     //на расширение
     if (input_array_fn.length != 1 && //блокируем расширение одного символа
           number_of_symbols_fn > input_array_fn.length) {
-        //классическое расширение
-        // input_array_fn = plus(input_array_fn, number_of_symbols_fn)
 
         // массив расширяется на порядок (lenght*2-1)
         input_array_fn = another_plus(input_array_fn, number_of_symbols_fn)
         
-        // сокращаем до нужной длины по стандартному алгоритму
+        //сокращаем до нужной длины по стандартному алгоритму
         if (input_array_fn.length != number_of_symbols_fn)
           input_array_fn = minus(input_array_fn, number_of_symbols_fn)
         }
@@ -602,6 +619,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   ////////пластина мандалы из кубов по первому алгоритму (Юлин вариант)///////
   function plane_square_3x_algorithm(input_nums_in_fn) {//принимает одномерный массив чисел, созданных из введенной строки
+
     //задаём основной цифро-световой массив мандалы
     let matrix = []
     //сначала назначаем ось по горизонтали
@@ -611,7 +629,6 @@ function init(value_init, previous_input, number_of_symbols_resize) {
       //первое значение каждой строки
       matrix[i] = [matrix[0][i]]
     }
-
 
     //высчитываем мандалу на основе заданных осей (массивы считаются от 1, потому что подсчёт -1)
     let fibbo_number
@@ -629,10 +646,14 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     return matrix
   }//возвращает двумерный массив
 
+
+  //алгоритм для мадалы "ромб"
   function curtail_diamond_algorithm(plane_of_colors_in_fn) {
-    // let diamond_matrix = plane_of_colors_in_fn.map(function (item) {return [...item]})
+
     let diamond_matrix = [...plane_of_colors_in_fn]
-   
+
+    //краткое описание: происходит "заворачивание" углов квадратной мандалы
+    // суммированием от крайних элементов к середине
     for (let x=1; x < plane_of_colors_in_fn.length-1; x++)
       for (let y=1; y < plane_of_colors_in_fn.length-x; y++) {
       diamond_matrix[x][y] = to_one_fibbonachi_digit(
@@ -648,6 +669,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
   ////////алгоритм сбора мандалы по шахматной схеме/////////////////////////////
   function chess_algorithm(input_nums_fn, mirror_variant = false ) {//принимает одномерный массив чисел, созданных из введенной строки и модификатор стиля отображения косой оси
 
+    //косая ось шахматного подсчёта
     let axis_fn = !mirror_variant ?
     //первый вариант если false
       [ //создаём базис отсчёта сумма посередине и по краям, основное "слово" от центра
@@ -707,6 +729,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
     let color_n
     for (let i = 1; i < input_nums_fn.length; i++) {
+      //присваиваем значение цвета из принятого массива
       color_n = input_nums_fn[i]
 
       //направо
@@ -772,19 +795,27 @@ function init(value_init, previous_input, number_of_symbols_resize) {
     return plain_x_cube_fn
   }//возвращает одномерный массив объектов
 
+  //поворот и уменьшение стандартной обводки для мандалы "ромб"
   function x_border_visual(border_in_fn) {
-
+    
+    //создание группы
     let x_border = new THREE.Group()
+    
     //уменьшение повернутой обводки (0.75 идеальное значение для 8 символов, от него и "скакал")
     let scale_p = 0.75 - Math.atan((string_for_algorithms.length-9))/50 //c применением арктангенс/коэффициэнта
 
+    //сама группирока объекта из элементов бордюра
     border_in_fn.forEach(function(item) {x_border.add(item)} )
+    
     scene.add(x_border)
-
+    //поворот на 45градусов
     x_border.rotation.z = THREE.Math.degToRad( 45 )
+    //приближаем объект для визуального перекрытия "зубцов"
     x_border.position.set(0,0,0.5)
+    //изменение размера
     x_border.scale.set(scale_p,scale_p,scale_p)
 
+    //перекрас в белый цвет
     border_in_fn.forEach( function(entry) { entry.material.color.set(basic_colors[0]) } )
 
     return x_border
