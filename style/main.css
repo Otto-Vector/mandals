@@ -121,6 +121,7 @@ section.sidebar #statistic div {
     margin: 5px 0px;
     padding-top: 2px;
     text-align: right;
+    text-shadow: .5px .5px white;
 }
 
 #statistic_sort_button {
@@ -137,7 +138,7 @@ section.sidebar #statistic div {
     user-select: none;
     transition: 0.3s
 }
-#statistic_button.up {
+.up {
     transform: rotate(180deg);
 }
 
