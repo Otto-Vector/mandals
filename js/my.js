@@ -160,7 +160,7 @@ function init(value_init, previous_input, number_of_symbols_resize) {
 
   ///statistic_button
   //кнопка вывода статы
-  let statistic_button = document.querySelector("#statistic_button")
+  let statistic_sort_button = document.querySelector("#statistic_sort_button")
 
   ///palitra
   //задаём массив кнопок
