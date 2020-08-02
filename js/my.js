@@ -5,23 +5,6 @@ window.onload = init
 
 let scene, camera, renderer, controls //глобальные переменные для создания сцены
 
-var loader = new THREE.FontLoader();
-
-loader.load( '../fonts/helvetiker_regular.typeface.json', function ( font ) {
-
-  var geometry = new THREE.TextGeometry( 'Hello three.js!', {
-    font: font,
-    size: 80,
-    height: 5,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 10,
-    bevelSize: 8,
-    bevelOffset: 0,
-    bevelSegments: 5
-  } );
-} );
-
 function init(value_init, previous_input, number_of_symbols_resize) {
 
   /////задание основных переменных////////////////////////////////////////
